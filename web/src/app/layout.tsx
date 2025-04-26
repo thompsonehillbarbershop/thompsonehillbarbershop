@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import localFont from 'next/font/local'
 import "./globals.css"
 
 const geistSans = Geist({
@@ -10,6 +11,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+})
+
+const radgivare = localFont({
+  src: './radgivare.otf',
+  display: 'swap',
+  variable: '--font-radgivare',
 })
 
 export const metadata: Metadata = {
@@ -28,7 +35,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Thompson & Hill" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased dark w-screen h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} ${radgivare.variable} antialiased dark w-screen h-screen`}
       >
         {children}
       </body>
