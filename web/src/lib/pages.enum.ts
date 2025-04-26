@@ -8,7 +8,7 @@ export enum EPages {
 
   TOTEM_HOME = "/app/totem/inicio",
   TOTEM_REGISTER = "/app/totem/cadastro",
-  TOTEM_SCHEDULE = "/app/totem/agendamento",
+  TOTEM_SCHEDULE = "/app/totem/servicos",
   TOTEM_BARBER = "/app/totem/prestador",
   TOTEM_CONFIRMATION = "/app/totem/confirmacao",
 
