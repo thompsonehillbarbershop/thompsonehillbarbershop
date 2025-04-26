@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { DeleteIcon } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ClassNameValue } from "tailwind-merge"
 
 type KeyboardType = "qwerty" | "numpad"
@@ -22,6 +22,10 @@ export function VirtualKeyboard({
   className
 }: VirtualKeyboardProps) {
   const [keyboardType, setKeyboardType] = useState<KeyboardType>(layout)
+
+  useEffect(() => {
+    setKeyboardType(layout)
+  }, [layout])
 
   const layouts = {
     qwerty: [
