@@ -20,31 +20,31 @@ export default function AttendantsPageContents() {
   const services: IUserView[] = [
     {
       id: "1",
-      name: "Barbeiro 1",
+      name: "Thompson Hill",
       profilePicture: images.userPlaceholder
     },
     {
       id: "2",
-      name: "Barbeiro 2",
+      name: "Thompson Hill",
       profilePicture: images.userPlaceholder,
     },
     {
       id: "3",
-      name: "Barbeiro 3",
+      name: "Thompson Hill",
       profilePicture: images.userPlaceholder,
     },
     {
       id: "4",
-      name: "Barbeiro 4",
+      name: "Thompson Hill",
       profilePicture: images.userPlaceholder,
     }
   ]
 
-  function handleConfirmation() {
+  function handleConfirmation(none?: string) {
     const data = {
       customer: phoneNumber,
       service: service,
-      attendant: selectedAttendant?.id,
+      attendant: none === "vazio" ? undefined : selectedAttendant?.id,
     }
 
     console.log("Data to be sent to the server:", data)
@@ -54,13 +54,16 @@ export default function AttendantsPageContents() {
 
   return (
     <>
-      <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed">Preferência de atendimento</h1>
+      <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed font-radgivare tracking-wider">Preferência de atendimento</h1>
 
       <div className="flex-1 w-full flex flex-col gap-6 items-center justify-start">
         <Button
-          onClick={handleConfirmation}
+          onClick={() => {
+            setSelectedAttendant(null)
+            handleConfirmation("vazio")
+          }}
           size="lg"
-          className="w-64 text-xl lg:text-2xl"
+          className="w-64 text-xl lg:text-2xl font-radgivare tracking-wider"
         >Não tenho preferência
         </Button>
         <div className="w-full flex flex-row flex-wrap justify-center items-center gap-6">
@@ -77,9 +80,9 @@ export default function AttendantsPageContents() {
         </div>
         {selectedAttendant && (
           <Button
-            onClick={handleConfirmation}
+            onClick={() => handleConfirmation()}
             size="lg"
-            className="w-64 text-xl lg:text-2xl"
+            className="w-64 text-xl lg:text-2xl font-radgivare tracking-wider"
           >Continuar<ChevronRightIcon />
           </Button>
         )}

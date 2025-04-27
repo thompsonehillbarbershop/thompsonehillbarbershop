@@ -19,39 +19,39 @@ export default function ServicesPageContents() {
   const services: IServiceView[] = [
     {
       id: "1",
-      name: "Corte",
-      value: 99.99,
+      name: "Corte e Barba",
+      value: 199.99,
       image: images.servicePlaceholder,
     },
     {
       id: "2",
-      name: "Barba",
-      value: 99.99,
+      name: "Corte e Barba",
+      value: 199.99,
       image: images.servicePlaceholder,
     },
     {
       id: "3",
       name: "Corte e Barba",
-      value: 99.99,
+      value: 199.99,
       image: images.servicePlaceholder,
     },
     {
       id: "4",
-      name: "Serviço 4",
-      value: 99.99,
+      name: "Corte e Barba",
+      value: 199.99,
       image: images.servicePlaceholder,
     },
     {
       id: "5",
-      name: "Serviço 5",
-      value: 99.99,
+      name: "Corte e Barba",
+      value: 199.99,
       image: images.servicePlaceholder,
     },
   ]
 
   return (
     <>
-      <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed">Selecione o serviço que deseja realizar</h1>
+      <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed font-radgivare tracking-wider">Selecione o serviço que deseja realizar</h1>
       <div className="flex-1 w-full flex flex-col gap-6 items-center justify-start">
         <div className="w-full flex flex-row flex-wrap justify-center items-center gap-6">
           {services.map((service) => (

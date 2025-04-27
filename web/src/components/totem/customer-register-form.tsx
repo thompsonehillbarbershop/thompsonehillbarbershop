@@ -12,11 +12,14 @@ import { Button } from "../ui/button"
 import { ChevronRight } from "lucide-react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
+import { EGender } from "@/models/customer"
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 
 const formSchema = z.object({
-  givenName: z.string().nonempty(),
-  familyName: z.string().nonempty().optional(),
+  givenName: z.string().nonempty({ message: "Obrigatório" }),
+  familyName: z.string().optional(),
   phone: z.string().min(14, { message: "Telefone inválido" }).max(16, { message: "Telefone inválido" }),
+  gender: z.nativeEnum(EGender),
   birthDate: z.string().refine(value => isDateValid(value), { message: "Data inválida" }),
 })
 
@@ -34,6 +37,7 @@ export default function CustomerRegisterForm() {
       phone: phoneNumber ? applyPhoneMask(phoneNumber.substring(3)) : undefined,
       familyName: "",
       givenName: "",
+      gender: EGender.MALE,
       birthDate: "",
     },
   })
@@ -59,6 +63,7 @@ export default function CustomerRegisterForm() {
         givenName: values.givenName,
         familyName: values.familyName,
         phoneNumber: formattedPhone,
+        gender: values.gender,
         birthDate: new Date(`${year}-${month}-${day}`).toISOString(),
       }
 
@@ -73,7 +78,7 @@ export default function CustomerRegisterForm() {
   return (
     <div className="w-full flex flex-col flex-1 justify-start items-center">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full pt-6 flex flex-col gap-4 max-w-lg lg:w-lg">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-col gap-2 max-w-lg lg:w-lg">
           <FormField
             control={form.control}
             name="phone"
@@ -93,7 +98,7 @@ export default function CustomerRegisterForm() {
               </FormItem>
             )}
           />
-          <div className="w-full flex justify-between items-start gap-2">
+          <div className="w-full flex justify-between items-start gap-4">
             <FormField
               control={form.control}
               name="givenName"
@@ -132,6 +137,40 @@ export default function CustomerRegisterForm() {
               )}
             />
           </div>
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel className="sm:text-xl md:text-2xl">Gênero</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-row space-y-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value={EGender.MALE} />
+                      </FormControl>
+                      <FormLabel className="sm:text-xl md:text-2xl">
+                        Masculino
+                      </FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value={EGender.FEMALE} />
+                      </FormControl>
+                      <FormLabel className="sm:text-xl md:text-2xl">
+                        Feminino
+                      </FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="birthDate"
