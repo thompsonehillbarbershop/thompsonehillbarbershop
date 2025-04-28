@@ -2,22 +2,19 @@
 
 import { images } from "@/lib/images"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
 import { EPages } from "@/lib/pages.enum"
-import { Button } from "@/components/ui/button"
-import { ChevronRightIcon } from "lucide-react"
 import { IUserView } from "@/models/user"
 import TotemServiceCard from "@/components/totem/service-card"
+import NoPreferenceCard from "@/components/totem/no-preference-card"
 
 export default function AttendantsPageContents() {
-  const [selectedAttendant, setSelectedAttendant] = useState<IUserView | null>(null)
   const searchParams = useSearchParams()
   const router = useRouter()
 
   const phoneNumber = searchParams.get('tel')
   const service = searchParams.get('service')
 
-  const services: IUserView[] = [
+  const users: IUserView[] = [
     {
       id: "1",
       name: "Thompson Hill",
@@ -40,11 +37,11 @@ export default function AttendantsPageContents() {
     }
   ]
 
-  function handleConfirmation(none?: string) {
+  function handleConfirmation(user: IUserView | undefined) {
     const data = {
       customer: phoneNumber,
       service: service,
-      attendant: none === "vazio" ? undefined : selectedAttendant?.id,
+      attendant: user?.id || undefined,
     }
 
     console.log("Data to be sent to the server:", data)
@@ -57,35 +54,20 @@ export default function AttendantsPageContents() {
       <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed font-spectral tracking-wide">Preferência de atendimento</h1>
 
       <div className="flex-1 w-full flex flex-col gap-6 items-center justify-start">
-        <Button
-          onClick={() => {
-            setSelectedAttendant(null)
-            handleConfirmation("vazio")
-          }}
-          size="lg"
-          className="text-xl lg:text-2xl font-spectral tracking-wide font-semibold"
-        >Não tenho preferência
-        </Button>
         <div className="w-full flex flex-row flex-wrap justify-center items-center gap-6">
-          {services.map((service) => (
+          {users.map((user) => (
             <TotemServiceCard
-              key={service.id}
-              id={service.id}
-              title={service.name}
-              image={service.profilePicture}
-              selectedId={selectedAttendant?.id ?? null}
-              setSelected={() => setSelectedAttendant(service)}
+              key={user.id}
+              id={user.id}
+              title={user.name}
+              image={user.profilePicture}
+              handleClick={() => handleConfirmation(user)}
             />
           ))}
+          <NoPreferenceCard
+            handleClick={() => handleConfirmation(undefined)}
+          />
         </div>
-        {selectedAttendant && (
-          <Button
-            onClick={() => handleConfirmation()}
-            size="lg"
-            className="w-64 text-xl lg:text-2xl font-spectral tracking-wide font-semibold"
-          >Continuar<ChevronRightIcon />
-          </Button>
-        )}
       </div>
     </>
   )
