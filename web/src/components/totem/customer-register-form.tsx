@@ -52,6 +52,10 @@ export default function CustomerRegisterForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.watch().birthDate])
 
+  useEffect(() => {
+    form.setFocus("givenName")
+  }, [])
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const [day, month, year] = values.birthDate.split("/")
@@ -112,8 +116,11 @@ export default function CustomerRegisterForm() {
                     <Input
                       {...field}
                       readOnly
-                      autoFocus
-                      onFocus={() => setActiveField("givenName")}
+                      // autoFocus
+                      onFocus={() => {
+                        setKeyboardLayout("qwerty")
+                        setActiveField("givenName")
+                      }}
                       className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "givenName" ? "border-ring ring-ring/50 ring-[3px]" : "")}
                     />
                   </FormControl>
@@ -131,7 +138,10 @@ export default function CustomerRegisterForm() {
                     <Input
                       {...field}
                       readOnly
-                      onFocus={() => setActiveField("familyName")}
+                      onFocus={() => {
+                        setKeyboardLayout("qwerty")
+                        setActiveField("familyName")
+                      }}
                       className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "familyName" ? "border-ring ring-ring/50 ring-[3px]" : "")}
                     />
                   </FormControl>
@@ -207,8 +217,10 @@ export default function CustomerRegisterForm() {
                   <Input
                     {...field}
                     readOnly
-                    autoFocus
-                    onFocus={() => setActiveField("indicationCode")}
+                    onFocus={() => {
+                      setKeyboardLayout("qwerty")
+                      setActiveField("indicationCode")
+                    }}
                     className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "indicationCode" ? "border-ring ring-ring/50 ring-[3px]" : "")}
                   />
                 </FormControl>

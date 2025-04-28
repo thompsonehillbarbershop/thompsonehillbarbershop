@@ -63,7 +63,7 @@ export default function AttendantsPageContents() {
             handleConfirmation("vazio")
           }}
           size="lg"
-          className="w-64 text-xl lg:text-2xl font-spectral tracking-wide font-semibold"
+          className="text-xl lg:text-2xl font-spectral tracking-wide font-semibold"
         >Não tenho preferência
         </Button>
         <div className="w-full flex flex-row flex-wrap justify-center items-center gap-6">
