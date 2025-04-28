@@ -79,7 +79,7 @@ export default function PhoneForm() {
               type="button"
               size="default"
               variant="outline"
-              className="w-full mt-2 font-radgivare tracking-wider"
+              className="w-full mt-2 font-spectral tracking-wide font-semibold"
               onClick={() => form.setValue("phone", "")}
             >Limpar campo
               <EraserIcon />
@@ -90,7 +90,7 @@ export default function PhoneForm() {
             disabled={form.getValues("phone").length < 14}
             type="submit"
             size="lg"
-            className="w-full text-xl lg:text-2xl font-radgivare tracking-wider"
+            className="w-full text-xl lg:text-2xl font-spectral tracking-wide font-semibold"
           >Continuar
             <ChevronRight />
           </Button>

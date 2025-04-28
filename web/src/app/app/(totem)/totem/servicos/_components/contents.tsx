@@ -5,7 +5,6 @@ import { IServiceView } from "@/models/service"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import TotemServiceCard from "@/components/totem/service-card"
-import { formatCurrency } from "@/lib/utils"
 import Link from "next/link"
 import { EPages } from "@/lib/pages.enum"
 import { buttonVariants } from "@/components/ui/button"
@@ -51,7 +50,7 @@ export default function ServicesPageContents() {
 
   return (
     <>
-      <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed font-radgivare tracking-wider">Selecione o serviço que deseja realizar</h1>
+      <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed font-spectral tracking-wide">Selecione o serviço que deseja realizar</h1>
       <div className="flex-1 w-full flex flex-col gap-6 items-center justify-start">
         <div className="w-full flex flex-row flex-wrap justify-center items-center gap-6">
           {services.map((service) => (
@@ -59,7 +58,6 @@ export default function ServicesPageContents() {
               key={service.id}
               id={service.id}
               title={service.name}
-              subtitle={formatCurrency(service.value)}
               image={service.image}
               selectedId={selectedService?.id ?? null}
               setSelected={() => setSelectedService(service)}
@@ -69,7 +67,7 @@ export default function ServicesPageContents() {
         {selectedService && (
           <Link
             href={`${EPages.TOTEM_BARBER}?tel=${phoneNumber}&service=${selectedService.id}`}
-            className={buttonVariants({ size: "lg", className: "w-56 text-xl lg:text-2xl" })}
+            className={buttonVariants({ size: "lg", className: "w-56 text-xl lg:text-2xl font-spectral tracking-wide font-semibold" })}
           >Continuar <ChevronRightIcon /></Link>
         )}
       </div>

@@ -21,6 +21,7 @@ const formSchema = z.object({
   phone: z.string().min(14, { message: "Telefone inválido" }).max(16, { message: "Telefone inválido" }),
   gender: z.nativeEnum(EGender),
   birthDate: z.string().refine(value => isDateValid(value), { message: "Data inválida" }),
+  indicationCode: z.string().optional(),
 })
 
 export default function CustomerRegisterForm() {
@@ -37,6 +38,7 @@ export default function CustomerRegisterForm() {
       phone: phoneNumber ? applyPhoneMask(phoneNumber.substring(3)) : undefined,
       familyName: "",
       givenName: "",
+      indicationCode: "",
       gender: EGender.MALE,
       birthDate: "",
     },
@@ -64,6 +66,7 @@ export default function CustomerRegisterForm() {
         familyName: values.familyName,
         phoneNumber: formattedPhone,
         gender: values.gender,
+        indicationCode: values.indicationCode,
         birthDate: new Date(`${year}-${month}-${day}`).toISOString(),
       }
 
@@ -78,12 +81,12 @@ export default function CustomerRegisterForm() {
   return (
     <div className="w-full flex flex-col flex-1 justify-start items-center">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-col gap-2 max-w-lg lg:w-lg">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-col gap-2 md:gap-6 max-w-lg lg:w-lg">
           <FormField
             control={form.control}
             name="phone"
             render={({ field }) => (
-              <FormItem className="space-y-0.5">
+              <FormItem className="space-y-0.5 hidden">
                 <FormLabel className="sm:text-xl md:text-2xl">Telefone</FormLabel>
                 <FormControl>
                   <Input
@@ -194,11 +197,30 @@ export default function CustomerRegisterForm() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="indicationCode"
+            render={({ field }) => (
+              <FormItem className="space-y-0.5 w-full">
+                <FormLabel className="sm:text-xl md:text-2xl">Possui código de indicação?</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    readOnly
+                    autoFocus
+                    onFocus={() => setActiveField("indicationCode")}
+                    className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "indicationCode" ? "border-ring ring-ring/50 ring-[3px]" : "")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button
             isLoading={form.formState.isSubmitting}
             type="submit"
             size="lg"
-            className="w-full text-xl lg:text-2xl"
+            className="w-full text-xl lg:text-2xl font-spectral tracking-wide font-semibold"
           >Continuar
             <ChevronRight />
           </Button>

@@ -41,6 +41,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --font-radgivare: var(--font-radgivare);
+  --font-spectral: var(--font-spectral);
 }
 
 :root {

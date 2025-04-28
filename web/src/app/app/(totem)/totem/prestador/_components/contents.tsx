@@ -54,7 +54,7 @@ export default function AttendantsPageContents() {
 
   return (
     <>
-      <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed font-radgivare tracking-wider">Preferência de atendimento</h1>
+      <h1 className="text-2xl sm:text-3xl font-semibold leading-relaxed font-spectral tracking-wide">Preferência de atendimento</h1>
 
       <div className="flex-1 w-full flex flex-col gap-6 items-center justify-start">
         <Button
@@ -63,7 +63,7 @@ export default function AttendantsPageContents() {
             handleConfirmation("vazio")
           }}
           size="lg"
-          className="w-64 text-xl lg:text-2xl font-radgivare tracking-wider"
+          className="w-64 text-xl lg:text-2xl font-spectral tracking-wide font-semibold"
         >Não tenho preferência
         </Button>
         <div className="w-full flex flex-row flex-wrap justify-center items-center gap-6">
@@ -82,7 +82,7 @@ export default function AttendantsPageContents() {
           <Button
             onClick={() => handleConfirmation()}
             size="lg"
-            className="w-64 text-xl lg:text-2xl font-radgivare tracking-wider"
+            className="w-64 text-xl lg:text-2xl font-spectral tracking-wide font-semibold"
           >Continuar<ChevronRightIcon />
           </Button>
         )}
