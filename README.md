@@ -28,4 +28,4 @@
    - Abrir configurações do tablet e buscar uma opção relacionada a "Fixar Aplicativo" (pode alterar conforme faricante e versão do tablet).
    - Ao encontrar a opção deve habilitar e ver as instruções de como fazer que será mostrada na tela.
 
-1. Fazer o procedimento de fixar anterior no aplicativo "Fully Kiosk Browser".
+1. Fazer o procedimento de fixar anterior no aplicativo "Fully Kiosk Browser"
