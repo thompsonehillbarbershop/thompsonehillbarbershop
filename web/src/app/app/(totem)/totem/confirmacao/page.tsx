@@ -27,7 +27,7 @@ export default function TotemConfirmationPage() {
         <p className="text-4xl sm:text-5xl font-bold text-primary font-spectral tracking-wide text-center">Confirmado com sucesso!</p>
       </div>
       <p className="text-2xl sm:text-4xl font-semibold font-spectral tracking-wide text-center">Aguarde ser chamado para o atendimento</p>
-      <p className="text-2xl sm:text-5xl text-foreground/80 text-center font-spectral tracking-wide font-semibold leading-relaxed">Obrigado por escolher a <br /><strong className="text-primary font-bold">Thompson & Hill</strong></p>
+      <p className="text-2xl sm:text-5xl text-foreground/80 text-center font-spectral tracking-wide font-semibold leading-relaxed">Obrigado por escolher a <br /><strong className="text-primary font-bold">THOMPSON & HILL</strong></p>
 
       <p className="text-xl text-muted-foreground fixed bottom-0 pb-6">Retornando a página inicial em {count} segundos</p>
     </div>
