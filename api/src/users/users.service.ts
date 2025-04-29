@@ -5,13 +5,18 @@ import { CreateUserInput } from "./dto/create-user.input"
 import { UpdateUserInput } from "./dto/update-user.input"
 import { hash, verify } from "argon2"
 import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundException } from "../errors/index"
+import { FirebaseService } from "../firebase/firebase.service"
 
 @Injectable()
 export class UsersService {
+  private firestore = this.firebaseService.getFirestore();
+  private usersCollection = this.firestore.collection('users');
 
-  private users: User[] = []
+  constructor(
+    private readonly firebaseService: FirebaseService,
+  ) { }
 
-  async create(createUserDto: CreateUserInput) {
+  async create(createUserDto: CreateUserInput): Promise<User> {
     try {
       await this.findOne({ userName: createUserDto.userName })
       throw new UserAlreadyExistsException()
@@ -25,8 +30,8 @@ export class UsersService {
           userName: createUserDto.userName,
           password,
         })
-        this.users.push(user)
 
+        await this.usersCollection.doc(user.id).set({ ...user })
         return user
       }
       console.error(error)
@@ -34,32 +39,52 @@ export class UsersService {
     }
   }
 
-  async findAll() {
-    return this.users
+  async findAll(): Promise<User[]> {
+    const snapshot = await this.usersCollection.get()
+    return snapshot.docs.map((doc) => doc.data() as User)
   }
 
-  async findOne({ id, userName }: { id?: string, userName?: string }) {
-    const user = this.users.find(user => user.id === id || user.userName === userName)
-    if (!user) throw new UserNotFoundException()
-    return user
+  async findOne({ id, userName }: { id?: string, userName?: string }): Promise<User> {
+    if (id) {
+      const doc = await this.usersCollection.doc(id).get()
+      if (!doc.exists) throw new UserNotFoundException()
+      return doc.data() as User
+    }
+
+    if (userName) {
+      const snapshot = await this.usersCollection
+        .where('userName', '==', userName)
+        .limit(1)
+        .get()
+
+      if (snapshot.empty) throw new UserNotFoundException()
+      return snapshot.docs[0].data() as User
+    }
+
+    throw new UserNotFoundException()
   }
 
-  async update({ id, userName }: { id?: string, userName?: string }, updateUserDto: UpdateUserInput) {
+  async update({ id, userName }: { id?: string, userName?: string }, updateUserDto: UpdateUserInput): Promise<User> {
     const user = await this.findOne({ id, userName })
 
-    const password = updateUserDto.password ? await hash(updateUserDto.password) : user.password
+    const updatedPassword = updateUserDto.password
+      ? await hash(updateUserDto.password)
+      : user.password
 
-    const userIndex = this.users.findIndex(user => user.id === id)
-    const updatedUser = { ...user, ...updateUserDto, password }
-    this.users[userIndex] = updatedUser
+    const updatedUser: User = {
+      ...user,
+      ...updateUserDto,
+      password: updatedPassword,
+    }
+
+    await this.usersCollection.doc(user.id).set(updatedUser)
     return updatedUser
   }
 
-  async remove({ id, userName }: { id?: string, userName?: string }) {
-    const foundUser = await this.findOne({ id, userName })
-    const userIndex = this.users.findIndex(user => user.id === foundUser.id)
-    this.users.splice(userIndex, 1)
-    return foundUser
+  async remove({ id, userName }: { id?: string, userName?: string }): Promise<User> {
+    const user = await this.findOne({ id, userName })
+    await this.usersCollection.doc(user.id).delete()
+    return user
   }
 
   async loginWithCredentials(userName: string, password: string): Promise<User> {

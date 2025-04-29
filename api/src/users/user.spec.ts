@@ -5,6 +5,8 @@ import { faker } from '@faker-js/faker'
 import { CreateUserInput } from "./dto/create-user.input"
 import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundException } from "../errors"
 import { UpdateUserInput } from "./dto/update-user.input"
+import { ConfigModule } from "@nestjs/config"
+import { FirebaseModule } from "../firebase/firebase.module"
 
 describe('Users Module', () => {
   let usersController: UsersController
@@ -14,6 +16,12 @@ describe('Users Module', () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
       providers: [UsersService],
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true
+        }),
+        FirebaseModule
+      ]
     }).compile()
 
     usersController = app.get<UsersController>(UsersController)
@@ -146,7 +154,7 @@ describe('Users Module', () => {
       for (const data of inputData) {
         await usersServices.remove({ userName: data.userName })
       }
-    })
+    }, 30000)
 
     it("should update a user data by id, without changing password", async () => {
       const inputData: CreateUserInput = {

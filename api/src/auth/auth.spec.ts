@@ -6,6 +6,8 @@ import { JwtModule } from "@nestjs/jwt"
 import { CreateUserInput } from "../users/dto/create-user.input"
 import { faker } from '@faker-js/faker'
 import { InvalidCredentialsException, UserAlreadyExistsException, UserRegisterException } from "../errors"
+import { ConfigModule } from "@nestjs/config"
+import { FirebaseModule } from "../firebase/firebase.module"
 
 describe('AppController', () => {
   let authController: AuthController
@@ -16,13 +18,17 @@ describe('AppController', () => {
       controllers: [AuthController],
       providers: [AuthService, UsersService],
       imports: [
+        ConfigModule.forRoot({
+          isGlobal: true
+        }),
         JwtModule.registerAsync({
           global: true,
           useFactory: async () => ({
             secret: "32fsdf34faf",
             signOptions: { expiresIn: '60s' },
           })
-        })
+        }),
+        FirebaseModule
       ]
     }).compile()
 
