@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserInput } from './dto/create-user.input'
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { UserView } from "./dto/user.view"
 import { UpdateUserInput } from "./dto/update-user.input"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard"
+import { UserAlreadyExistsException, UserNotFoundException } from "../errors"
 
 @ApiTags('Users')
 @Controller('users')
@@ -14,12 +15,15 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
+  @HttpCode(201)
   @ApiOperation({ summary: 'Register a new user' })
   @ApiBody({ type: CreateUserInput })
-  @ApiResponse({
-    status: 201,
-    description: 'Created',
+  @ApiCreatedResponse({
     type: UserView,
+  })
+  @ApiBadRequestResponse({
+    type: UserAlreadyExistsException,
+    example: "User already exists"
   })
   create(@Body() data: CreateUserInput) {
     return this.usersService.create(data)
@@ -27,23 +31,21 @@ export class UsersController {
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({
-    status: 200,
-    description: 'OK',
+  @ApiOkResponse({
     type: [UserView],
   })
-  findAll(@Req() req) {
-    console.log(req.user.id)
-
+  findAll() {
     return this.usersService.findAll()
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a user by id' })
-  @ApiResponse({
-    status: 200,
-    description: 'OK',
+  @ApiOkResponse({
     type: UserView,
+  })
+  @ApiBadRequestResponse({
+    type: UserNotFoundException,
+    example: "User not found"
   })
   findOne(@Param('id') id: string) {
     return this.usersService.findOne({ id })
@@ -51,10 +53,12 @@ export class UsersController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user by id' })
-  @ApiResponse({
-    status: 200,
-    description: 'OK',
+  @ApiOkResponse({
     type: UserView,
+  })
+  @ApiBadRequestResponse({
+    type: UserNotFoundException,
+    example: "User not found"
   })
   update(@Param('id') id: string, @Body() data: UpdateUserInput) {
     return this.usersService.update({ id }, data)
@@ -62,10 +66,12 @@ export class UsersController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user by id' })
-  @ApiResponse({
-    status: 200,
-    description: 'OK',
+  @ApiOkResponse({
     type: UserView,
+  })
+  @ApiBadRequestResponse({
+    type: UserNotFoundException,
+    example: "User not found"
   })
   remove(@Param('id') id: string) {
     return this.usersService.remove({ id })

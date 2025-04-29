@@ -17,9 +17,8 @@ export class UsersService {
       throw new UserAlreadyExistsException()
 
     } catch (error) {
-      const password = await hash(createUserDto.password)
-
       if (error instanceof UserNotFoundException) {
+        const password = await hash(createUserDto.password)
         const user = new User({
           id: randomUUID(),
           name: createUserDto.name,

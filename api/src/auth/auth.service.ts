@@ -4,6 +4,7 @@ import { CreateUserInput } from "../users/dto/create-user.input"
 import { AuthView } from "./dto/auth.view"
 import { AuthLoginInput } from "./dto/auth-login.input"
 import { JwtService } from "@nestjs/jwt"
+import { UserAlreadyExistsException, UserRegisterException } from "../errors"
 
 @Injectable()
 export class AuthService {
@@ -13,9 +14,17 @@ export class AuthService {
   ) { }
 
   async register(data: CreateUserInput): Promise<AuthView> {
-    const user = await this.usersService.create(data)
-    const token = await this.generateToken(user.id)
-    return new AuthView(user, token)
+    try {
+      const user = await this.usersService.create(data)
+      const token = await this.generateToken(user.id)
+      return new AuthView(user, token)
+    } catch (error) {
+      if (error instanceof UserAlreadyExistsException) {
+        throw new UserRegisterException()
+      }
+      console.error(error)
+      throw error
+    }
   }
 
   async login(data: AuthLoginInput): Promise<AuthView> {

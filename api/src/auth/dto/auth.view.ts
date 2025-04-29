@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger"
 import { User } from "../../users/entities/user.entity"
 
 export class AuthView {
@@ -7,7 +8,10 @@ export class AuthView {
     this.token = token
   }
 
+  @ApiProperty()
   id: string
+  @ApiProperty()
   userName: string
+  @ApiProperty()
   token: string
 }
