@@ -4,7 +4,7 @@ import { CreateUserInput } from './dto/create-user.input'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { UserView } from "./dto/user.view"
 import { UpdateUserInput } from "./dto/update-user.input"
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth/jwt-auth.guard"
+import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard"
 
 @ApiTags('Users')
 @Controller('users')
