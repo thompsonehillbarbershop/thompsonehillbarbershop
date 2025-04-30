@@ -6,6 +6,8 @@ import { UpdateUserInput } from "./dto/update-user.input"
 import { hash, verify } from "argon2"
 import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundException } from "../errors/index"
 import { FirebaseService } from "../firebase/firebase.service"
+import { Express } from "express"
+import path from "path"
 
 @Injectable()
 export class UsersService {
@@ -16,20 +18,27 @@ export class UsersService {
     private readonly firebaseService: FirebaseService,
   ) { }
 
-  async create(createUserDto: CreateUserInput): Promise<User> {
+  async create(createUserDto: CreateUserInput, profileImage?: Express.Multer.File): Promise<User> {
     try {
       await this.findOne({ userName: createUserDto.userName })
       throw new UserAlreadyExistsException()
-
     } catch (error) {
       if (error instanceof UserNotFoundException) {
         const password = await hash(createUserDto.password)
+        const id = randomUUID()
+
+        // For firebase upload
+        // let profileImageUrl: string = ""
+        // if (profileImage) {
+        //   profileImageUrl = await this.uploadUserProfileImage(id, profileImage)
+        // }
         const user = new User({
-          id: randomUUID(),
+          id: id,
           name: createUserDto.name,
           userName: createUserDto.userName,
           password,
           role: createUserDto.role,
+          profileImage: createUserDto.profileImage || "",
           createdAt: new Date()
         })
 
@@ -103,4 +112,32 @@ export class UsersService {
       throw new InvalidCredentialsException()
     }
   }
+
+  // private async uploadUserProfileImage(userId: string, file: Express.Multer.File): Promise<string> {
+  // Firebase
+  // const bucket = this.firebaseService.getStorage()
+  // const ext = file.mimetype.split('/')[1]
+  // const filename = `users/${userId}.${ext}`
+
+  // console.log("Uploading file to bucket", filename)
+
+  // const fileUpload = bucket.file(filename)
+
+  // const stream = fileUpload.createWriteStream({
+  //   metadata: {
+  //     contentType: file.mimetype,
+  //   },
+  // })
+
+  // return new Promise((resolve, reject) => {
+  //   stream.on('error', (error) => reject(error))
+
+  //   stream.on('finish', async () => {
+  //     await fileUpload.makePublic()
+  //     resolve(`https://storage.googleapis.com/${bucket.name}/${filename}`)
+  //   })
+
+  //   stream.end(file.buffer)
+  // })
+  // }
 }

@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, UseInterceptors, UploadedFile } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserInput } from './dto/create-user.input'
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { UserView } from "./dto/user.view"
 import { UpdateUserInput } from "./dto/update-user.input"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard"
-import { UserAlreadyExistsException, UserNotFoundException } from "../errors"
+import { UserNotFoundException } from "../errors"
+import { Express } from "express"
+import { ProfileImageInterceptor } from "./interceptors/profile-image.interceptor"
 
 @ApiTags('Users')
 @Controller('users')
@@ -16,16 +18,26 @@ export class UsersController {
 
   @Post()
   @HttpCode(201)
+  // @UseInterceptors(ProfileImageInterceptor)
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiBody({ type: CreateUserInput })
+  // @ApiConsumes("multipart/form-data")
+  // @ApiBody({ type: CreateUserMultipartInput })
+  @ApiBody({
+    type: CreateUserInput,
+  })
   @ApiCreatedResponse({
     type: UserView,
   })
   @ApiBadRequestResponse({
-    type: UserAlreadyExistsException,
-    example: "User already exists"
+    description: 'User already exists',
+    schema: {
+      example: "User already exists"
+    }
   })
-  create(@Body() data: CreateUserInput) {
+  create(
+    // @UploadedFile() profileImage: Express.Multer.File,
+    @Body() data: CreateUserInput
+  ) {
     return this.usersService.create(data)
   }
 

@@ -5,16 +5,11 @@ import * as admin from 'firebase-admin'
 export class FirebaseService {
   constructor(@Inject('FIREBASE_ADMIN') private readonly app: admin.app.App) { }
 
-  getAuth() {
-    return this.app.auth()
-  }
-
   getFirestore() {
     return this.app.firestore()
   }
 
-  getMessaging() {
-    return this.app.messaging()
+  getStorage() {
+    return this.app.storage().bucket("app")
   }
-
 }
