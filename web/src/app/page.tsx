@@ -14,7 +14,10 @@ export default function Home() {
         width={300}
         height={300}
       />
-      <h1 className="text-3xl font-semibold">Futura página de Login</h1>
+      <Link href={EPages.LOGIN} className={buttonVariants()}>
+        <span>Ir para Login</span>
+        <ChevronRightIcon />
+      </Link>
       <Link href={EPages.TOTEM_HOME} className={buttonVariants()}>
         <span>Ir para tela do totem</span>
         <ChevronRightIcon />

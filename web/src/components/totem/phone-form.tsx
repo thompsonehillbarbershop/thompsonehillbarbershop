@@ -35,6 +35,11 @@ export default function PhoneForm() {
   }, [form.watch().phone])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (values.phone.includes("(99) 9 9999-9999")) {
+      router.push(EPages.LOGOUT)
+      return
+    }
+
     const formattedPhone = formatPhoneToE164(values.phone)
     try {
       if (!formattedPhone) {

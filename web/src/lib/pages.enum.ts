@@ -1,6 +1,6 @@
 export enum EPages {
   HOME = "/",
-  LOGIN = "/entrar",
+  LOGIN = "/app/login",
   LOGOUT = "/api/auth/logout",
   ADMIN = "/admin",
   ADMIN_DASHBOARD = "/admin/dashboard",

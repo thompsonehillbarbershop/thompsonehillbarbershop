@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono, Spectral } from "next/font/google"
 import localFont from 'next/font/local'
 import "./globals.css"
+import { Toaster } from "@/components/ui/sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${radgivare.variable} ${spectral.variable} antialiased dark w-screen h-screen`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   )
