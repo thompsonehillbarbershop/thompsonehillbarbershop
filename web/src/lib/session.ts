@@ -5,10 +5,12 @@ import { jwtVerify, SignJWT } from "jose"
 import { addDays } from "date-fns"
 import { redirect } from "next/navigation"
 import { EPages } from "./pages.enum"
+import { EUserRole } from "@/models/user"
 
 export type SessionUser = {
   id?: string
   userName?: string
+  role?: EUserRole
 }
 
 export type Session = {

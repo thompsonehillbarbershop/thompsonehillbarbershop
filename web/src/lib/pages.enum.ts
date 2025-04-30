@@ -2,9 +2,8 @@ export enum EPages {
   HOME = "/",
   LOGIN = "/app/login",
   LOGOUT = "/api/auth/logout",
-  ADMIN = "/admin",
-  ADMIN_DASHBOARD = "/admin/dashboard",
 
+  ADMIN_DASHBOARD = "/app/admin/dashboard",
 
   TOTEM_HOME = "/app/totem/inicio",
   TOTEM_REGISTER = "/app/totem/cadastro",
@@ -13,5 +12,5 @@ export enum EPages {
   TOTEM_CONFIRMATION = "/app/totem/confirmacao",
 
 
-  ATTENDANCE = "/atendimento"
+  ATTENDANCE_DASHBOARD = "/app/atendimento"
 }

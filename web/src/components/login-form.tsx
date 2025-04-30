@@ -13,6 +13,7 @@ import { loginAction } from "@/actions/auth"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { EPages } from "@/lib/pages.enum"
+import { EUserRole } from "@/models/user"
 
 const formSchema = z.object({
   userName: z.string().nonempty({ message: "Campo obrigatório" }),
@@ -32,10 +33,24 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await loginAction({ ...values })
+      const response = await loginAction({ ...values })
       toast.success("Login realizado com sucesso")
       setErrorMessage(null)
-      router.push(EPages.TOTEM_HOME)
+
+      switch (response.userRole) {
+        case EUserRole.TOTEM:
+          router.push(EPages.TOTEM_HOME)
+          break
+        case EUserRole.ADMIN:
+          router.push(EPages.ADMIN_DASHBOARD)
+          break
+        case EUserRole.MANAGER:
+          router.push(EPages.ADMIN_DASHBOARD)
+          break
+        case EUserRole.ATTENDANT:
+          router.push(EPages.ATTENDANCE_DASHBOARD)
+          break
+      }
     } catch (err) {
       const error = err as Error
       console.error(error)
