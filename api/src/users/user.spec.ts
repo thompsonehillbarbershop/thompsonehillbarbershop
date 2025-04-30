@@ -7,10 +7,20 @@ import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundEx
 import { UpdateUserInput } from "./dto/update-user.input"
 import { ConfigModule } from "@nestjs/config"
 import { FirebaseModule } from "../firebase/firebase.module"
+import { EUserRole } from "./entities/user.entity"
 
 describe('Users Module', () => {
   let usersController: UsersController
   let usersServices: UsersService
+
+  function getRandomUserData(data?: Partial<CreateUserInput>): CreateUserInput {
+    return {
+      name: data?.name || faker.person.fullName(),
+      userName: data?.userName || faker.internet.username(),
+      password: data?.password || faker.internet.password({ length: 12 }),
+      role: data?.role || faker.helpers.enumValue(EUserRole)
+    }
+  }
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
@@ -30,11 +40,7 @@ describe('Users Module', () => {
 
   describe('Services', () => {
     it("should create a new user", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       const user = await usersServices.create(inputData)
 
@@ -47,11 +53,7 @@ describe('Users Module', () => {
     })
 
     it("should create a user with encrypted password", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       await usersServices.create(inputData)
       const loggedUser = await usersServices.loginWithCredentials(inputData.userName, inputData.password)
@@ -66,11 +68,7 @@ describe('Users Module', () => {
     })
 
     it("should not create a new user with the same username", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       await usersServices.create(inputData)
 
@@ -82,11 +80,7 @@ describe('Users Module', () => {
     })
 
     it("should find a user by id", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       const user = await usersServices.create(inputData)
       const foundUser = await usersServices.findOne({ id: user.id })
@@ -106,11 +100,7 @@ describe('Users Module', () => {
     })
 
     it("should find a user by username", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       const user = await usersServices.create(inputData)
       const foundUser = await usersServices.findOne({ userName: user.userName })
@@ -130,11 +120,9 @@ describe('Users Module', () => {
     })
 
     it("should find all users", async () => {
-      const inputData: CreateUserInput[] = Array.from({ length: 10 }, () => ({
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }))
+      const initialUsers = await usersServices.findAll()
+
+      const inputData = Array.from({ length: 10 }, () => getRandomUserData())
 
       for (const data of inputData) {
         await usersServices.create(data)
@@ -142,7 +130,7 @@ describe('Users Module', () => {
 
       const users = await usersServices.findAll()
 
-      expect(users).toHaveLength(inputData.length)
+      expect(users).toHaveLength(initialUsers.length + inputData.length)
       expect(users).toEqual(expect.arrayContaining([
         expect.objectContaining({
           name: expect.any(String),
@@ -157,16 +145,13 @@ describe('Users Module', () => {
     }, 30000)
 
     it("should update a user data by id, without changing password", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData({ role: EUserRole.ADMIN })
 
       const user = await usersServices.create(inputData)
 
       const updatedData: UpdateUserInput = {
         name: faker.person.fullName(),
+        role: EUserRole.MANAGER,
       }
 
       const loggedUser = await usersServices.loginWithCredentials(inputData.userName, inputData.password)
@@ -179,6 +164,7 @@ describe('Users Module', () => {
       expect(updatedUser).toHaveProperty("name", updatedData.name)
       expect(updatedUser).toHaveProperty("userName", inputData.userName)
       expect(updatedUser).toHaveProperty("password")
+      expect(updatedUser).toHaveProperty("role", updatedData.role)
 
       const loggedUser2 = await usersServices.loginWithCredentials(inputData.userName, inputData.password)
 
@@ -188,11 +174,7 @@ describe('Users Module', () => {
     })
 
     it("should update a user data by username, without changing password", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       const user = await usersServices.create(inputData)
 
@@ -220,11 +202,7 @@ describe('Users Module', () => {
 
 
     it("should update and encrypt user password", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       const user = await usersServices.create(inputData)
 
@@ -271,11 +249,7 @@ describe('Users Module', () => {
     })
 
     it("should delete a user by id", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       const user = await usersServices.create(inputData)
       const deletedUser = await usersServices.remove({ id: user.id })
@@ -287,11 +261,7 @@ describe('Users Module', () => {
     })
 
     it("should delete a user by username", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       const user = await usersServices.create(inputData)
       const deletedUser = await usersServices.remove({ userName: user.userName })
@@ -315,11 +285,7 @@ describe('Users Module', () => {
     })
 
     it("should login with valid credentials", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       const user = await usersServices.create(inputData)
       const loggedUser = await usersServices.loginWithCredentials(inputData.userName, inputData.password)
@@ -340,11 +306,7 @@ describe('Users Module', () => {
     })
 
     it("should not login with wrong password", async () => {
-      const inputData: CreateUserInput = {
-        name: faker.person.fullName(),
-        userName: faker.internet.username(),
-        password: faker.internet.password({ length: 12 }),
-      }
+      const inputData = getRandomUserData()
 
       await usersServices.create(inputData)
 

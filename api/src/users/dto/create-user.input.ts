@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsString, MinLength } from "class-validator"
+import { IsEnum, IsString, MinLength } from "class-validator"
+import { EUserRole } from "../entities/user.entity"
 
 export class CreateUserInput {
   @ApiProperty()
@@ -14,4 +15,8 @@ export class CreateUserInput {
   @IsString()
   @MinLength(6)
   password: string
+
+  @ApiProperty({ enum: EUserRole })
+  @IsEnum(EUserRole)
+  role: EUserRole
 }

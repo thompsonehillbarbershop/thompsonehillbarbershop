@@ -5,13 +5,23 @@ import { UsersService } from "../users/users.service"
 import { JwtModule } from "@nestjs/jwt"
 import { CreateUserInput } from "../users/dto/create-user.input"
 import { faker } from '@faker-js/faker'
-import { InvalidCredentialsException, UserAlreadyExistsException, UserRegisterException } from "../errors"
+import { InvalidCredentialsException, UserRegisterException } from "../errors"
 import { ConfigModule } from "@nestjs/config"
 import { FirebaseModule } from "../firebase/firebase.module"
+import { EUserRole } from "../users/entities/user.entity"
 
 describe('AppController', () => {
   let authController: AuthController
   let usersService: UsersService
+
+  function getRandomUserData(data?: Partial<CreateUserInput>): CreateUserInput {
+    return {
+      name: data?.name || faker.person.fullName(),
+      userName: data?.userName || faker.internet.username(),
+      password: data?.password || faker.internet.password({ length: 12 }),
+      role: data?.role || faker.helpers.enumValue(EUserRole)
+    }
+  }
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
@@ -43,11 +53,7 @@ describe('AppController', () => {
     })
 
     it("should return a token after registering a user", async () => {
-      const input: CreateUserInput = {
-        name: faker.person.fullName(),
-        password: faker.internet.password({ length: 12 }),
-        userName: faker.internet.username(),
-      }
+      const input = getRandomUserData()
 
       const response = await authController.register(input)
 
@@ -59,11 +65,7 @@ describe('AppController', () => {
     })
 
     it("should return error if user already exists", async () => {
-      const input: CreateUserInput = {
-        name: faker.person.fullName(),
-        password: faker.internet.password({ length: 12 }),
-        userName: faker.internet.username(),
-      }
+      const input = getRandomUserData()
 
       const response = await authController.register(input)
       expect(response).toHaveProperty("id")
@@ -79,11 +81,7 @@ describe('AppController', () => {
     })
 
     it("should login with valid credentials", async () => {
-      const input: CreateUserInput = {
-        name: faker.person.fullName(),
-        password: faker.internet.password({ length: 12 }),
-        userName: faker.internet.username(),
-      }
+      const input = getRandomUserData()
 
       const response = await authController.register(input)
       expect(response).toHaveProperty("id")
@@ -112,11 +110,7 @@ describe('AppController', () => {
     })
 
     it("should return error if password is invalid", async () => {
-      const input: CreateUserInput = {
-        name: faker.person.fullName(),
-        password: faker.internet.password({ length: 12 }),
-        userName: faker.internet.username(),
-      }
+      const input = getRandomUserData()
 
       const response = await authController.register(input)
       expect(response).toHaveProperty("id")

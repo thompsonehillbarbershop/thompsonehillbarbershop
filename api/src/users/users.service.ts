@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
-import { User } from "./entities/user.entity"
+import { IUser, User } from "./entities/user.entity"
 import { randomUUID } from "crypto"
 import { CreateUserInput } from "./dto/create-user.input"
 import { UpdateUserInput } from "./dto/update-user.input"
@@ -29,9 +29,11 @@ export class UsersService {
           name: createUserDto.name,
           userName: createUserDto.userName,
           password,
+          role: createUserDto.role,
+          createdAt: new Date()
         })
 
-        await this.usersCollection.doc(user.id).set({ ...user })
+        await this.usersCollection.doc(user.id).set({ ...user, createdAt: user.createdAt.getTime() })
         return user
       }
       console.error(error)
@@ -41,14 +43,14 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     const snapshot = await this.usersCollection.get()
-    return snapshot.docs.map((doc) => doc.data() as User)
+    return snapshot.docs.map((doc) => new User(doc.data() as IUser))
   }
 
   async findOne({ id, userName }: { id?: string, userName?: string }): Promise<User> {
     if (id) {
       const doc = await this.usersCollection.doc(id).get()
       if (!doc.exists) throw new UserNotFoundException()
-      return doc.data() as User
+      return new User(doc.data() as IUser)
     }
 
     if (userName) {
@@ -58,7 +60,7 @@ export class UsersService {
         .get()
 
       if (snapshot.empty) throw new UserNotFoundException()
-      return snapshot.docs[0].data() as User
+      return new User(snapshot.docs[0].data() as IUser)
     }
 
     throw new UserNotFoundException()
@@ -77,7 +79,7 @@ export class UsersService {
       password: updatedPassword,
     }
 
-    await this.usersCollection.doc(user.id).set(updatedUser)
+    await this.usersCollection.doc(user.id).set({ ...updatedUser, createdAt: user.createdAt.getTime() })
     return updatedUser
   }
 
