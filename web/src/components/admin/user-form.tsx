@@ -80,7 +80,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome Completo</FormLabel>
+              <FormLabel>{forRole === EUserRole.TOTEM ? "Descrição" : "Nome Completo"}</FormLabel>
               <FormControl>
                 <Input placeholder="Digite o nome do usuário" {...field} />
               </FormControl>

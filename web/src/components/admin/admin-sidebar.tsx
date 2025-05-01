@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { EPages } from "@/lib/pages.enum"
-import { CalendarCheck, LayoutDashboard, Scissors, User, UserCog, Users } from "lucide-react"
+import { CalendarCheck, LayoutDashboard, Scissors, TabletIcon, User, UserCog, Users } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import React from "react"
 
@@ -38,6 +38,13 @@ const routes = [
     urlPrefix: EPages.ADMIN_ATTENDANTS,
     url: EPages.ADMIN_ATTENDANTS,
     icon: <Users />
+  },
+  {
+    slug: "totens",
+    title: "Totens",
+    urlPrefix: EPages.ADMIN_TOTEMS,
+    url: EPages.ADMIN_TOTEMS,
+    icon: <TabletIcon />
   },
   {
     slug: "servicos",

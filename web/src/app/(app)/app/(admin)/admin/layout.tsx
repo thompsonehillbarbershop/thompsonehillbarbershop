@@ -18,8 +18,12 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
       <AdminSidebar />
       <div className='w-full'>
         <AdminHeader />
-        <main className="w-full mt-10 sm:mt-16 flex flex-col justify-center items-center px-3 sm:px-4 md:px-6 pb-6 pt-8">
-          {children}
+        <main
+          className="w-full h-full bg-[url(/images/background.webp)] bg-no-repeat bg-cover"
+        >
+          <div className="w-full h-full pt-16 sm:pt-20 flex flex-col justify-start items-start px-3 sm:px-4 md:px-6 pb-6 flex-1 gap-4 bg-background/95">
+            {children}
+          </div>
         </main>
       </div>
     </SidebarProvider>

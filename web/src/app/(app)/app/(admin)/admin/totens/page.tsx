@@ -19,13 +19,13 @@ import { EUserRole, IUserView } from "@/models/user"
 import { useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 
-export default function ManagersPage() {
+export default function TotemsPage() {
   const [isSheetOpen, setSheetOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<IUserView | undefined>(undefined)
   const { users, isLoadingUsers } = useAdmin()
 
-  const managers = useMemo(() => {
-    return users?.filter((user) => user.role === EUserRole.MANAGER).sort((a, b) => {
+  const totems = useMemo(() => {
+    return users?.filter((user) => user.role === EUserRole.TOTEM).sort((a, b) => {
       if (a.userName < b.userName) return -1
       if (a.userName > b.userName) return 1
       return 0
@@ -35,7 +35,7 @@ export default function ManagersPage() {
 
   return (
     <div className="w-full flex flex-col max-w-[1440px] mx-auto">
-      <H1>Gerentes</H1>
+      <H1>Totems</H1>
       <Sheet
         open={isSheetOpen}
         onOpenChange={setSheetOpen}
@@ -46,18 +46,18 @@ export default function ManagersPage() {
               setSelectedUser(undefined)
             }}
             className="w-full sm:w-fit"
-          ><PlusIcon />Cadastrar Gerente</Button>
+          ><PlusIcon />Cadastrar Totem</Button>
         </SheetTrigger>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{selectedUser ? `Atualizar ${selectedUser.userName}` : "Cadastrar novo Gerente"}</SheetTitle>
+            <SheetTitle>{selectedUser ? `Atualizar ${selectedUser.userName}` : "Cadastrar novo totem"}</SheetTitle>
             <SheetDescription>
-              {selectedUser ? "Atualize as informações do gerente" : "Preencha os dados para cadastrar um novo gerente"}
+              {selectedUser ? "Atualize as informações do totem" : "Preencha os dados para cadastrar um novo totem"}
             </SheetDescription>
           </SheetHeader>
           <AddUserForm
             user={selectedUser}
-            forRole={EUserRole.MANAGER}
+            forRole={EUserRole.TOTEM}
             onSuccess={() => {
               setSheetOpen(false)
             }}
@@ -68,13 +68,14 @@ export default function ManagersPage() {
       <Card className="mt-2">
         <CardContent>
           <AdminUsersTable
-            data={managers}
+            data={totems}
+            forRole={EUserRole.TOTEM}
             isLoading={isLoadingUsers}
-            emptyMessage="Nenhum gerente encontrado"
+            emptyMessage="Nenhum totem encontrado"
             filtering={{
               enableFiltering: true,
               field: "name",
-              placeholder: "Buscar por nome",
+              placeholder: "Buscar por descrição",
             }}
             onEditButtonClick={(user) => {
               setSelectedUser(user)

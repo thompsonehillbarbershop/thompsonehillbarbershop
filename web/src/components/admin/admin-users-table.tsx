@@ -1,6 +1,6 @@
 "use client"
 
-import { IUserView } from "@/models/user"
+import { EUserRole, IUserView } from "@/models/user"
 import { DataTable } from "../ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "../ui/button"
@@ -19,6 +19,7 @@ interface Props {
     placeholder: string
   }
   onEditButtonClick?: (user: IUserView) => void
+  forRole?: EUserRole
 }
 
 export default function AdminUsersTable({
@@ -32,12 +33,13 @@ export default function AdminUsersTable({
     placeholder: "Buscar por nome",
   },
   onEditButtonClick,
+  forRole,
 }: Props) {
   function getColumns(): ColumnDef<IUserView>[] {
     return [
       {
         accessorKey: "name",
-        header: "Nome",
+        header: () => { return forRole === EUserRole.TOTEM ? "Descrição" : "Nome" },
       },
       {
         accessorKey: "userName",
