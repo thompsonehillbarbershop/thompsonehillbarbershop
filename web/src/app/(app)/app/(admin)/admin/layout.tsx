@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
       <AdminSidebar />
       <div className='w-full'>
         <AdminHeader />
-        <main className="w-full mt-10 sm:mt-16">
+        <main className="w-full mt-10 sm:mt-16 flex flex-col justify-center items-center px-3 sm:px-4 md:px-6 pb-6 pt-8">
           {children}
         </main>
       </div>

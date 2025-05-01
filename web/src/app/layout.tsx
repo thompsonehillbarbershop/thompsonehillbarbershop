@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Spectral } from "next/font/google"
 import localFont from 'next/font/local'
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
+import QueryContext from "@/contexts/query-context"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,8 +45,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${radgivare.variable} ${spectral.variable} antialiased dark w-screen h-screen font-spectral`}
       >
-        {children}
-        <Toaster />
+        <QueryContext>
+          {children}
+          <Toaster />
+        </QueryContext>
       </body>
     </html>
   )

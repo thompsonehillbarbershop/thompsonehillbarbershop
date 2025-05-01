@@ -1,7 +1,9 @@
 "use server"
 
 import axiosClient from "@/lib/axios"
-import { IUserView } from "@/models/user"
+import { EUserRole, IUserView } from "@/models/user"
+import { CreateUserInput, createUserSchema } from "./dtos/create-user.input"
+import { getSession } from "@/lib/session"
 
 export async function getProfileAction() {
   try {
@@ -12,6 +14,53 @@ export async function getProfileAction() {
     const error = err as Error
     if (error.message.includes("ECONNREFUSED")) {
       throw new Error("Erro ao conectar com o servidor")
+    }
+
+    console.error(error)
+    throw error
+  }
+}
+
+export async function getUsersAction() {
+  try {
+    const { data } = await axiosClient.get<IUserView[]>(`/users`)
+    return data
+
+  } catch (err) {
+    const error = err as Error
+    if (error.message.includes("ECONNREFUSED")) {
+      throw new Error("Erro ao conectar com o servidor")
+    }
+
+    console.error(error)
+    throw error
+  }
+}
+
+export async function createUserAction(data: CreateUserInput) {
+  const session = await getSession()
+
+  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
+    throw new Error("Você não tem permissão para criar usuários")
+  }
+
+  const result = createUserSchema.safeParse(data)
+  if (!result.success) {
+    throw new Error(JSON.stringify(result.error.flatten()))
+  }
+
+  try {
+    const { data: user } = await axiosClient.post<IUserView>(`/users`, data)
+    return user
+
+  } catch (err) {
+    const error = err as Error
+    if (error.message.includes("ECONNREFUSED")) {
+      throw new Error("Erro ao conectar com o servidor")
+    }
+
+    if (error.message.includes("User already exists")) {
+      throw new Error("Usuário já existe no sistema")
     }
 
     console.error(error)
