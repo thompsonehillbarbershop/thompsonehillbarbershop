@@ -1,22 +1,27 @@
-import { getSession } from "@/lib/session"
+import { getProfileAction } from "@/actions/users"
+import AdminHeader from "@/components/admin/admin-header"
+import AdminSidebar from "@/components/admin/admin-sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { EUserRole } from "@/models/user"
 import { notFound } from "next/navigation"
 import React, { PropsWithChildren } from 'react'
 
 export default async function AdminLayout({ children }: PropsWithChildren) {
-  const session = await getSession()
+  const user = await getProfileAction()
 
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
+  if (user.role !== EUserRole.ADMIN && user.role !== EUserRole.MANAGER) {
     return notFound()
   }
 
   return (
-    <div>
-      <pre>
-        {JSON.stringify(session.user, null, 2)}
-      </pre>
-
-      {children}
-    </div>
+    <SidebarProvider className='flex flow-row w-full' defaultOpen={false}>
+      <AdminSidebar />
+      <div className='w-full'>
+        <AdminHeader />
+        <main className="w-full mt-10 sm:mt-16">
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
   )
 }

@@ -1,13 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, UseInterceptors, UploadedFile } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, Req } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserInput } from './dto/create-user.input'
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { UserView } from "./dto/user.view"
 import { UpdateUserInput } from "./dto/update-user.input"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard"
 import { UserNotFoundException } from "../errors"
-import { Express } from "express"
-import { ProfileImageInterceptor } from "./interceptors/profile-image.interceptor"
+import { AdminGuard } from "./guards/is-admin.guard"
 
 @ApiTags('Users')
 @Controller('users')
@@ -17,6 +16,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
+  @UseGuards(AdminGuard)
   @HttpCode(201)
   // @UseInterceptors(ProfileImageInterceptor)
   @ApiOperation({ summary: 'Register a new user' })
@@ -34,23 +34,41 @@ export class UsersController {
       example: "User already exists"
     }
   })
-  create(
+  async create(
     // @UploadedFile() profileImage: Express.Multer.File,
     @Body() data: CreateUserInput
   ) {
-    return this.usersService.create(data)
+    return new UserView(await this.usersService.create(data))
   }
 
   @Get()
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse({
     type: [UserView],
   })
-  findAll() {
-    return this.usersService.findAll()
+  async findAll() {
+    return (await this.usersService.findAll()).map(user => new UserView(user))
+  }
+
+  @Get('profile')
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiOkResponse({
+    type: UserView,
+  })
+  @ApiBadRequestResponse({
+    type: UserNotFoundException,
+    example: "User not found"
+  })
+  async getProfile(
+    @Req() req,
+  ) {
+    const id = req.user.id as string
+    return new UserView(await this.usersService.findOne({ id }))
   }
 
   @Get(':id')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Get a user by id' })
   @ApiOkResponse({
     type: UserView,
@@ -59,11 +77,12 @@ export class UsersController {
     type: UserNotFoundException,
     example: "User not found"
   })
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne({ id })
+  async findOne(@Param('id') id: string) {
+    return new UserView(await this.usersService.findOne({ id }))
   }
 
   @Patch(':id')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update a user by id' })
   @ApiOkResponse({
     type: UserView,
@@ -72,11 +91,12 @@ export class UsersController {
     type: UserNotFoundException,
     example: "User not found"
   })
-  update(@Param('id') id: string, @Body() data: UpdateUserInput) {
-    return this.usersService.update({ id }, data)
+  async update(@Param('id') id: string, @Body() data: UpdateUserInput) {
+    return new UserView(await this.usersService.update({ id }, data))
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete a user by id' })
   @ApiOkResponse({
     type: UserView,
@@ -85,7 +105,7 @@ export class UsersController {
     type: UserNotFoundException,
     example: "User not found"
   })
-  remove(@Param('id') id: string) {
-    return this.usersService.remove({ id })
+  async remove(@Param('id') id: string) {
+    return new UserView(await this.usersService.remove({ id }))
   }
 }

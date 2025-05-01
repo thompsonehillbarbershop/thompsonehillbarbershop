@@ -42,7 +42,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Thompson & Hill" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${radgivare.variable} ${spectral.variable} antialiased dark w-screen h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} ${radgivare.variable} ${spectral.variable} antialiased dark w-screen h-screen font-spectral`}
       >
         {children}
         <Toaster />
