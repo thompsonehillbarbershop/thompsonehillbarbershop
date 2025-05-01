@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, Req } from '@nestjs/common'
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode, Req, Put } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserInput } from './dto/create-user.input'
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
@@ -81,7 +81,7 @@ export class UsersController {
     return new UserView(await this.usersService.findOne({ id }))
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update a user by id' })
   @ApiOkResponse({

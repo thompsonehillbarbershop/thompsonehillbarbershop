@@ -1,12 +1,12 @@
 import { z } from "@/lib/pt-zod"
 import { EUserRole } from "@/models/user"
 
-export const createUserSchema = z.object({
-  name: z.string().nonempty("Nome é obrigatório"),
-  userName: z.string().nonempty("Nome de usuário é obrigatório"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
-  role: z.nativeEnum(EUserRole),
-  profileImage: z.string().optional(),
+export const createUserSchema = (type: "create" | "update") => z.object({
+  name: type === "create" ? z.string().nonempty("Nome é obrigatório") : z.string().nonempty("Nome é obrigatório").optional(),
+  userName: type === "create" ? z.string().nonempty("Nome de usuário é obrigatório") : z.unknown().optional(),
+  password: type === "create" ? z.string().min(6, "Senha deve ter no mínimo 6 caracteres") : z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional(),
+  role: type === "create" ? z.nativeEnum(EUserRole) : z.nativeEnum(EUserRole).optional(),
+  profileImage: type === "create" ? z.string().optional() : z.string().optional(),
 })
 
-export type CreateUserInput = z.infer<typeof createUserSchema>
+export type CreateUserInput = z.infer<ReturnType<typeof createUserSchema>>

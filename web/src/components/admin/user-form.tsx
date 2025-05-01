@@ -8,27 +8,27 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { createUserSchema } from "@/actions/users/dtos/create-user.input"
-import { EUserRole } from "@/models/user"
+import { EUserRole, IUserView } from "@/models/user"
 import { PasswordInput } from "../ui/password-input"
 import { useEffect } from "react"
 import { useAdmin } from "@/hooks/use-admin"
 
-const formSchema = createUserSchema
-
 interface Props {
   forRole: EUserRole
+  user?: IUserView
   onSuccess?: () => void
   onError?: () => void
 }
 
-export default function AddUserForm({ onSuccess, onError, forRole }: Props) {
-  const { createUser } = useAdmin()
+export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
+  const formSchema = createUserSchema(user ? "update" : "create")
+  const { createUser, updateUser } = useAdmin()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: undefined,
+      name: user?.name,
       password: undefined,
-      userName: undefined,
+      userName: user?.userName,
       role: forRole
     }
   })
@@ -40,8 +40,21 @@ export default function AddUserForm({ onSuccess, onError, forRole }: Props) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await createUser(values)
-      toast.success("Registrado com sucesso")
+      if (user) {
+        await updateUser({
+          id: user.id,
+          data: {
+            name: values.name,
+            password: values.password,
+            role: forRole,
+          }
+        })
+        toast.success("Usuário atualizado com sucesso")
+      } else {
+        await createUser(values)
+        toast.success("Registrado com sucesso")
+      }
+
       if (onSuccess) onSuccess()
     } catch (err) {
       const error = err as Error
@@ -82,7 +95,11 @@ export default function AddUserForm({ onSuccess, onError, forRole }: Props) {
             <FormItem>
               <FormLabel>Nome de Usuário</FormLabel>
               <FormControl>
-                <Input placeholder="Digite um nome de usuário" {...field} />
+                <Input
+                  disabled={!!user}
+                  placeholder="Digite um nome de usuário"
+                  {...field}
+                  value={field.value as string | undefined} />
               </FormControl>
               <FormMessage />
             </FormItem>
