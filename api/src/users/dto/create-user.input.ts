@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsEnum, IsOptional, IsString, IsUrl, MinLength } from "class-validator"
-import { EUserRole } from "../entities/user.entity"
+import { EUserRole, EUserStatus } from "../entities/user.entity"
 
 export class CreateUserInput {
   @ApiProperty()
@@ -19,6 +19,11 @@ export class CreateUserInput {
   @ApiProperty({ enum: EUserRole })
   @IsEnum(EUserRole)
   role: EUserRole
+
+  @ApiProperty({ enum: EUserStatus })
+  @IsEnum(EUserStatus)
+  @IsOptional()
+  status?: EUserStatus
 
   @ApiProperty({ required: false })
   @IsUrl()

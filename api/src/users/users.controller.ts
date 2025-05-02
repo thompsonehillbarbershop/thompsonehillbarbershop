@@ -74,7 +74,7 @@ export class UsersController {
     type: [UserView],
   })
   async getAttendants() {
-    return (await this.usersService.findAll({ role: EUserRole.ATTENDANT })).map(user => new UserView(user))
+    return (await this.usersService.getAvailableAttendants()).map(user => new UserView(user))
   }
 
   @Get(':id')

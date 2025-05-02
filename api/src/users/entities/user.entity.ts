@@ -5,6 +5,11 @@ export enum EUserRole {
   ATTENDANT = "ATTENDANT",
 }
 
+export enum EUserStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE"
+}
+
 export interface IUser {
   id: string
   name: string
@@ -12,6 +17,7 @@ export interface IUser {
   password: string
   role: EUserRole
   profileImage?: string
+  status: EUserStatus
   createdAt: Date
 }
 
@@ -22,6 +28,7 @@ export class User {
   password: string
   role: EUserRole
   profileImage?: string
+  status: EUserStatus
   createdAt: Date
 
   constructor(data: IUser) {

@@ -7,7 +7,7 @@ import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundEx
 import { UpdateUserInput } from "./dto/update-user.input"
 import { ConfigModule } from "@nestjs/config"
 import { FirebaseModule } from "../firebase/firebase.module"
-import { EUserRole } from "./entities/user.entity"
+import { EUserRole, EUserStatus } from "./entities/user.entity"
 
 describe('Users Module', () => {
   let usersController: UsersController
@@ -18,7 +18,8 @@ describe('Users Module', () => {
       name: data?.name || faker.person.fullName(),
       userName: data?.userName || faker.internet.username(),
       password: data?.password || faker.internet.password({ length: 12 }),
-      role: data?.role || faker.helpers.enumValue(EUserRole)
+      role: data?.role || faker.helpers.enumValue(EUserRole),
+      status: data?.status || faker.helpers.enumValue(EUserStatus),
     }
   }
 
@@ -48,6 +49,8 @@ describe('Users Module', () => {
       expect(user).toHaveProperty("name", inputData.name)
       expect(user).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(user).toHaveProperty("password")
+      expect(user).toHaveProperty("role", inputData.role)
+      expect(user).toHaveProperty("status", inputData.status)
 
       await usersServices.remove({ id: user.id })
     })
@@ -63,6 +66,8 @@ describe('Users Module', () => {
       expect(loggedUser).toHaveProperty("name", inputData.name)
       expect(loggedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(loggedUser).toHaveProperty("password")
+      expect(loggedUser).toHaveProperty("role", inputData.role)
+      expect(loggedUser).toHaveProperty("status", inputData.status)
 
       await usersServices.remove({ id: loggedUser.id })
     })
@@ -89,6 +94,8 @@ describe('Users Module', () => {
       expect(foundUser).toHaveProperty("name", inputData.name)
       expect(foundUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(foundUser).toHaveProperty("password")
+      expect(foundUser).toHaveProperty("role", inputData.role)
+      expect(foundUser).toHaveProperty("status", inputData.status)
 
       await usersServices.remove({ id: user.id })
     })
@@ -199,13 +206,14 @@ describe('Users Module', () => {
     }, 30000)
 
     it("should update a user data by id, without changing password", async () => {
-      const inputData = getRandomUserData({ role: EUserRole.ADMIN })
+      const inputData = getRandomUserData({ role: EUserRole.ADMIN, status: EUserStatus.ACTIVE })
 
       const user = await usersServices.create(inputData)
 
       const updatedData: UpdateUserInput = {
         name: faker.person.fullName(),
         role: EUserRole.MANAGER,
+        status: EUserStatus.INACTIVE,
       }
 
       const loggedUser = await usersServices.loginWithCredentials(inputData.userName, inputData.password)
@@ -219,6 +227,7 @@ describe('Users Module', () => {
       expect(updatedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(updatedUser).toHaveProperty("password")
       expect(updatedUser).toHaveProperty("role", updatedData.role)
+      expect(updatedUser).toHaveProperty("status", updatedData.status)
 
       const loggedUser2 = await usersServices.loginWithCredentials(inputData.userName, inputData.password)
 

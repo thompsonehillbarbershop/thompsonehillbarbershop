@@ -3,15 +3,16 @@
 import { z } from "@/lib/pt-zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { createUserSchema } from "@/actions/users/dtos/create-user.input"
-import { EUserRole, IUserView } from "@/models/user"
+import { EUserRole, EUserStatus, IUserView } from "@/models/user"
 import { PasswordInput } from "../ui/password-input"
 import { useEffect } from "react"
 import { useAdmin } from "@/hooks/use-admin"
+import { Switch } from "../ui/switch"
 
 interface Props {
   forRole: EUserRole
@@ -29,6 +30,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
       name: user?.name,
       password: undefined,
       userName: user?.userName,
+      status: user?.status || EUserStatus.ACTIVE,
       role: forRole
     }
   })
@@ -47,6 +49,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
             name: values.name,
             password: values.password,
             role: forRole,
+            status: values.status,
           }
         })
         toast.success("Usuário atualizado com sucesso")
@@ -75,6 +78,30 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full pt-6 flex flex-col gap-4">
+        {forRole === EUserRole.ATTENDANT && (
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>Ativo</FormLabel>
+                  <FormDescription>
+                    Deixando o atendente como ativo, irá exibi-lo na tela do totem
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value === EUserStatus.ACTIVE}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked ? EUserStatus.ACTIVE : EUserStatus.INACTIVE)
+                    }}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="name"
@@ -110,9 +137,9 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Senha</FormLabel>
+              <FormLabel>Senha {user && <i>(opcional)</i>}</FormLabel>
               <FormControl>
-                <PasswordInput placeholder="Digite a senha para o novo usuário" {...field} />
+                <PasswordInput placeholder={user ? "Digite uma nova senha para alterar" : "Digite a senha para o novo usuário"} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { EUserRole, User } from "../entities/user.entity"
+import { EUserRole, EUserStatus, User } from "../entities/user.entity"
 
 export class UserView {
   constructor(user: User) {
@@ -9,6 +9,7 @@ export class UserView {
     this.role = user.role
     this.profileImage = user.profileImage
     this.createdAt = user.createdAt
+    this.status = user.status
   }
 
   @ApiProperty()
@@ -28,4 +29,7 @@ export class UserView {
 
   @ApiProperty()
   createdAt: Date
+
+  @ApiProperty()
+  status: EUserStatus
 }

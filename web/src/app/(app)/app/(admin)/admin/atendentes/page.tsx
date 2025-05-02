@@ -69,6 +69,7 @@ export default function AttendantsPage() {
         <CardContent>
           <AdminUsersTable
             data={attendants}
+            forRole={EUserRole.ATTENDANT}
             isLoading={isLoadingUsers}
             emptyMessage="Nenhum atendente encontrado"
             filtering={{

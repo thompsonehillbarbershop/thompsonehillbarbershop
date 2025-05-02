@@ -4,7 +4,13 @@ export interface IUserView {
   userName: string
   role: EUserRole
   profileImage?: string
+  status: EUserStatus
   createdAt: Date
+}
+
+export enum EUserStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE"
 }
 
 export enum EUserRole {

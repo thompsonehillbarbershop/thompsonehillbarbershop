@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { IUser, User } from "./entities/user.entity"
+import { EUserRole, EUserStatus, IUser, User } from "./entities/user.entity"
 import { randomUUID } from "crypto"
 import { CreateUserInput } from "./dto/create-user.input"
 import { UpdateUserInput } from "./dto/update-user.input"
@@ -39,7 +39,8 @@ export class UsersService {
           password,
           role: createUserDto.role,
           profileImage: createUserDto.profileImage || "",
-          createdAt: new Date()
+          createdAt: new Date(),
+          status: createUserDto.status || EUserStatus.ACTIVE
         })
 
         await this.usersCollection.doc(user.id).set({ ...user, createdAt: user.createdAt.getTime() })
@@ -59,6 +60,13 @@ export class UsersService {
 
     const snapshot = await ref.get()
     return snapshot.docs.map((doc) => new User(doc.data() as IUser))
+  }
+
+  async getAvailableAttendants(): Promise<User[]> {
+    const snapshot = await this.usersCollection
+      .where('role', '==', EUserRole.ATTENDANT)
+      .get()
+    return snapshot.docs.filter(doc => (doc.data() as IUser).status === EUserStatus.ACTIVE).map((doc) => new User(doc.data() as IUser))
   }
 
   async findOne({ id, userName }: { id?: string, userName?: string }): Promise<User> {
