@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { IUser, User } from "./entities/user.entity"
 import { randomUUID } from "crypto"
 import { CreateUserInput } from "./dto/create-user.input"
@@ -7,7 +7,6 @@ import { hash, verify } from "argon2"
 import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundException } from "../errors/index"
 import { FirebaseService } from "../firebase/firebase.service"
 import { Express } from "express"
-import path from "path"
 
 @Injectable()
 export class UsersService {
@@ -35,7 +34,7 @@ export class UsersService {
         const user = new User({
           id: id,
           name: createUserDto.name,
-          userName: createUserDto.userName,
+          userName: createUserDto.userName.toLowerCase().trim(),
           password,
           role: createUserDto.role,
           profileImage: createUserDto.profileImage || "",
@@ -64,7 +63,7 @@ export class UsersService {
 
     if (userName) {
       const snapshot = await this.usersCollection
-        .where('userName', '==', userName)
+        .where('userName', '==', userName.toLowerCase().trim())
         .limit(1)
         .get()
 

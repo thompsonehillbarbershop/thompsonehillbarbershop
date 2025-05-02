@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common"
 import { Request } from "express"
-import { UsersService } from "src/users/users.service"
+import { UsersService } from "../users.service"
 import { EUserRole } from "../entities/user.entity"
 
 @Injectable()
@@ -14,7 +14,7 @@ export class AdminGuard implements CanActivate {
       const user = this.extractUserIdFromRequest(request as Request)
       // @ts-expect-error
       const user2 = await this.usersService.findOne({ id: user?.id })
-      return user2?.role === EUserRole.ADMIN
+      return (user2?.role === EUserRole.ADMIN || user2?.role === EUserRole.MANAGER)
     } catch (error) {
       console.error(error)
       return false
