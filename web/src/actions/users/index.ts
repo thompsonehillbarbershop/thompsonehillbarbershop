@@ -38,6 +38,21 @@ export async function getUsersAction() {
   }
 }
 
+export async function getAttendantsAction() {
+  try {
+    const { data } = await axiosClient.get<IUserView[]>(`/users/attendants`)
+    return data
+  } catch (err) {
+    const error = err as Error
+    if (error.message.includes("ECONNREFUSED")) {
+      throw new Error("Erro ao conectar com o servidor")
+    }
+
+    console.error(error)
+    throw error
+  }
+}
+
 export async function createUserAction(data: CreateUserInput) {
   const session = await getSession()
 

@@ -7,6 +7,7 @@ import { hash, verify } from "argon2"
 import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundException } from "../errors/index"
 import { FirebaseService } from "../firebase/firebase.service"
 import { Express } from "express"
+import { QueryUserInput } from "./dto/query-user.input"
 
 @Injectable()
 export class UsersService {
@@ -49,8 +50,14 @@ export class UsersService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    const snapshot = await this.usersCollection.get()
+  async findAll(query?: QueryUserInput): Promise<User[]> {
+    let ref = this.usersCollection as FirebaseFirestore.Query<IUser>
+
+    if (query?.role) {
+      ref = ref.where('role', '==', query.role)
+    }
+
+    const snapshot = await ref.get()
     return snapshot.docs.map((doc) => new User(doc.data() as IUser))
   }
 

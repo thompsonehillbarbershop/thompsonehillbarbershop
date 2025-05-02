@@ -5,5 +5,8 @@ export const queryClient = new QueryClient()
 export const queries = {
   admin: {
     users: "users"
+  },
+  totem: {
+    attendants: "attendants",
   }
 }

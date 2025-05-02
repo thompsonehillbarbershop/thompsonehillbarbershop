@@ -10,7 +10,7 @@ import { ConfigModule } from "@nestjs/config"
 import { FirebaseModule } from "../firebase/firebase.module"
 import { EUserRole } from "../users/entities/user.entity"
 
-describe('AppController', () => {
+describe('AuthController', () => {
   let authController: AuthController
   let usersService: UsersService
 
@@ -58,7 +58,7 @@ describe('AppController', () => {
       const response = await authController.register(input)
 
       expect(response).toHaveProperty("id")
-      expect(response).toHaveProperty("userName", input.userName)
+      expect(response).toHaveProperty("userName", input.userName.toLocaleLowerCase())
       expect(response).toHaveProperty("token")
 
       await usersService.remove({ id: response.id })
@@ -85,7 +85,7 @@ describe('AppController', () => {
 
       const response = await authController.register(input)
       expect(response).toHaveProperty("id")
-      expect(response).toHaveProperty("userName", input.userName)
+      expect(response).toHaveProperty("userName", input.userName.toLowerCase())
       expect(response).toHaveProperty("token")
 
       const loginResponse = await authController.login({
@@ -94,7 +94,7 @@ describe('AppController', () => {
       })
 
       expect(loginResponse).toHaveProperty("id")
-      expect(loginResponse).toHaveProperty("userName", input.userName)
+      expect(loginResponse).toHaveProperty("userName", input.userName.toLowerCase())
       expect(loginResponse).toHaveProperty("token")
 
       await usersService.remove({ id: response.id })
@@ -114,7 +114,7 @@ describe('AppController', () => {
 
       const response = await authController.register(input)
       expect(response).toHaveProperty("id")
-      expect(response).toHaveProperty("userName", input.userName)
+      expect(response).toHaveProperty("userName", input.userName.toLowerCase())
       expect(response).toHaveProperty("token")
 
       try {

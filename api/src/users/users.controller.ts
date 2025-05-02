@@ -7,6 +7,7 @@ import { UpdateUserInput } from "./dto/update-user.input"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard"
 import { UserNotFoundException } from "../errors"
 import { AdminGuard } from "./guards/is-admin.guard"
+import { EUserRole } from "./entities/user.entity"
 
 @ApiTags('Users')
 @Controller('users')
@@ -65,6 +66,15 @@ export class UsersController {
   ) {
     const id = req.user.id as string
     return new UserView(await this.usersService.findOne({ id }))
+  }
+
+  @Get('attendants')
+  @ApiOperation({ summary: 'Get all available attendants' })
+  @ApiOkResponse({
+    type: [UserView],
+  })
+  async getAttendants() {
+    return (await this.usersService.findAll({ role: EUserRole.ATTENDANT })).map(user => new UserView(user))
   }
 
   @Get(':id')

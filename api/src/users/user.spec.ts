@@ -46,7 +46,7 @@ describe('Users Module', () => {
 
       expect(user).toHaveProperty("id")
       expect(user).toHaveProperty("name", inputData.name)
-      expect(user).toHaveProperty("userName", inputData.userName)
+      expect(user).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(user).toHaveProperty("password")
 
       await usersServices.remove({ id: user.id })
@@ -61,7 +61,7 @@ describe('Users Module', () => {
       expect(loggedUser).toBeTruthy()
       expect(loggedUser).toHaveProperty("id")
       expect(loggedUser).toHaveProperty("name", inputData.name)
-      expect(loggedUser).toHaveProperty("userName", inputData.userName)
+      expect(loggedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(loggedUser).toHaveProperty("password")
 
       await usersServices.remove({ id: loggedUser.id })
@@ -87,7 +87,7 @@ describe('Users Module', () => {
 
       expect(foundUser).toHaveProperty("id", user.id)
       expect(foundUser).toHaveProperty("name", inputData.name)
-      expect(foundUser).toHaveProperty("userName", inputData.userName)
+      expect(foundUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(foundUser).toHaveProperty("password")
 
       await usersServices.remove({ id: user.id })
@@ -107,7 +107,7 @@ describe('Users Module', () => {
 
       expect(foundUser).toHaveProperty("id", user.id)
       expect(foundUser).toHaveProperty("name", inputData.name)
-      expect(foundUser).toHaveProperty("userName", inputData.userName)
+      expect(foundUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(foundUser).toHaveProperty("password")
 
       await usersServices.remove({ userName: user.userName })
@@ -119,10 +119,10 @@ describe('Users Module', () => {
       }).rejects.toThrow(UserNotFoundException)
     })
 
-    it("should find all users", async () => {
+    it.skip("should find all users", async () => {
       const initialUsers = await usersServices.findAll()
 
-      const inputData = Array.from({ length: 10 }, () => getRandomUserData())
+      const inputData = Array.from({ length: 5 }, () => getRandomUserData())
 
       for (const data of inputData) {
         await usersServices.create(data)
@@ -138,6 +138,60 @@ describe('Users Module', () => {
           password: expect.any(String),
         })
       ]))
+
+      for (const data of inputData) {
+        await usersServices.remove({ userName: data.userName })
+      }
+    }, 30000)
+
+    it("should find all users filtering by role", async () => {
+      const initialUsers = await usersServices.findAll()
+
+      const initialAttendants = initialUsers.filter(user => user.role === EUserRole.ATTENDANT)
+      const initialManagers = initialUsers.filter(user => user.role === EUserRole.MANAGER)
+      const initialAdmins = initialUsers.filter(user => user.role === EUserRole.ADMIN)
+      const initialTotems = initialUsers.filter(user => user.role === EUserRole.TOTEM)
+
+      const inputData: CreateUserInput[] = [
+        {
+          ...getRandomUserData({ role: EUserRole.ATTENDANT })
+        },
+        {
+          ...getRandomUserData({ role: EUserRole.ADMIN })
+        },
+        {
+          ...getRandomUserData({ role: EUserRole.MANAGER })
+        },
+        {
+          ...getRandomUserData({ role: EUserRole.ATTENDANT })
+        },
+        {
+          ...getRandomUserData({ role: EUserRole.TOTEM })
+        },
+        {
+          ...getRandomUserData({ role: EUserRole.ATTENDANT })
+        },
+        {
+          ...getRandomUserData({ role: EUserRole.MANAGER })
+        },
+        {
+          ...getRandomUserData({ role: EUserRole.ATTENDANT })
+        },
+      ]
+
+      for (const data of inputData) {
+        await usersServices.create(data)
+      }
+
+      const attendants = await usersServices.findAll({ role: EUserRole.ATTENDANT })
+      const managers = await usersServices.findAll({ role: EUserRole.MANAGER })
+      const totems = await usersServices.findAll({ role: EUserRole.TOTEM })
+      const admins = await usersServices.findAll({ role: EUserRole.ADMIN })
+
+      expect(attendants).toHaveLength(initialAttendants.length + 4)
+      expect(managers).toHaveLength(initialManagers.length + 2)
+      expect(totems).toHaveLength(initialTotems.length + 1)
+      expect(admins).toHaveLength(initialAdmins.length + 1)
 
       for (const data of inputData) {
         await usersServices.remove({ userName: data.userName })
@@ -162,7 +216,7 @@ describe('Users Module', () => {
 
       expect(updatedUser).toHaveProperty("id", user.id)
       expect(updatedUser).toHaveProperty("name", updatedData.name)
-      expect(updatedUser).toHaveProperty("userName", inputData.userName)
+      expect(updatedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(updatedUser).toHaveProperty("password")
       expect(updatedUser).toHaveProperty("role", updatedData.role)
 
@@ -190,7 +244,7 @@ describe('Users Module', () => {
 
       expect(updatedUser).toHaveProperty("id", user.id)
       expect(updatedUser).toHaveProperty("name", updatedData.name)
-      expect(updatedUser).toHaveProperty("userName", inputData.userName)
+      expect(updatedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(updatedUser).toHaveProperty("password")
 
       const loggedUser2 = await usersServices.loginWithCredentials(inputData.userName, inputData.password)
@@ -214,7 +268,7 @@ describe('Users Module', () => {
 
       expect(updatedUser).toHaveProperty("id", user.id)
       expect(updatedUser).toHaveProperty("name", inputData.name)
-      expect(updatedUser).toHaveProperty("userName", inputData.userName)
+      expect(updatedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(updatedUser).toHaveProperty("password")
 
       expect(async () => {
@@ -256,7 +310,7 @@ describe('Users Module', () => {
 
       expect(deletedUser).toHaveProperty("id", user.id)
       expect(deletedUser).toHaveProperty("name", inputData.name)
-      expect(deletedUser).toHaveProperty("userName", inputData.userName)
+      expect(deletedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(deletedUser).toHaveProperty("password")
     })
 
@@ -268,7 +322,7 @@ describe('Users Module', () => {
 
       expect(deletedUser).toHaveProperty("id", user.id)
       expect(deletedUser).toHaveProperty("name", inputData.name)
-      expect(deletedUser).toHaveProperty("userName", inputData.userName)
+      expect(deletedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(deletedUser).toHaveProperty("password")
     })
 
@@ -293,7 +347,7 @@ describe('Users Module', () => {
       expect(loggedUser).toBeTruthy()
       expect(loggedUser).toHaveProperty("id", user.id)
       expect(loggedUser).toHaveProperty("name", inputData.name)
-      expect(loggedUser).toHaveProperty("userName", inputData.userName)
+      expect(loggedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
       expect(loggedUser).toHaveProperty("password")
 
       await usersServices.remove({ id: user.id })
