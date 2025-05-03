@@ -29,6 +29,8 @@ export const useAdmin = () => {
         if (!current) return [newUser]
         return [...current, newUser]
       })
+
+      return newUser
     },
     onSuccess: () => {
       queryClient.invalidateQueries()

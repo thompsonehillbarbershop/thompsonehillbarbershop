@@ -26,9 +26,12 @@ export class CreateUserInput {
   status?: EUserStatus
 
   @ApiProperty({ required: false })
-  @IsUrl()
   @IsOptional()
   profileImage?: string
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  profileImageContentType?: string
 }
 
 // Only for swagger documentation

@@ -18,7 +18,7 @@ export class UsersService {
     private readonly firebaseService: FirebaseService,
   ) { }
 
-  async create(createUserDto: CreateUserInput, profileImage?: Express.Multer.File): Promise<User> {
+  async create(createUserDto: CreateUserInput): Promise<User> {
     try {
       await this.findOne({ userName: createUserDto.userName })
       throw new UserAlreadyExistsException()
@@ -27,24 +27,44 @@ export class UsersService {
         const password = await hash(createUserDto.password)
         const id = randomUUID()
 
-        // For firebase upload
-        // let profileImageUrl: string = ""
-        // if (profileImage) {
-        //   profileImageUrl = await this.uploadUserProfileImage(id, profileImage)
-        // }
+        // Create a signed URL for the profile image upload if it exists
+        let profileImage: string | undefined = undefined
+        let profileImageSignedUrl: string | undefined = undefined
+        if (createUserDto.profileImage && createUserDto.profileImageContentType) {
+          const filePath = `users/${createUserDto.userName}/profile.${createUserDto.profileImage.split('.').pop() || 'jpg'}`
+
+          const fileRef = this.firebaseService.getStorage().file(filePath)
+          const [signedUrl] = await fileRef.getSignedUrl({
+            action: 'write',
+            expires: Date.now() + 2 * 60 * 1000, // 2 minutes
+            contentType: createUserDto.profileImageContentType,
+            version: 'v4',
+          })
+          profileImageSignedUrl = signedUrl
+
+          // Create a url for the profile image public access
+          const encodedPath = encodeURIComponent(filePath)
+          profileImage = `https://firebasestorage.googleapis.com/v0/b/${this.firebaseService.getStorage().name}/o/${encodedPath}?alt=media`
+        }
+
         const user = new User({
           id: id,
           name: createUserDto.name,
           userName: createUserDto.userName.toLowerCase().trim(),
           password,
           role: createUserDto.role,
-          profileImage: createUserDto.profileImage || "",
+          profileImage,
           createdAt: new Date(),
           status: createUserDto.status || EUserStatus.ACTIVE
         })
 
-        await this.usersCollection.doc(user.id).set({ ...user, createdAt: user.createdAt.getTime() })
-        return user
+        await this.usersCollection.doc(user.id).set({
+          ...user,
+          createdAt: user.createdAt.getTime(),
+          profileImage: profileImage || null,
+        })
+
+        return { ...user, profileImageSignedUrl }
       }
       console.error(error)
       throw error

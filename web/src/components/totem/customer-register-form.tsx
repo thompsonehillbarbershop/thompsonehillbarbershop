@@ -30,7 +30,7 @@ export default function CustomerRegisterForm() {
   const [activeField, setActiveField] = useState<keyof z.infer<typeof formSchema> | null>(null)
   const [keyBoardLayout, setKeyboardLayout] = useState<"qwerty" | "numpad">("qwerty")
   const router = useRouter()
-  const invoiceInputRef = useRef<HTMLInputElement>(null)
+  const photoRef = useRef<HTMLInputElement>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const phoneNumber = searchParams.get('tel')
@@ -105,7 +105,7 @@ export default function CustomerRegisterForm() {
                 className="hidden"
                 accept="image/*"
                 capture="environment"
-                ref={invoiceInputRef}
+                ref={photoRef}
                 onChange={(e) => {
                   const file = e.target.files?.[0]
                   if (file) {
@@ -120,7 +120,7 @@ export default function CustomerRegisterForm() {
                   src={URL.createObjectURL(selectedFile)}
                   alt="Foto capturada"
                   className="w-full h-full object-cover rounded-lg"
-                  onClick={() => invoiceInputRef.current?.click()}
+                  onClick={() => photoRef.current?.click()}
                 />
               ) : (
                 <Button
@@ -128,7 +128,7 @@ export default function CustomerRegisterForm() {
                   type="button"
                   variant="outline"
                   className="w-full size-64"
-                  onClick={() => invoiceInputRef.current?.click()}
+                  onClick={() => photoRef.current?.click()}
                 >
                   <CameraIcon className="size-24 stroke-[1.5px]" />
                   <span className="ml-2"></span>

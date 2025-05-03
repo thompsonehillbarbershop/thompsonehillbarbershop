@@ -10,9 +10,12 @@ import { toast } from "sonner"
 import { createUserSchema } from "@/actions/users/dtos/create-user.input"
 import { EUserRole, EUserStatus, IUserView } from "@/models/user"
 import { PasswordInput } from "../ui/password-input"
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useAdmin } from "@/hooks/use-admin"
 import { Switch } from "../ui/switch"
+import { CameraIcon } from "lucide-react"
+import Image from "next/image"
+import axios from "axios"
 
 interface Props {
   forRole: EUserRole
@@ -24,6 +27,7 @@ interface Props {
 export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
   const formSchema = createUserSchema(user ? "update" : "create")
   const { createUser, updateUser } = useAdmin()
+  const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,12 +39,17 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
     }
   })
 
+  const photoRef = useRef<HTMLInputElement>(null)
+
   // Log form errors
   useEffect(() => {
     console.log(form.formState.errors)
   }, [form.formState.errors])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const profileImage = selectedFile?.name
+    const profileImageContentType = selectedFile?.type
+
     try {
       if (user) {
         await updateUser({
@@ -49,12 +58,25 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
             name: values.name,
             password: values.password,
             role: forRole,
-            status: values.status,
+            status: values.status
           }
         })
         toast.success("Usuário atualizado com sucesso")
       } else {
-        await createUser(values)
+        const user = await createUser({
+          ...values,
+          profileImage,
+          profileImageContentType
+        })
+
+        // Upload the photo to the google firebase server using the signed URL
+        if (user.profileImageSignedUrl) {
+          await axios.put(user.profileImageSignedUrl, selectedFile, {
+            headers: {
+              "Content-Type": selectedFile?.type || "image/jpeg",
+            }
+          })
+        }
         toast.success("Registrado com sucesso")
       }
 
@@ -75,10 +97,15 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
     }
   }
 
+  async function handlePhotoInput(file: File) {
+    setSelectedFile(file)
+    console.log("Photo input", file)
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full pt-6 flex flex-col gap-4">
-        {forRole === EUserRole.ATTENDANT && (
+        {forRole === EUserRole.ATTENDANT && !!user && (
           <FormField
             control={form.control}
             name="status"
@@ -102,11 +129,49 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
             )}
           />
         )}
+        <div className="w-full h-48 pt-4 flex items-center justify-center">
+          <input
+            autoFocus={false}
+            id="file"
+            name="file"
+            type="file"
+            className="hidden"
+            accept="image/*"
+            capture="environment"
+            ref={photoRef}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) {
+                handlePhotoInput(file)
+              }
+            }}
+          />
+          {selectedFile ? (
+            <Image
+              width={192}
+              height={192}
+              src={URL.createObjectURL(selectedFile)}
+              alt="Foto capturada"
+              className="size-48 object-cover rounded-lg aspect-square"
+              onClick={() => photoRef.current?.click()}
+            />
+          ) : (
+            <Button
+              autoFocus={false}
+              type="button"
+              variant="outline"
+              className="w-full size-48"
+              onClick={() => photoRef.current?.click()}
+            >
+              <CameraIcon className="size-24 stroke-[1.5px]" />
+            </Button>
+          )}
+        </div>
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="pt-4">
               <FormLabel>{forRole === EUserRole.TOTEM ? "Descrição" : "Nome Completo"}</FormLabel>
               <FormControl>
                 <Input placeholder="Digite o nome do usuário" {...field} />

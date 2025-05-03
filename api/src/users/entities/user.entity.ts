@@ -17,6 +17,7 @@ export interface IUser {
   password: string
   role: EUserRole
   profileImage?: string
+  profileImageSignedUrl?: string
   status: EUserStatus
   createdAt: Date
 }
@@ -28,6 +29,7 @@ export class User {
   password: string
   role: EUserRole
   profileImage?: string
+  profileImageSignedUrl?: string
   status: EUserStatus
   createdAt: Date
 
