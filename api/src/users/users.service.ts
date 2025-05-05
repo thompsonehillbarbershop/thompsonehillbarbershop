@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { EUserRole, EUserStatus, IUser, User } from "./entities/user.entity"
 import { randomUUID } from "crypto"
 import { CreateUserInput } from "./dto/create-user.input"
@@ -8,15 +8,26 @@ import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundEx
 import { FirebaseService } from "../firebase/firebase.service"
 import { Express } from "express"
 import { QueryUserInput } from "./dto/query-user.input"
+import { Model } from "mongoose"
+import { IMongoUser, toUser } from "../mongo/schemas/user.schema"
+import { createId } from "@paralleldrive/cuid2"
 
 @Injectable()
 export class UsersService {
-  private firestore = this.firebaseService.getFirestore();
-  private usersCollection = this.firestore.collection('users');
-
   constructor(
+    @Inject("UserSchema") private readonly userSchema: Model<IMongoUser>,
     private readonly firebaseService: FirebaseService,
   ) { }
+
+  async findOne({ id, userName }: { id?: string, userName?: string }): Promise<User> {
+    const query: any = {}
+    if (id) query._id = id
+    if (userName) query.userName = userName.toLowerCase().trim()
+
+    const user = await this.userSchema.findOne(query)
+    if (!user) throw new UserNotFoundException()
+    return toUser(user)
+  }
 
   async create(createUserDto: CreateUserInput): Promise<User> {
     try {
@@ -25,13 +36,13 @@ export class UsersService {
     } catch (error) {
       if (error instanceof UserNotFoundException) {
         const password = await hash(createUserDto.password)
-        const id = randomUUID()
+        const id = createId()
 
         // Create a signed URL for the profile image upload if it exists
         let profileImage: string | undefined = undefined
         let profileImageSignedUrl: string | undefined = undefined
         if (createUserDto.profileImage && createUserDto.profileImageContentType) {
-          const filePath = `users/${createUserDto.userName}/profile.${createUserDto.profileImage.split('.').pop() || 'jpg'}`
+          const filePath = `users/${createUserDto.userName.toLowerCase().trim()}/profile.${createUserDto.profileImage.split('.').pop() || 'jpg'}`
 
           const fileRef = this.firebaseService.getStorage().file(filePath)
           const [signedUrl] = await fileRef.getSignedUrl({
@@ -47,24 +58,20 @@ export class UsersService {
           profileImage = `https://firebasestorage.googleapis.com/v0/b/${this.firebaseService.getStorage().name}/o/${encodedPath}?alt=media`
         }
 
-        const user = new User({
-          id: id,
+        const user = new this.userSchema({
+          _id: id,
           name: createUserDto.name,
           userName: createUserDto.userName.toLowerCase().trim(),
           password,
           role: createUserDto.role,
           profileImage,
           createdAt: new Date(),
-          status: createUserDto.status || EUserStatus.ACTIVE
+          status: createUserDto.status || EUserStatus.ACTIVE,
         })
 
-        await this.usersCollection.doc(user.id).set({
-          ...user,
-          createdAt: user.createdAt.getTime(),
-          profileImage: profileImage || null,
-        })
+        await user.save()
 
-        return { ...user, profileImageSignedUrl }
+        return { ...toUser(user), profileImageSignedUrl }
       }
       console.error(error)
       throw error
@@ -72,41 +79,22 @@ export class UsersService {
   }
 
   async findAll(query?: QueryUserInput): Promise<User[]> {
-    let ref = this.usersCollection as FirebaseFirestore.Query<IUser>
+    let queryConditions: any = {}
 
     if (query?.role) {
-      ref = ref.where('role', '==', query.role)
+      queryConditions.role = query.role
     }
 
-    const snapshot = await ref.get()
-    return snapshot.docs.map((doc) => new User(doc.data() as IUser))
+    const users = await this.userSchema.find(queryConditions)
+    return users.map(user => toUser(user))
   }
 
   async getAvailableAttendants(): Promise<User[]> {
-    const snapshot = await this.usersCollection
-      .where('role', '==', EUserRole.ATTENDANT)
-      .get()
-    return snapshot.docs.filter(doc => (doc.data() as IUser).status === EUserStatus.ACTIVE).map((doc) => new User(doc.data() as IUser))
-  }
-
-  async findOne({ id, userName }: { id?: string, userName?: string }): Promise<User> {
-    if (id) {
-      const doc = await this.usersCollection.doc(id).get()
-      if (!doc.exists) throw new UserNotFoundException()
-      return new User(doc.data() as IUser)
-    }
-
-    if (userName) {
-      const snapshot = await this.usersCollection
-        .where('userName', '==', userName.toLowerCase().trim())
-        .limit(1)
-        .get()
-
-      if (snapshot.empty) throw new UserNotFoundException()
-      return new User(snapshot.docs[0].data() as IUser)
-    }
-
-    throw new UserNotFoundException()
+    const users = await this.userSchema.find({
+      role: EUserRole.ATTENDANT,
+      status: EUserStatus.ACTIVE,
+    })
+    return users.map(user => toUser(user))
   }
 
   async update({ id, userName }: { id?: string, userName?: string }, updateUserDto: UpdateUserInput): Promise<User> {
@@ -122,13 +110,18 @@ export class UsersService {
       password: updatedPassword,
     }
 
-    await this.usersCollection.doc(user.id).set({ ...updatedUser, createdAt: user.createdAt.getTime() })
-    return updatedUser
+    const updatedUserFromDB = await this.userSchema.findOneAndUpdate(
+      { _id: user.id }
+      ,
+      updatedUser,
+      { new: true }
+    )
+    return toUser(updatedUserFromDB!)
   }
 
   async remove({ id, userName }: { id?: string, userName?: string }): Promise<User> {
     const user = await this.findOne({ id, userName })
-    await this.usersCollection.doc(user.id).delete()
+    await this.userSchema.findOneAndDelete({ _id: user.id })
     return user
   }
 
@@ -146,32 +139,4 @@ export class UsersService {
       throw new InvalidCredentialsException()
     }
   }
-
-  // private async uploadUserProfileImage(userId: string, file: Express.Multer.File): Promise<string> {
-  // Firebase
-  // const bucket = this.firebaseService.getStorage()
-  // const ext = file.mimetype.split('/')[1]
-  // const filename = `users/${userId}.${ext}`
-
-  // console.log("Uploading file to bucket", filename)
-
-  // const fileUpload = bucket.file(filename)
-
-  // const stream = fileUpload.createWriteStream({
-  //   metadata: {
-  //     contentType: file.mimetype,
-  //   },
-  // })
-
-  // return new Promise((resolve, reject) => {
-  //   stream.on('error', (error) => reject(error))
-
-  //   stream.on('finish', async () => {
-  //     await fileUpload.makePublic()
-  //     resolve(`https://storage.googleapis.com/${bucket.name}/${filename}`)
-  //   })
-
-  //   stream.end(file.buffer)
-  // })
-  // }
 }

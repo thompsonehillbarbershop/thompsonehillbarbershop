@@ -22,7 +22,7 @@ Table services {
   description string [not null]
   value decimal [not null]
   cover_image string
-  cerated_at string [not null]
+  created_at string [not null]
 }
 
 Table customers {

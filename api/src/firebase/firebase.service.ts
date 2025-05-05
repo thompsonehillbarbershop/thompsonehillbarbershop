@@ -9,9 +9,9 @@ export class FirebaseService {
     private readonly configService: ConfigService,
   ) { }
 
-  getFirestore() {
-    return this.app.firestore()
-  }
+  // getFirestore() {
+  //   return this.app.firestore()
+  // }
 
   getStorage() {
     const bucketName = this.configService.get<string>('FIREBASE_STORAGE_BUCKET_NAME') as string

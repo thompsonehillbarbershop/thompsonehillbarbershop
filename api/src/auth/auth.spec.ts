@@ -9,6 +9,7 @@ import { InvalidCredentialsException, UserRegisterException } from "../errors"
 import { ConfigModule } from "@nestjs/config"
 import { FirebaseModule } from "../firebase/firebase.module"
 import { EUserRole } from "../users/entities/user.entity"
+import { MongoModule } from "../mongo/mongo.module"
 
 describe('AuthController', () => {
   let authController: AuthController
@@ -38,7 +39,8 @@ describe('AuthController', () => {
             signOptions: { expiresIn: '60s' },
           })
         }),
-        FirebaseModule
+        FirebaseModule,
+        MongoModule
       ]
     }).compile()
 

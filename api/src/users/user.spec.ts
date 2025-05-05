@@ -6,8 +6,9 @@ import { CreateUserInput } from "./dto/create-user.input"
 import { InvalidCredentialsException, UserAlreadyExistsException, UserNotFoundException } from "../errors"
 import { UpdateUserInput } from "./dto/update-user.input"
 import { ConfigModule } from "@nestjs/config"
-import { FirebaseModule } from "../firebase/firebase.module"
 import { EUserRole, EUserStatus } from "./entities/user.entity"
+import { MongoModule } from "../mongo/mongo.module"
+import { FirebaseModule } from "../firebase/firebase.module"
 
 describe('Users Module', () => {
   let usersController: UsersController
@@ -31,7 +32,8 @@ describe('Users Module', () => {
         ConfigModule.forRoot({
           isGlobal: true
         }),
-        FirebaseModule
+        FirebaseModule,
+        MongoModule
       ]
     }).compile()
 
@@ -58,7 +60,7 @@ describe('Users Module', () => {
     it("should create a user with encrypted password", async () => {
       const inputData = getRandomUserData()
 
-      await usersServices.create(inputData)
+      const createdUser = await usersServices.create(inputData)
       const loggedUser = await usersServices.loginWithCredentials(inputData.userName, inputData.password)
 
       expect(loggedUser).toBeTruthy()
