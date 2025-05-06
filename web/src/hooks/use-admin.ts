@@ -50,6 +50,8 @@ export const useAdmin = () => {
           return user
         })
       })
+
+      return updatedUser
     }
   })
 

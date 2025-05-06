@@ -66,7 +66,8 @@ export class UsersService {
         const user = new this.userSchema({
           _id: id,
           name: createUserDto.name,
-          userName: createUserDto.userName.toLowerCase().trim(),
+          // remove all white spaces and convert to lowercase
+          userName: createUserDto.userName.toLowerCase().trim().replaceAll(/\s/g, ""),
           password,
           role: createUserDto.role,
           profileImage,

@@ -5,6 +5,8 @@ import { EUserRole, IUserView } from "@/models/user"
 import { CreateUserInput, createUserSchema } from "./dtos/create-user.input"
 import { getSession } from "@/lib/session"
 import { UpdateUserInput, updateUserSchema } from "./dtos/update-user.input"
+import { revalidatePath } from "next/cache"
+import { EPages } from "@/lib/pages.enum"
 
 export async function getProfileAction() {
   try {
@@ -98,6 +100,9 @@ export async function updateUserAction(id: string, data: UpdateUserInput) {
 
   try {
     const { data: user } = await axiosClient.put<IUserView>(`/users/${id}`, data)
+
+    revalidatePath(EPages.ADMIN_ATTENDANTS)
+
     return user
 
   } catch (err) {
