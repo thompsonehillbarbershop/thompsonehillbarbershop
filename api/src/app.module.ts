@@ -14,7 +14,7 @@ import { MongoModule } from "./mongo/mongo.module"
     }),
 
 
-    AuthModule,
+    // AuthModule,
     UsersModule,
     FirebaseModule,
     MongoModule
