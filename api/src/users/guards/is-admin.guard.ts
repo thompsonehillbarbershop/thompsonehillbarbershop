@@ -12,7 +12,7 @@ export class AdminGuard implements CanActivate {
 
     try {
       const user = this.extractUserIdFromRequest(request as Request)
-      // @ts-expect-error
+      // @ts-expect-error: User is not defined in the request type
       const user2 = await this.usersService.findOne({ id: user?.id })
       return (user2?.role === EUserRole.ADMIN || user2?.role === EUserRole.MANAGER)
     } catch (error) {
