@@ -4,7 +4,6 @@ import { AppService } from './app.service'
 import { ConfigModule } from '@nestjs/config'
 import { AuthModule } from "./auth/auth.module"
 import { UsersModule } from "./users/users.module"
-import { FirebaseModule } from "./firebase/firebase.module"
 import { MongoModule } from "./mongo/mongo.module"
 
 @Module({
@@ -14,10 +13,9 @@ import { MongoModule } from "./mongo/mongo.module"
     }),
 
 
-    // AuthModule,
-    // UsersModule,
-    // FirebaseModule,
-    // MongoModule
+    AuthModule,
+    UsersModule,
+    MongoModule
   ],
   controllers: [AppController],
   providers: [AppService],
