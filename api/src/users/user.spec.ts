@@ -9,10 +9,18 @@ import { ConfigModule } from "@nestjs/config"
 import { EUserRole, EUserStatus } from "./entities/user.entity"
 import { MongoModule } from "../mongo/mongo.module"
 import { FirebaseModule } from "../firebase/firebase.module"
+import axios, { AxiosError } from "axios"
+
+const path = require("path")
+const fs = require("fs")
 
 describe('Users Module', () => {
   let usersController: UsersController
   let usersServices: UsersService
+
+  const imagePath = path.resolve(__dirname, "mocks", "test_image.png")
+  const imageBuffer = fs.readFileSync(imagePath)
+
 
   function getRandomUserData(data?: Partial<CreateUserInput>): CreateUserInput {
     return {
@@ -21,6 +29,8 @@ describe('Users Module', () => {
       password: data?.password || faker.internet.password({ length: 12 }),
       role: data?.role || faker.helpers.enumValue(EUserRole),
       status: data?.status || faker.helpers.enumValue(EUserStatus),
+      profileImage: data?.profileImage || undefined,
+      profileImageContentType: data?.profileImageContentType || undefined,
     }
   }
 
@@ -128,7 +138,7 @@ describe('Users Module', () => {
       }).rejects.toThrow(UserNotFoundException)
     })
 
-    it.skip("should find all users", async () => {
+    it("should find all users", async () => {
       const initialUsers = await usersServices.findAll()
 
       const inputData = Array.from({ length: 5 }, () => getRandomUserData())
@@ -380,6 +390,247 @@ describe('Users Module', () => {
       }).rejects.toThrow(InvalidCredentialsException)
 
       await usersServices.remove({ userName: inputData.userName })
+    })
+
+    it("should not generate a signed URL for a user without an image", async () => {
+      const inputData = getRandomUserData({
+        profileImageContentType: "image/png",
+      })
+
+      // Register user with a profile picture
+      const user = await usersServices.create(inputData)
+      expect(user).toHaveProperty("id")
+      expect(user).toHaveProperty("userName", inputData.userName.toLowerCase())
+      expect(user.profileImage).toBeFalsy()
+      expect(user.profileImageSignedUrl).toBeFalsy()
+
+      await usersServices.remove({ id: user.id })
+    })
+
+    it("should not generate a signed URL for a user without an  image content type", async () => {
+      const inputData = getRandomUserData({
+        profileImage: "test_image.png"
+      })
+
+      // Register user with a profile picture
+      const user = await usersServices.create(inputData)
+      expect(user).toHaveProperty("id")
+      expect(user).toHaveProperty("userName", inputData.userName.toLowerCase())
+      expect(user.profileImage).toBeFalsy()
+      expect(user.profileImageSignedUrl).toBeFalsy()
+
+      await usersServices.remove({ id: user.id })
+    })
+
+
+    it("should upload a user image", async () => {
+      const inputData = getRandomUserData({
+        profileImageContentType: "image/png",
+        profileImage: "test_image.png"
+      })
+
+      // Register user with a profile picture
+      try {
+        const user = await usersServices.create(inputData)
+        expect(user).toHaveProperty("id")
+        expect(user).toHaveProperty("userName", inputData.userName.toLowerCase())
+        expect(user.profileImage).toBeTruthy()
+        expect(user.profileImageSignedUrl).toBeTruthy()
+
+        if (!user.profileImageSignedUrl) {
+          throw new Error("User profile image signed URL is not defined")
+        }
+
+        if (!user.profileImage) {
+          throw new Error("User profile image is not defined")
+        }
+
+        // Upload image using the signed URL
+        const response = await axios.put(user.profileImageSignedUrl, imageBuffer, {
+          headers: {
+            "Content-Type": "image/png",
+          }
+        })
+
+        expect(response.status).toBe(200)
+
+        // Verify if the image was uploaded successfully with status 200
+        const response2 = await axios.get(user.profileImage, {
+          responseType: "arraybuffer"
+        })
+
+        expect(response2.status).toBe(200)
+        expect(response2.headers["content-type"]).toBe("image/png")
+
+        await usersServices.remove({ id: user.id })
+      } catch (error) {
+        throw new Error(`Error uploading image: ${error}`)
+      }
+    })
+
+    it("should update a user image when there is no image before", async () => {
+      const inputData = getRandomUserData()
+
+      // Register user with a profile picture
+      const user = await usersServices.create(inputData)
+      expect(user).toHaveProperty("id")
+      expect(user).toHaveProperty("userName", inputData.userName.toLowerCase())
+      expect(user.profileImage).toBeFalsy()
+      expect(user.profileImageSignedUrl).toBeFalsy()
+
+      // Update user with a image using the signed URL
+      const updatedData: UpdateUserInput = {
+        profileImage: "test_image.png",
+        profileImageContentType: "image/png",
+      }
+      const updatedUser = await usersServices.update({ id: user.id }, updatedData)
+
+      expect(updatedUser).toHaveProperty("id", user.id)
+      expect(updatedUser.profileImage).toBeTruthy()
+      expect(updatedUser.profileImageSignedUrl).toBeTruthy()
+
+      if (!updatedUser.profileImageSignedUrl) {
+        throw new Error("User profile image signed URL is not defined")
+      }
+
+      if (!updatedUser.profileImage) {
+        throw new Error("User profile image is not defined")
+      }
+
+      // Upload image using the signed URL
+      await axios.put(updatedUser.profileImageSignedUrl, imageBuffer, {
+        headers: {
+          "Content-Type": "image/png",
+        }
+      })
+
+      // Verify if the image was uploaded successfully with status 200
+      const response = await axios.get(updatedUser.profileImage, {
+        responseType: "arraybuffer"
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.headers["content-type"]).toBe("image/png")
+
+      await usersServices.remove({ id: user.id })
+    })
+
+    it("should update a user image when there is image before", async () => {
+      const inputData = getRandomUserData({
+        profileImage: "test_image.png",
+        profileImageContentType: "image/png",
+      })
+
+      // Register user with a profile picture
+      const user = await usersServices.create(inputData)
+      expect(user).toHaveProperty("id")
+      expect(user).toHaveProperty("userName", inputData.userName.toLowerCase())
+      expect(user.profileImage).toBeTruthy()
+      expect(user.profileImageSignedUrl).toBeTruthy()
+
+      if (!user.profileImageSignedUrl) {
+        throw new Error("User profile image signed URL is not defined")
+      }
+      if (!user.profileImage) {
+        throw new Error("User profile image is not defined")
+      }
+
+      // Upload image using the signed URL
+      await axios.put(user.profileImageSignedUrl, imageBuffer, {
+        headers: {
+          "Content-Type": "image/png",
+        }
+      })
+
+      // Update user with a image using the signed URL
+      const updatedData: UpdateUserInput = {
+        profileImage: "test_image.png",
+        profileImageContentType: "image/png",
+      }
+      const updatedUser = await usersServices.update({ id: user.id }, updatedData)
+
+      expect(updatedUser).toHaveProperty("id", user.id)
+      expect(updatedUser.profileImage).toBeTruthy()
+      expect(updatedUser.profileImageSignedUrl).toBeTruthy()
+
+      if (!updatedUser.profileImageSignedUrl) {
+        throw new Error("User profile image signed URL is not defined")
+      }
+
+      if (!updatedUser.profileImage) {
+        throw new Error("User profile image is not defined")
+      }
+
+      // Upload image using the signed URL
+      await axios.put(updatedUser.profileImageSignedUrl, imageBuffer, {
+        headers: {
+          "Content-Type": "image/png",
+        }
+      })
+
+      // Verify if the image was uploaded successfully with status 200
+      const response = await axios.get(updatedUser.profileImage, {
+        responseType: "arraybuffer"
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.headers["content-type"]).toBe("image/png")
+
+      await usersServices.remove({ id: user.id })
+    })
+
+    it("should delete a uploaded user image when user is deleted", async () => {
+      const inputData = getRandomUserData({
+        profileImageContentType: "image/png",
+        profileImage: "test_image.png"
+      })
+
+      // Register user with a profile picture
+      const user = await usersServices.create(inputData)
+      expect(user).toHaveProperty("id")
+      expect(user).toHaveProperty("userName", inputData.userName.toLowerCase())
+      expect(user).toHaveProperty("profileImage")
+      expect(user).toHaveProperty("profileImageSignedUrl")
+
+      if (!user.profileImageSignedUrl) {
+        throw new Error("User profile image signed URL is not defined")
+      }
+
+      if (!user.profileImage) {
+        throw new Error("User profile image is not defined")
+      }
+
+      // Upload image using the signed URL
+      await axios.put(user.profileImageSignedUrl, imageBuffer, {
+        headers: {
+          "Content-Type": "image/png",
+        }
+      })
+
+      // Verify if the image was uploaded successfully with status 200
+      const response = await axios.get(user.profileImage, {
+        responseType: "arraybuffer"
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.headers["content-type"]).toBe("image/png")
+
+      // Delete user
+      await usersServices.remove({ id: user.id })
+
+      // Verify if the image was deleted successfully with status 403
+      // Wait for 5 seconds to allow the image to be deleted
+      // await new Promise(resolve => setTimeout(resolve, 5000))
+
+      try {
+        const response2 = await axios.get(user.profileImage, {
+          responseType: "arraybuffer"
+        })
+        expect(response2.status).toBe(404)
+      } catch (error) {
+        const axiosError = error as AxiosError
+        expect(axiosError.response?.status).toBe(404)
+      }
     })
   })
 })

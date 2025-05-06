@@ -42,20 +42,25 @@ export class UsersService {
         let profileImage: string | undefined = undefined
         let profileImageSignedUrl: string | undefined = undefined
         if (createUserDto.profileImage && createUserDto.profileImageContentType) {
-          const filePath = `users/${createUserDto.userName.toLowerCase().trim()}/profile.${createUserDto.profileImage.split('.').pop() || 'jpg'}`
+          try {
+            const filePath = `users/${createUserDto.userName.toLowerCase().trim()}/profile.${createUserDto.profileImage.split('.').pop() || 'jpg'}`
 
-          const fileRef = this.firebaseService.getStorage().file(filePath)
-          const [signedUrl] = await fileRef.getSignedUrl({
-            action: 'write',
-            expires: Date.now() + 2 * 60 * 1000, // 2 minutes
-            contentType: createUserDto.profileImageContentType,
-            version: 'v4',
-          })
-          profileImageSignedUrl = signedUrl
+            const fileRef = this.firebaseService.getStorage().file(filePath)
+            const [signedUrl] = await fileRef.getSignedUrl({
+              action: 'write',
+              expires: Date.now() + 2 * 60 * 1000, // 2 minutes
+              contentType: createUserDto.profileImageContentType,
+              version: 'v4',
+            })
+            profileImageSignedUrl = signedUrl
 
-          // Create a url for the profile image public access
-          const encodedPath = encodeURIComponent(filePath)
-          profileImage = `https://firebasestorage.googleapis.com/v0/b/${this.firebaseService.getStorage().name}/o/${encodedPath}?alt=media`
+            // Create a url for the profile image public access
+            const encodedPath = encodeURIComponent(filePath)
+            profileImage = `https://firebasestorage.googleapis.com/v0/b/${this.firebaseService.getStorage().name}/o/${encodedPath}?alt=media`
+          } catch (error) {
+            console.error("Error generating signed URL:", error)
+            throw new Error("Error generating signed URL")
+          }
         }
 
         const user = new this.userSchema({
@@ -104,10 +109,31 @@ export class UsersService {
       ? await hash(updateUserDto.password)
       : user.password
 
+    // Check if there is a profile image to upload
+    let profileImage: string | undefined = user.profileImage
+    let profileImageSignedUrl: string | undefined = undefined
+    if (updateUserDto.profileImage && updateUserDto.profileImageContentType) {
+      const filePath = `users/${user.userName.toLowerCase().trim()}/profile.${updateUserDto.profileImage.split('.').pop() || 'jpg'}`
+
+      const fileRef = this.firebaseService.getStorage().file(filePath)
+      const [signedUrl] = await fileRef.getSignedUrl({
+        action: 'write',
+        expires: Date.now() + 2 * 60 * 1000, // 2 minutes
+        contentType: updateUserDto.profileImageContentType,
+        version: 'v4',
+      })
+      profileImageSignedUrl = signedUrl
+
+      // Create a url for the profile image public access
+      const encodedPath = encodeURIComponent(filePath)
+      profileImage = `https://firebasestorage.googleapis.com/v0/b/${this.firebaseService.getStorage().name}/o/${encodedPath}?alt=media`
+    }
+
     const updatedUser: User = {
       ...user,
       ...updateUserDto,
       password: updatedPassword,
+      profileImage
     }
 
     const updatedUserFromDB = await this.userSchema.findOneAndUpdate(
@@ -116,12 +142,32 @@ export class UsersService {
       updatedUser,
       { new: true }
     )
-    return toUser(updatedUserFromDB!)
+
+    const userReturn = toUser(updatedUserFromDB!)
+    return { ...userReturn, profileImageSignedUrl }
   }
 
   async remove({ id, userName }: { id?: string, userName?: string }): Promise<User> {
     const user = await this.findOne({ id, userName })
     await this.userSchema.findOneAndDelete({ _id: user.id })
+
+    // Delete the user profile image from Firebase Storage
+    if (user.profileImage) {
+      try {
+        const filePathRaw = `users/${user.userName.toLowerCase().trim()}/profile.${user.profileImage.split('.').pop() || 'jpg'}`
+
+        const filePath = typeof filePathRaw === 'string' ? filePathRaw.split("?")[0] : ''
+        const filePath2 = "users/yasmin.harris/profile.png"
+
+        const fileRef = this.firebaseService.getStorage().file(filePath)
+
+        await fileRef.delete()
+      } catch (error) {
+        console.error("Error deleting file from Firebase Storage:", error, user)
+        throw new Error("Error deleting file from Firebase Storage")
+      }
+    }
+
     return user
   }
 
