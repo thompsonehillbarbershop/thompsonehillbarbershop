@@ -1,7 +1,16 @@
+import { getProfileAction } from "@/actions/users"
+import { EUserRole } from "@/models/user"
 import Image from "next/image"
+import { notFound } from "next/navigation"
 import { PropsWithChildren } from "react"
 
-export default function TotemLayout({ children }: PropsWithChildren) {
+export default async function TotemLayout({ children }: PropsWithChildren) {
+  const user = await getProfileAction()
+
+  if (user.role !== EUserRole.TOTEM) {
+    return notFound()
+  }
+
   return (
     <div className={`w-screen h-screen bg-[url(/images/background.webp)] bg-no-repeat bg-cover flex flex-col`}>
       <div className="w-full flex-1 h-full flex flex-col items-center justify-center gap-4 bg-background/95">

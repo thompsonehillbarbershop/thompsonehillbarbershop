@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { EPages } from "@/lib/pages.enum"
-import { CalendarCheck, LayoutDashboard, Scissors, TabletIcon, User, UserCog, Users } from "lucide-react"
+import { CalendarCheck, LayoutDashboard, LogOutIcon, Scissors, TabletIcon, User, UserCog, Users } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import React from "react"
 
@@ -79,6 +79,10 @@ export default function AdminSidebar() {
     router.push(url)
   }
 
+  function handleLogout() {
+    router.push(EPages.LOGOUT)
+  }
+
   return (
     <Sidebar collapsible='icon'>
       {open && (
@@ -107,9 +111,20 @@ export default function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <div className="w-full h-12">
-          {/* <ToggleThemeButton /> */}
-        </div>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className={(open || isMobile) ? '' : 'mt-16'}>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={handleLogout}
+                >
+                  <LogOutIcon />
+                  <span className="text-base">Sair</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarFooter>
     </Sidebar>
   )
