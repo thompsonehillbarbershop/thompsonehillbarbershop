@@ -16,6 +16,7 @@ import { Switch } from "../ui/switch"
 import { CameraIcon } from "lucide-react"
 import Image from "next/image"
 import axios from "axios"
+import { generateUserName } from "@/lib/utils"
 
 interface Props {
   forRole: EUserRole
@@ -45,6 +46,13 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
   useEffect(() => {
     // console.log(form.formState.errors)
   }, [form.formState.errors])
+
+  useEffect(() => {
+    if (user) return
+    const generatedUserName = generateUserName(form.getValues().name)
+    form.setValue("userName", generatedUserName)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.watch().name])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const profileImage = selectedFile?.name
@@ -141,65 +149,67 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
             )}
           />
         )}
-        <div className="w-full h-48 pt-4 flex items-center justify-center">
-          <input
-            autoFocus={false}
-            id="file"
-            name="file"
-            type="file"
-            className="hidden"
-            accept="image/*"
-            capture="environment"
-            ref={photoRef}
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) {
-                handlePhotoInput(file)
-              }
-            }}
-          />
-          {selectedFile && (
-            <Image
-              width={192}
-              height={192}
-              src={URL.createObjectURL(selectedFile)}
-              alt="Foto capturada"
-              className="size-48 object-cover rounded-lg aspect-square"
-              onClick={() => photoRef.current?.click()}
-            />
-          )}
-          {!selectedFile && !user?.profileImage && (
-            <Button
+        {forRole === EUserRole.ATTENDANT && (
+          <div className="w-full h-48 pt-4 flex items-center justify-center">
+            <input
               autoFocus={false}
-              type="button"
-              variant="outline"
-              className="w-full size-48"
-              onClick={() => photoRef.current?.click()}
-            >
-              <CameraIcon className="size-24 stroke-[1.5px]" />
-            </Button>
-          )}
-          {!selectedFile && !!user?.profileImage && (
-            <div className="relative">
+              id="file"
+              name="file"
+              type="file"
+              className="hidden"
+              accept="image/*"
+              capture="environment"
+              ref={photoRef}
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  handlePhotoInput(file)
+                }
+              }}
+            />
+            {selectedFile && (
               <Image
                 width={192}
                 height={192}
-                src={user.profileImage}
+                src={URL.createObjectURL(selectedFile)}
                 alt="Foto capturada"
                 className="size-48 object-cover rounded-lg aspect-square"
+                onClick={() => photoRef.current?.click()}
               />
+            )}
+            {!selectedFile && !user?.profileImage && (
               <Button
                 autoFocus={false}
                 type="button"
-                variant="default"
-                className="absolute top-2 right-2 rounded-full size-8"
+                variant="outline"
+                className="w-full size-48"
                 onClick={() => photoRef.current?.click()}
               >
-                <CameraIcon className="stroke-[1.5px]" />
+                <CameraIcon className="size-24 stroke-[1.5px]" />
               </Button>
-            </div>
-          )}
-        </div>
+            )}
+            {!selectedFile && !!user?.profileImage && (
+              <div className="relative">
+                <Image
+                  width={192}
+                  height={192}
+                  src={user.profileImage}
+                  alt="Foto capturada"
+                  className="size-48 object-cover rounded-lg aspect-square"
+                />
+                <Button
+                  autoFocus={false}
+                  type="button"
+                  variant="default"
+                  className="absolute top-2 right-2 rounded-full size-8"
+                  onClick={() => photoRef.current?.click()}
+                >
+                  <CameraIcon className="stroke-[1.5px]" />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
         <FormField
           control={form.control}
           name="name"
@@ -207,7 +217,11 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
             <FormItem className="pt-4">
               <FormLabel>{forRole === EUserRole.TOTEM ? "Descrição" : "Nome Completo"}</FormLabel>
               <FormControl>
-                <Input placeholder="Digite o nome do usuário" {...field} />
+                <Input
+                  autoFocus
+                  placeholder={forRole === EUserRole.TOTEM ? "Digite uma descrição" : "Digite o nome completo"}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -219,6 +233,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nome de Usuário</FormLabel>
+              <FormDescription>Após cadastrado, este nome não poderá ser alterado</FormDescription>
               <FormControl>
                 <Input
                   disabled={!!user}

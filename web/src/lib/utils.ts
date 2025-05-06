@@ -77,3 +77,16 @@ export function formatCurrency(value: number = 0, options?: FormatCurrencyOption
     currencyDisplay: "name"
   }).format(value)}`
 }
+
+export function generateUserName(name: string | undefined): string {
+  if (!name) return ""
+
+  const parts = name.trim().split(/\s+/)
+  if (parts.length < 2) return name.toLowerCase() // fallback para nome único
+
+  const firstLetter = parts[0][0].toLowerCase()
+  const lastName = parts[parts.length - 1].toLowerCase()
+
+  return firstLetter + lastName
+}
+
