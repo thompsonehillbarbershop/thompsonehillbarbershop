@@ -6,6 +6,8 @@ import { EUserRole } from "@/models/user"
 import { notFound } from "next/navigation"
 import React, { PropsWithChildren } from 'react'
 
+export const dynamic = "force-dynamic"
+
 export default async function AdminLayout({ children }: PropsWithChildren) {
   const user = await getProfileAction()
 

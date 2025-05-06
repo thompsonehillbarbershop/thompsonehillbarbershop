@@ -4,6 +4,8 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { PropsWithChildren } from "react"
 
+export const dynamic = "force-dynamic"
+
 export default async function TotemLayout({ children }: PropsWithChildren) {
   const user = await getProfileAction()
 
