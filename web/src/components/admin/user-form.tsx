@@ -60,7 +60,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
 
     try {
       if (user) {
-        const updatedUser = await updateUser({
+        const response = await updateUser({
           id: user.id,
           data: {
             name: values.name,
@@ -72,35 +72,59 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
           }
         })
 
-        // Upload the photo to the google firebase server using the signed URL
-        if (updatedUser.profileImageSignedUrl) {
-          await axios.put(updatedUser.profileImageSignedUrl, selectedFile, {
-            headers: {
-              "Content-Type": selectedFile?.type || "image/jpeg",
-            }
-          })
+        if (response.data) {
+          // Upload the photo to the google firebase server using the signed URL
+          if (response.data.profileImageSignedUrl) {
+            await axios.put(response.data.profileImageSignedUrl, selectedFile, {
+              headers: {
+                "Content-Type": selectedFile?.type || "image/jpeg",
+              }
+            })
+          }
+
+          toast.success("Usuário atualizado com sucesso")
+          if (onSuccess) onSuccess()
         }
 
-        toast.success("Usuário atualizado com sucesso")
+        if (response.error) {
+          toast.error("Erro ao atualizar usuário")
+          if (onError) onError()
+        }
+
       } else {
-        const user = await createUser({
+        // Create a new user
+        const response = await createUser({
           ...values,
           profileImage,
           profileImageContentType
         })
 
-        // Upload the photo to the google firebase server using the signed URL
-        if (user.profileImageSignedUrl) {
-          await axios.put(user.profileImageSignedUrl, selectedFile, {
-            headers: {
-              "Content-Type": selectedFile?.type || "image/jpeg",
-            }
-          })
+        if (response.data) {
+          // Upload the photo to the google firebase server using the signed URL
+          if (response.data?.profileImageSignedUrl) {
+            await axios.put(response.data?.profileImageSignedUrl, selectedFile, {
+              headers: {
+                "Content-Type": selectedFile?.type || "image/jpeg",
+              }
+            })
+          }
+          toast.success("Registrado com sucesso")
+          if (onSuccess) onSuccess()
         }
-        toast.success("Registrado com sucesso")
+
+        if (response.error) {
+          if (response.error.includes("Usuário já existe no sistema")) {
+            form.setError("userName", {
+              type: "manual",
+              message: "Usuário já existe no sistema"
+            })
+          }
+
+          toast.error("Erro ao registrar usuário")
+          if (onError) onError()
+        }
       }
 
-      if (onSuccess) onSuccess()
     } catch (err) {
       const error = err as Error
 

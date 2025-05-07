@@ -7,95 +7,122 @@ import { getSession } from "@/lib/session"
 import { UpdateUserInput, updateUserSchema } from "./dtos/update-user.input"
 import { revalidatePath } from "next/cache"
 import { EPages } from "@/lib/pages.enum"
+import { IActionResponse } from "@/models/action-response"
 
-export async function getProfileAction() {
+export async function getProfileAction(): Promise<IActionResponse<IUserView>> {
   try {
     const { data } = await axiosClient.get<IUserView>(`/users/profile`)
-    return data
+    return { data }
 
   } catch (err) {
     const error = err as Error
     if (error.message.includes("ECONNREFUSED")) {
-      throw new Error("Erro ao conectar com o servidor")
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
     }
 
     console.error(error)
-    throw error
+    return {
+      error: error.message
+    }
   }
 }
 
-export async function getUsersAction() {
+export async function getUsersAction(): Promise<IActionResponse<IUserView[]>> {
   try {
     const { data } = await axiosClient.get<IUserView[]>(`/users`)
-    return data
+    return { data }
 
   } catch (err) {
     const error = err as Error
     if (error.message.includes("ECONNREFUSED")) {
-      throw new Error("Erro ao conectar com o servidor")
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
     }
 
     console.error(error)
-    throw error
+    return {
+      error: error.message
+    }
   }
 }
 
-export async function getAttendantsAction() {
+export async function getAttendantsAction(): Promise<IActionResponse<IUserView[]>> {
   try {
     const { data } = await axiosClient.get<IUserView[]>(`/users/attendants`)
-    return data
+    return { data }
   } catch (err) {
     const error = err as Error
     if (error.message.includes("ECONNREFUSED")) {
-      throw new Error("Erro ao conectar com o servidor")
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
     }
 
     console.error(error)
-    throw error
+    return {
+      error: error.message
+    }
   }
 }
 
-export async function createUserAction(data: CreateUserInput) {
+export async function createUserAction(data: CreateUserInput): Promise<IActionResponse<IUserView>> {
   const session = await getSession()
 
   if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
-    throw new Error("Você não tem permissão para criar usuários")
+    return {
+      error: "Você não tem permissão para criar usuários"
+    }
   }
 
   const result = createUserSchema("create").safeParse(data)
   if (!result.success) {
-    throw new Error(JSON.stringify(result.error.flatten()))
+    return {
+      error: JSON.stringify(result.error.flatten())
+    }
   }
 
   try {
     const { data: user } = await axiosClient.post<IUserView>(`/users`, data)
-    return user
+    return { data: user }
 
   } catch (err) {
     const error = err as Error
     if (error.message.includes("ECONNREFUSED")) {
-      throw new Error("Erro ao conectar com o servidor")
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
     }
 
     if (error.message.includes("User already exists")) {
-      throw new Error("Usuário já existe no sistema")
+      return {
+        error: "Usuário já existe no sistema"
+      }
     }
 
     console.error(error)
-    throw error
+    return {
+      error: error.message
+    }
   }
 }
 
-export async function updateUserAction(id: string, data: UpdateUserInput) {
+export async function updateUserAction(id: string, data: UpdateUserInput): Promise<IActionResponse<IUserView>> {
   const session = await getSession()
 
   if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
-    throw new Error("Você não tem permissão para editar usuários")
+    return {
+      error: "Você não tem permissão para editar usuários"
+    }
   }
 
   const result = updateUserSchema.safeParse(data)
   if (!result.success) {
-    throw new Error(JSON.stringify(result.error.flatten()))
+    return {
+      error: JSON.stringify(result.error.flatten())
+    }
   }
 
   try {
@@ -103,15 +130,19 @@ export async function updateUserAction(id: string, data: UpdateUserInput) {
 
     revalidatePath(EPages.ADMIN_ATTENDANTS)
 
-    return user
+    return { data: user }
 
   } catch (err) {
     const error = err as Error
     if (error.message.includes("ECONNREFUSED")) {
-      throw new Error("Erro ao conectar com o servidor")
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
     }
 
     console.error(error)
-    throw error
+    return {
+      error: error.message
+    }
   }
 }

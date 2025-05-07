@@ -17,7 +17,7 @@ export default function AttendantsPageContents() {
 
   const { attendants, isLoadingAttendants } = useTotem()
   // Must order by name asc
-  const orderedAttendants = attendants?.sort((a, b) => a.name.localeCompare(b.name))
+  const orderedAttendants = attendants?.data?.sort((a, b) => a.name.localeCompare(b.name))
 
   function handleConfirmation(user: IUserView | undefined) {
     const data = {

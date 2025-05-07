@@ -2,6 +2,7 @@ import { createUserAction, getUsersAction, updateUserAction } from "@/actions/us
 import { CreateUserInput } from "@/actions/users/dtos/create-user.input"
 import { UpdateUserInput } from "@/actions/users/dtos/update-user.input"
 import { queries } from "@/lib/query-client"
+import { IActionResponse } from "@/models/action-response"
 import { IUserView } from "@/models/user"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
@@ -10,27 +11,35 @@ export const useAdmin = () => {
 
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: [queries.admin.users],
-    queryFn: async () => {
-      const users = await getUsersAction()
+    queryFn: async (): Promise<IUserView[]> => {
+      const response = await getUsersAction()
 
-      return users.map((user) => ({
-        ...user,
-        createdAt: new Date(user.createdAt)
-      }))
+      if (response.data) {
+        return response.data.map((user) => ({
+          ...user,
+          createdAt: new Date(user.createdAt)
+        }))
+      }
+
+      return response.data || []
     },
   })
 
   const { mutateAsync: createUser } = useMutation({
     mutationKey: ["createUser"],
-    mutationFn: async (data: CreateUserInput) => {
-      const newUser = await createUserAction(data)
+    mutationFn: async (data: CreateUserInput): Promise<IActionResponse<IUserView>> => {
+      const response = await createUserAction(data)
 
-      queryClient.setQueryData([queries.admin.users], (current: IUserView[]) => {
-        if (!current) return [newUser]
-        return [...current, newUser]
-      })
+      if (response.data) {
+        queryClient.setQueryData([queries.admin.users], (current: IUserView[]) => {
+          if (!current) return [response.data]
+          return [...current, response.data]
+        })
 
-      return newUser
+        return response
+      }
+
+      return response
     },
     onSuccess: () => {
       queryClient.invalidateQueries()
@@ -39,19 +48,23 @@ export const useAdmin = () => {
 
   const { mutateAsync: updateUser } = useMutation({
     mutationKey: ["updateUser"],
-    mutationFn: async ({ id, data }: { id: string, data: UpdateUserInput }) => {
-      const updatedUser = await updateUserAction(id, data)
+    mutationFn: async ({ id, data }: { id: string, data: UpdateUserInput }): Promise<IActionResponse<IUserView>> => {
+      const response = await updateUserAction(id, data)
 
-      queryClient.setQueryData([queries.admin.users], (current: IUserView[]) => {
-        return current.map((user) => {
-          if (user.id === updatedUser.id) {
-            return { ...user, ...updatedUser }
-          }
-          return user
+      if (!!response.data) {
+        queryClient.setQueryData([queries.admin.users], (current: IUserView[]) => {
+          return current?.map((user) => {
+            if (user.id === response.data?.id) {
+              return { ...user, ...response.data }
+            }
+            return user
+          })
         })
-      })
 
-      return updatedUser
+        return response
+      }
+
+      return response
     }
   })
 
