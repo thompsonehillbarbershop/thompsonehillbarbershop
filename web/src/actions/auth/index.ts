@@ -7,7 +7,12 @@ import { revalidatePath } from "next/cache"
 
 const apiUrl = process.env.API_URL
 
-export async function loginAction({ password, userName }: { userName: string, password: string }) {
+interface IActionResponse<T> {
+  data?: T | null
+  error?: string | null
+}
+
+export async function loginAction({ password, userName }: { userName: string, password: string }): Promise<IActionResponse<IAuthView>> {
   try {
     const { data } = await axiosClient.post<IAuthView>(`${apiUrl}/auth/login`, { userName, password })
     await createSession({
@@ -20,14 +25,26 @@ export async function loginAction({ password, userName }: { userName: string, pa
     })
 
     revalidatePath("/")
-    return data
+
+    return {
+      data: {
+        id: data.id,
+        userName: data.userName,
+        userRole: data.userRole,
+        token: data.token
+      }
+    }
   } catch (err) {
     const error = err as Error
     if (error.message.includes("ECONNREFUSED")) {
-      throw new Error("Erro ao conectar com o servidor")
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
     }
 
     console.error(error)
-    throw error
+    return {
+      error: error.message
+    }
   }
 }

@@ -34,27 +34,35 @@ export default function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await loginAction({ ...values })
-      toast.success("Login realizado com sucesso")
-      setErrorMessage(null)
 
-      console.log("Login realizado com sucesso", response)
+      if (response.error) {
+        setErrorMessage(response.error)
+        toast.error(response.error)
+        return
+      }
+      if (response.data) {
+        toast.success("Login realizado com sucesso")
+        setErrorMessage(null)
 
-      switch (response.userRole) {
-        case EUserRole.TOTEM:
-          console.log("Redirect to Totem")
-          router.push(EPages.TOTEM_HOME)
-          break
-        case EUserRole.ADMIN:
-          console.log("Redirect to Admin")
-          router.push(EPages.ADMIN_DASHBOARD)
-          break
-        case EUserRole.MANAGER:
-          console.log("Redirect to Admin")
-          router.push(EPages.ADMIN_DASHBOARD)
-          break
-        case EUserRole.ATTENDANT:
-          router.push(EPages.ATTENDANCE_DASHBOARD)
-          break
+        console.log("Login realizado com sucesso", response)
+
+        switch (response.data.userRole) {
+          case EUserRole.TOTEM:
+            console.log("Redirect to Totem")
+            router.push(EPages.TOTEM_HOME)
+            break
+          case EUserRole.ADMIN:
+            console.log("Redirect to Admin")
+            router.push(EPages.ADMIN_DASHBOARD)
+            break
+          case EUserRole.MANAGER:
+            console.log("Redirect to Admin")
+            router.push(EPages.ADMIN_DASHBOARD)
+            break
+          case EUserRole.ATTENDANT:
+            router.push(EPages.ATTENDANCE_DASHBOARD)
+            break
+        }
       }
     } catch (err) {
       const error = err as Error
