@@ -28,7 +28,6 @@ export async function createSession(payload: Session) {
   console.log("Secret key", secretKey)
   console.log("Expiration time", expirationTime)
   console.log("Environment", environment)
-  console.log("Encoded key", encodedKey)
 
   const session = await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
@@ -51,16 +50,15 @@ export async function createSession(payload: Session) {
 }
 
 export async function getSession() {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get("session")?.value
-
-  console.log("Getting session", cookie)
+  console.log("Getting session")
   console.log("Secret key", secretKey)
   console.log("Expiration time", expirationTime)
   console.log("Environment", environment)
-  console.log("Encoded key", encodedKey)
 
+  const cookieStore = await cookies()
   console.log("Cookie store", cookieStore)
+
+  const cookie = cookieStore.get("session")?.value
   console.log("Cookie", cookie)
 
   if (!cookie) return null

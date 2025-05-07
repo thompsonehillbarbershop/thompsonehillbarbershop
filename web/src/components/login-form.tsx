@@ -37,11 +37,15 @@ export default function LoginForm() {
       toast.success("Login realizado com sucesso")
       setErrorMessage(null)
 
+      console.log("Login realizado com sucesso", response)
+
       switch (response.userRole) {
         case EUserRole.TOTEM:
+          console.log("Redirect to Totem")
           router.push(EPages.TOTEM_HOME)
           break
         case EUserRole.ADMIN:
+          console.log("Redirect to Admin")
           router.push(EPages.ADMIN_DASHBOARD)
           break
         case EUserRole.MANAGER:
