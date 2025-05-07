@@ -24,13 +24,21 @@ const environment = process.env.NODE_ENV as string
 const encodedKey = new TextEncoder().encode(secretKey)
 
 export async function createSession(payload: Session) {
+  console.log("Creating session", payload)
+  console.log("Secret key", secretKey)
+  console.log("Expiration time", expirationTime)
+  console.log("Environment", environment)
+  console.log("Encoded key", encodedKey)
+
   const session = await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(expirationTime)
     .sign(encodedKey)
 
-  const expiredAt = addDays(new Date(), 7)
+  console.log("Session", session)
+
+  const expiredAt = addDays(new Date(), 365)
   const cookieStore = await cookies()
 
   cookieStore.set("session", session, {
@@ -46,12 +54,22 @@ export async function getSession() {
   const cookieStore = await cookies()
   const cookie = cookieStore.get("session")?.value
 
+  console.log("Getting session", cookie)
+  console.log("Secret key", secretKey)
+  console.log("Expiration time", expirationTime)
+  console.log("Environment", environment)
+  console.log("Encoded key", encodedKey)
+
+  console.log("Cookie store", cookieStore)
+  console.log("Cookie", cookie)
+
   if (!cookie) return null
 
   try {
     const { payload } = await jwtVerify(cookie, encodedKey, {
       algorithms: ["HS256"],
     })
+    console.log("Payload", payload)
 
     return payload as Session
   } catch (error) {

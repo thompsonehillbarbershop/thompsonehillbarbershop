@@ -5,9 +5,11 @@ import { createSession } from "@/lib/session"
 import { IAuthView } from "@/models/auth"
 import { revalidatePath } from "next/cache"
 
+const apiUrl = process.env.API_URL
+
 export async function loginAction({ password, userName }: { userName: string, password: string }) {
   try {
-    const { data } = await axiosClient.post<IAuthView>(`/auth/login`, { userName, password })
+    const { data } = await axiosClient.post<IAuthView>(`${apiUrl}/auth/login`, { userName, password })
     await createSession({
       user: {
         id: data.id,
