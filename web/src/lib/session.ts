@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { jwtVerify, SignJWT } from "jose"
-import { addDays } from "date-fns"
+// import { addDays } from "date-fns"
 import { redirect } from "next/navigation"
 import { EPages } from "./pages.enum"
 import { EUserRole } from "@/models/user"
@@ -34,14 +34,14 @@ export async function createSession(payload: Session) {
 
   console.log("Session", session)
 
-  const expiredAt = addDays(new Date(), 365)
+  // const expiredAt = addDays(new Date(), 365)
   const cookieStore = await cookies()
 
   cookieStore.set("session", session, {
     httpOnly: true,
     // secure: environment !== "development" ? true : false,
     secure: false,
-    expires: expiredAt,
+    // expires: expiredAt,
     sameSite: "lax",
     path: "/",
   })
