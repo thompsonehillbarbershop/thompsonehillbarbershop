@@ -42,7 +42,8 @@ export async function createSession(payload: Session) {
 
   cookieStore.set("session", session, {
     httpOnly: true,
-    secure: environment !== "development" ? true : false,
+    // secure: environment !== "development" ? true : false,
+    secure: false,
     expires: expiredAt,
     sameSite: "lax",
     path: "/",

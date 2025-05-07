@@ -49,6 +49,7 @@ export default function LoginForm() {
           router.push(EPages.ADMIN_DASHBOARD)
           break
         case EUserRole.MANAGER:
+          console.log("Redirect to Admin")
           router.push(EPages.ADMIN_DASHBOARD)
           break
         case EUserRole.ATTENDANT:
