@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { jwtVerify, SignJWT } from "jose"
-// import { addDays } from "date-fns"
+import { addDays } from "date-fns"
 import { redirect } from "next/navigation"
 import { EPages } from "./pages.enum"
 import { EUserRole } from "@/models/user"
@@ -20,7 +20,7 @@ export type Session = {
 
 const secretKey = process.env.SESSION_SECRET_KEY as string
 // const expirationTime = process.env.SESSION_EXPIRATION_TIME as string
-// const environment = process.env.NODE_ENV as string
+const environment = process.env.NODE_ENV as string
 const encodedKey = new TextEncoder().encode(secretKey)
 
 export async function createSession(payload: Session) {
@@ -29,19 +29,19 @@ export async function createSession(payload: Session) {
   const session = await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("365d")
+    .setExpirationTime("7d")
     .sign(encodedKey)
 
   console.log("Session", session)
 
-  // const expiredAt = addDays(new Date(), 365)
+  const expiredAt = addDays(new Date(), 7)
   const cookieStore = await cookies()
 
   cookieStore.set("session", session, {
     httpOnly: true,
-    // secure: environment !== "development" ? true : false,
-    secure: false,
-    // expires: expiredAt,
+    secure: environment !== "development" ? true : false,
+    // secure: false,
+    expires: expiredAt,
     sameSite: "lax",
     path: "/",
   })
