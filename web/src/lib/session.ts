@@ -19,20 +19,17 @@ export type Session = {
 }
 
 const secretKey = process.env.SESSION_SECRET_KEY as string
-const expirationTime = process.env.SESSION_EXPIRATION_TIME as string
-const environment = process.env.NODE_ENV as string
+// const expirationTime = process.env.SESSION_EXPIRATION_TIME as string
+// const environment = process.env.NODE_ENV as string
 const encodedKey = new TextEncoder().encode(secretKey)
 
 export async function createSession(payload: Session) {
   console.log("Creating session", payload)
-  console.log("Secret key", secretKey)
-  console.log("Expiration time", expirationTime)
-  console.log("Environment", environment)
 
   const session = await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(expirationTime)
+    .setExpirationTime("365d")
     .sign(encodedKey)
 
   console.log("Session", session)
@@ -52,9 +49,6 @@ export async function createSession(payload: Session) {
 
 export async function getSession() {
   console.log("Getting session")
-  console.log("Secret key", secretKey)
-  console.log("Expiration time", expirationTime)
-  console.log("Environment", environment)
 
   const cookieStore = await cookies()
   console.log("Cookie store", cookieStore)
