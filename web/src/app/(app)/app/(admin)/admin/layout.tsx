@@ -1,7 +1,7 @@
-import { getProfileAction } from "@/actions/users"
 import AdminHeader from "@/components/admin/admin-header"
 import AdminSidebar from "@/components/admin/admin-sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { getSession } from "@/lib/session"
 import { EUserRole } from "@/models/user"
 import { notFound } from "next/navigation"
 import React, { PropsWithChildren } from 'react'
@@ -9,9 +9,10 @@ import React, { PropsWithChildren } from 'react'
 export const dynamic = "force-dynamic"
 
 export default async function AdminLayout({ children }: PropsWithChildren) {
-  const user = await getProfileAction()
+  // const user = await getProfileAction()
+  const session = await getSession()
 
-  if (user.role !== EUserRole.ADMIN && user.role !== EUserRole.MANAGER) {
+  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
     return notFound()
   }
 

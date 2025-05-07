@@ -25,6 +25,7 @@ axiosClient.interceptors.response.use(async (response) => {
   return response
 },
   async (error) => {
+    console.error("Error in axios interceptor", error)
     if (error instanceof AxiosError) {
       console.error(error.response?.data)
 
