@@ -3,29 +3,19 @@ import { AuthController } from "./auth.controller"
 import { AuthService } from "./auth.service"
 import { UsersService } from "../users/users.service"
 import { JwtModule } from "@nestjs/jwt"
-import { CreateUserInput } from "../users/dto/create-user.input"
-import { faker } from '@faker-js/faker'
 import { InvalidCredentialsException, UserRegisterException } from "../errors"
 import { ConfigModule } from "@nestjs/config"
-import { FirebaseModule } from "../firebase/firebase.module"
-import { EUserRole } from "../users/entities/user.entity"
 import { MongoModule } from "../mongo/mongo.module"
+import { FirebaseModule } from "../firebase/firebase.module"
+import { getRandomUserData } from "../users/mocks"
 
 describe('AuthController', () => {
   let authController: AuthController
   let usersService: UsersService
+  let app: TestingModule
 
-  function getRandomUserData(data?: Partial<CreateUserInput>): CreateUserInput {
-    return {
-      name: data?.name || faker.person.fullName(),
-      userName: data?.userName || faker.internet.username(),
-      password: data?.password || faker.internet.password({ length: 12 }),
-      role: data?.role || faker.helpers.enumValue(EUserRole)
-    }
-  }
-
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    app = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [AuthService, UsersService],
       imports: [
@@ -39,13 +29,17 @@ describe('AuthController', () => {
             signOptions: { expiresIn: '60s' },
           })
         }),
-        FirebaseModule,
-        MongoModule
+        MongoModule,
+        FirebaseModule
       ]
     }).compile()
 
     authController = app.get<AuthController>(AuthController)
     usersService = app.get<UsersService>(UsersService)
+  })
+
+  afterAll(async () => {
+    await app.close()
   })
 
   describe('Auth Module Test', () => {

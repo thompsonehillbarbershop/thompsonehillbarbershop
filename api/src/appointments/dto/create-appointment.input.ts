@@ -1,0 +1,22 @@
+import { ApiProperty } from "@nestjs/swagger"
+import { IsOptional, IsString } from "class-validator"
+
+export class CreateAppointmentInput {
+  @ApiProperty()
+  @IsString()
+  customerId: string
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  attendantId?: string
+
+  @ApiProperty({ type: [String] })
+  @IsString({ each: true })
+  serviceIds: string[]
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  redeemCoupon?: string
+}

@@ -22,6 +22,7 @@ export class AdminGuard implements CanActivate {
   }
 
   private extractUserIdFromRequest(request: Request) {
+    // @ts-ignore
     const user = request.user
     return user
   }

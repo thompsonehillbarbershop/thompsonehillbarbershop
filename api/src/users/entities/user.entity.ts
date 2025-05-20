@@ -17,7 +17,7 @@ export interface IUser {
   password: string
   role: EUserRole
   profileImage?: string
-  profileImageSignedUrl?: string
+  imageSignedUrl?: string
   status: EUserStatus
   createdAt: Date
 }
@@ -29,12 +29,24 @@ export class User {
   password: string
   role: EUserRole
   profileImage?: string
-  profileImageSignedUrl?: string
+  imageSignedUrl?: string
   status: EUserStatus
   createdAt: Date
 
   constructor(data: IUser) {
     Object.assign(this, data)
     this.createdAt = new Date(data.createdAt)
+  }
+
+  toFirebaseObject() {
+    return {
+      id: this.id,
+      name: this.name,
+      userName: this.userName,
+      role: this.role,
+      profileImage: this.profileImage || null,
+      status: this.status,
+      createdAt: this.createdAt.toISOString()
+    }
   }
 }

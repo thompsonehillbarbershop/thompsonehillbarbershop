@@ -1,0 +1,36 @@
+
+export interface IService {
+  id: string
+  name: string
+  description?: string
+  value: number
+  coverImage?: string
+  signedUrl?: string
+  createdAt: Date
+}
+
+export class Service {
+  id: string
+  name: string
+  description?: string
+  value: number
+  coverImage?: string
+  signedUrl?: string
+  createdAt: Date
+
+  constructor(data: IService) {
+    Object.assign(this, data)
+    this.createdAt = new Date(data.createdAt)
+  }
+
+  toFirebaseObject() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description || null,
+      value: this.value,
+      coverImage: this.coverImage || null,
+      createdAt: this.createdAt.toISOString()
+    }
+  }
+}

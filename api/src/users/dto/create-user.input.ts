@@ -31,15 +31,5 @@ export class CreateUserInput {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  profileImageContentType?: string
+  imageContentType?: string
 }
-
-// Only for swagger documentation
-// export class CreateUserMultipartInput extends CreateUserInput {
-//   @ApiProperty({
-//     type: 'string',
-//     format: 'binary',
-//     required: false,
-//   })
-//   profileImage?: any
-// }

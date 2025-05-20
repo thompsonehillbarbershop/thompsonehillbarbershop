@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { EUserRole, EUserStatus, IUser, User } from "./entities/user.entity"
-import { randomUUID } from "crypto"
 import { CreateUserInput } from "./dto/create-user.input"
 import { UpdateUserInput } from "./dto/update-user.input"
 import { hash, verify } from "argon2"
@@ -10,12 +9,18 @@ import { QueryUserInput } from "./dto/query-user.input"
 import { Model } from "mongoose"
 import { IMongoUser, toUser } from "../mongo/schemas/user.schema"
 import { createId } from "@paralleldrive/cuid2"
+import slugify from "slugify"
+import { capitalizeName } from "../utils"
+import { FirebaseService } from "../firebase/firebase.service"
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject("UserSchema") private readonly userSchema: Model<IMongoUser>,
+    private readonly firebaseService: FirebaseService,
   ) { }
+
+  private readonly STORAGE = "users"
 
   async findOne({ id, userName }: { id?: string, userName?: string }): Promise<User> {
     const query: any = {}
@@ -24,7 +29,7 @@ export class UsersService {
 
     const user = await this.userSchema.findOne(query)
     if (!user) throw new UserNotFoundException()
-    return toUser(user)
+    return new User(toUser(user))
   }
 
   async create(createUserDto: CreateUserInput): Promise<User> {
@@ -36,46 +41,27 @@ export class UsersService {
         const password = await hash(createUserDto.password)
         const id = createId()
 
-        // Create a signed URL for the profile image upload if it exists
-        let profileImage: string | undefined = undefined
-        let profileImageSignedUrl: string | undefined = undefined
-        // if (createUserDto.profileImage && createUserDto.profileImageContentType) {
-        //   try {
-        //     const filePath = `users/${createUserDto.userName.toLowerCase().trim()}/profile.${createUserDto.profileImage.split('.').pop() || 'jpg'}`
-
-        //     const fileRef = this.firebaseService.getStorage().file(filePath)
-        //     const [signedUrl] = await fileRef.getSignedUrl({
-        //       action: 'write',
-        //       expires: Date.now() + 2 * 60 * 1000, // 2 minutes
-        //       contentType: createUserDto.profileImageContentType,
-        //       version: 'v4',
-        //     })
-        //     profileImageSignedUrl = signedUrl
-
-        //     // Create a url for the profile image public access
-        //     const encodedPath = encodeURIComponent(filePath)
-        //     profileImage = `https://firebasestorage.googleapis.com/v0/b/${this.firebaseService.getStorage().name}/o/${encodedPath}?alt=media`
-        //   } catch (error) {
-        //     console.error("Error generating signed URL:", error)
-        //     throw new Error("Error generating signed URL")
-        //   }
-        // }
+        const { fileUrl, signedUrl } = await this.firebaseService.createSignedUrl({
+          contentType: createUserDto.imageContentType,
+          fileName: createUserDto.profileImage,
+          folder: this.STORAGE,
+          key: id,
+        })
 
         const user = new this.userSchema({
           _id: id,
-          name: createUserDto.name,
-          // remove all white spaces and convert to lowercase
-          userName: createUserDto.userName.toLowerCase().trim().replaceAll(/\s/g, ""),
+          name: capitalizeName(createUserDto.name),
+          userName: slugify(createUserDto.userName.toLowerCase().trim().replaceAll(/\s/g, ""), { strict: true }),
           password,
           role: createUserDto.role,
-          profileImage,
+          profileImage: fileUrl,
           createdAt: new Date(),
           status: createUserDto.status || EUserStatus.ACTIVE,
         })
 
         await user.save()
 
-        return { ...toUser(user), profileImageSignedUrl }
+        return new User({ ...{ ...toUser(user) }, imageSignedUrl: signedUrl })
       }
       console.error(error)
       throw error
@@ -90,7 +76,7 @@ export class UsersService {
     }
 
     const users = await this.userSchema.find(queryConditions)
-    return users.map(user => toUser(user))
+    return users.map(user => new User(toUser(user)))
   }
 
   async getAvailableAttendants(): Promise<User[]> {
@@ -98,7 +84,7 @@ export class UsersService {
       role: EUserRole.ATTENDANT,
       status: EUserStatus.ACTIVE,
     })
-    return users.map(user => toUser(user))
+    return users.map(user => new User(toUser(user)))
   }
 
   async update({ id, userName }: { id?: string, userName?: string }, updateUserDto: UpdateUserInput): Promise<User> {
@@ -108,32 +94,19 @@ export class UsersService {
       ? await hash(updateUserDto.password)
       : user.password
 
-    // Check if there is a profile image to upload
-    let profileImage: string | undefined = user.profileImage
-    let profileImageSignedUrl: string | undefined = undefined
-    // if (updateUserDto.profileImage && updateUserDto.profileImageContentType) {
-    //   const filePath = `users/${user.userName.toLowerCase().trim()}/profile.${updateUserDto.profileImage.split('.').pop() || 'jpg'}`
+    const { fileUrl, signedUrl } = await this.firebaseService.createSignedUrl({
+      contentType: updateUserDto.imageContentType,
+      fileName: updateUserDto.profileImage,
+      folder: this.STORAGE,
+      key: user.id,
+    })
 
-    //   const fileRef = this.firebaseService.getStorage().file(filePath)
-    //   const [signedUrl] = await fileRef.getSignedUrl({
-    //     action: 'write',
-    //     expires: Date.now() + 2 * 60 * 1000, // 2 minutes
-    //     contentType: updateUserDto.profileImageContentType,
-    //     version: 'v4',
-    //   })
-    //   profileImageSignedUrl = signedUrl
-
-    //   // Create a url for the profile image public access
-    //   const encodedPath = encodeURIComponent(filePath)
-    //   profileImage = `https://firebasestorage.googleapis.com/v0/b/${this.firebaseService.getStorage().name}/o/${encodedPath}?alt=media`
-    // }
-
-    const updatedUser: User = {
+    const updatedUser: User = new User({
       ...user,
       ...updateUserDto,
-      password: updatedPassword,
-      profileImage
-    }
+      profileImage: fileUrl,
+      password: updatedPassword
+    })
 
     const updatedUserFromDB = await this.userSchema.findOneAndUpdate(
       { _id: user.id }
@@ -143,7 +116,7 @@ export class UsersService {
     )
 
     const userReturn = toUser(updatedUserFromDB!)
-    return { ...userReturn, profileImageSignedUrl }
+    return new User({ ...userReturn, imageSignedUrl: signedUrl })
   }
 
   async remove({ id, userName }: { id?: string, userName?: string }): Promise<User> {
@@ -156,7 +129,6 @@ export class UsersService {
     //     const filePathRaw = `users/${user.userName.toLowerCase().trim()}/profile.${user.profileImage.split('.').pop() || 'jpg'}`
 
     //     const filePath = typeof filePathRaw === 'string' ? filePathRaw.split("?")[0] : ''
-    //     const filePath2 = "users/yasmin.harris/profile.png"
 
     //     const fileRef = this.firebaseService.getStorage().file(filePath)
 

@@ -8,7 +8,7 @@ export class UserView {
     this.userName = user.userName
     this.role = user.role
     this.profileImage = user.profileImage
-    this.profileImageSignedUrl = user.profileImageSignedUrl
+    this.imageSignedUrl = user.imageSignedUrl
     this.createdAt = user.createdAt
     this.status = user.status
   }
@@ -29,11 +29,11 @@ export class UserView {
   profileImage?: string
 
   @ApiProperty()
+  imageSignedUrl?: string
+
+  @ApiProperty()
   createdAt: Date
 
   @ApiProperty()
   status: EUserStatus
-
-  @ApiProperty()
-  profileImageSignedUrl?: string
 }
