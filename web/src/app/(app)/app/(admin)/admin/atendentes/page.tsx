@@ -18,6 +18,7 @@ import { PlusIcon } from "lucide-react"
 import { EUserRole, IUserView } from "@/models/user"
 import { useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 export default function AttendantsPage() {
   const [isSheetOpen, setSheetOpen] = useState(false)
@@ -55,13 +56,18 @@ export default function AttendantsPage() {
               {selectedUser ? "Atualize as informações do atendente" : "Preencha os dados para cadastrar um novo atendente"}
             </SheetDescription>
           </SheetHeader>
-          <AddUserForm
-            user={selectedUser}
-            forRole={EUserRole.ATTENDANT}
-            onSuccess={() => {
-              setSheetOpen(false)
-            }}
-          />
+          <ScrollArea className="h-[90%] pr-4">
+            <div className="px-1">
+              <AddUserForm
+                user={selectedUser}
+                forRole={EUserRole.ATTENDANT}
+                onSuccess={() => {
+                  setSheetOpen(false)
+                }}
+              />
+            </div>
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
         </SheetContent>
       </Sheet>
 

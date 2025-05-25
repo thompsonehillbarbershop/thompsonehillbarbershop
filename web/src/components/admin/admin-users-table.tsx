@@ -13,12 +13,6 @@ interface Props {
   data?: IUserView[]
   isLoading?: boolean
   emptyMessage?: string
-  disablePagination?: boolean
-  filtering?: {
-    enableFiltering: boolean
-    field: string
-    placeholder: string
-  }
   onEditButtonClick?: (user: IUserView) => void
   forRole?: EUserRole
 }
@@ -27,12 +21,6 @@ export default function AdminUsersTable({
   data = [],
   isLoading = false,
   emptyMessage = "Nenhum usuário encontrado",
-  disablePagination = false,
-  filtering = {
-    enableFiltering: false,
-    field: "name",
-    placeholder: "Buscar por nome",
-  },
   onEditButtonClick,
   forRole,
 }: Props) {
@@ -116,8 +104,6 @@ export default function AdminUsersTable({
       data={data}
       isLoading={isLoading}
       emptyMessage={emptyMessage}
-      enablePagination={!disablePagination}
-      filtering={filtering}
     />
   )
 }

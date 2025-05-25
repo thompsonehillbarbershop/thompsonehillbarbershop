@@ -9,10 +9,7 @@ import React, { PropsWithChildren } from 'react'
 export const dynamic = "force-dynamic"
 
 export default async function AdminLayout({ children }: PropsWithChildren) {
-  // const user = await getProfileAction()
   const session = await getSession()
-
-  console.log("AdminLayout session", session)
 
   if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
     return notFound()

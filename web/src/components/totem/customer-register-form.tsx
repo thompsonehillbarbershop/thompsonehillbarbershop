@@ -2,7 +2,7 @@
 
 import { EPages } from "@/lib/pages.enum"
 import { z } from "@/lib/pt-zod"
-import { applyDateMask, applyPhoneMask, cn, formatPhoneToE164, isDateValid } from "@/lib/utils"
+import { applyDateMask, applyPhoneMask, cn, formatPhoneToE164 } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from "react"
@@ -15,17 +15,15 @@ import { Input } from "../ui/input"
 import { EGender } from "@/models/customer"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import Image from "next/image"
-
-const formSchema = z.object({
-  givenName: z.string().nonempty({ message: "Obrigatório" }),
-  familyName: z.string().optional(),
-  phone: z.string().min(14, { message: "Telefone inválido" }).max(16, { message: "Telefone inválido" }),
-  gender: z.nativeEnum(EGender),
-  birthDate: z.string().refine(value => isDateValid(value), { message: "Data inválida" }),
-  indicationCode: z.string().optional(),
-})
+import { useTotem } from "@/hooks/use-totem"
+import { toast } from "sonner"
+import { createCustomerSchema } from "@/actions/customers/dto/create-customer.input"
 
 export default function CustomerRegisterForm() {
+  const formSchema = createCustomerSchema
+
+  const { registerCustomer } = useTotem()
+
   const searchParams = useSearchParams()
   const [activeField, setActiveField] = useState<keyof z.infer<typeof formSchema> | null>(null)
   const [keyBoardLayout, setKeyboardLayout] = useState<"qwerty" | "numpad">("qwerty")
@@ -35,13 +33,13 @@ export default function CustomerRegisterForm() {
 
   const phoneNumber = searchParams.get('tel')
 
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      phone: phoneNumber ? applyPhoneMask(phoneNumber.substring(3)) : undefined,
-      familyName: "",
-      givenName: "",
-      indicationCode: "",
+      phoneNumber: phoneNumber ? applyPhoneMask(phoneNumber.substring(3)) : undefined,
+      name: "",
+      referralCodeUsed: "",
       gender: EGender.MALE,
       birthDate: "",
     },
@@ -56,39 +54,63 @@ export default function CustomerRegisterForm() {
   }, [form.watch().birthDate])
 
   useEffect(() => {
-    form.setFocus("givenName")
+    form.setFocus("name")
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const profileImage = selectedFile?.name
+    const imageContentType = selectedFile?.type
+
     try {
-      const [day, month, year] = values.birthDate.split("/")
-      const formattedPhone = formatPhoneToE164(values.phone)
+      const formattedPhone = formatPhoneToE164(values.phoneNumber)
       if (!formattedPhone) {
-        form.setError("phone", { message: "Telefone inválido", type: "manual" })
+        form.setError("phoneNumber", { message: "Telefone inválido", type: "manual" })
         return
       }
 
       const normalizedValues = {
-        givenName: values.givenName,
-        familyName: values.familyName,
+        name: values.name,
         phoneNumber: formattedPhone,
         gender: values.gender,
-        indicationCode: values.indicationCode,
-        birthDate: new Date(`${year}-${month}-${day}`).toISOString(),
+        referralCodeUsed: values.referralCodeUsed,
+        birthDate: values.birthDate,
       }
 
-      console.log("Normalized Values: ", normalizedValues)
-      router.push(`${EPages.TOTEM_SCHEDULE}?tel=${formattedPhone}`)
+      const response = await registerCustomer({
+        ...normalizedValues,
+        profileImage,
+        imageContentType
+      })
+
+      if (response.data) {
+        // Upload the photo to the google firebase server using the signed URL
+        if (response.data.signedUrl) {
+          await fetch(response.data.signedUrl, {
+            method: "PUT",
+            body: selectedFile,
+            headers: {
+              "Content-Type": selectedFile?.type || "image/jpeg",
+            }
+          })
+        }
+
+        router.push(`${EPages.TOTEM_SCHEDULE}?id=${encodeURIComponent(response.data.id)}`)
+      }
+
+      if (response.error) {
+        console.error(response.error)
+        toast.error(response.error)
+      }
 
     } catch (error) {
       console.error(error)
+      toast.error("Erro ao registrar cliente")
     }
   }
 
   async function handlePhotoInput(file: File) {
     setSelectedFile(file)
-    console.log("Photo input", file)
   }
 
   return (
@@ -139,7 +161,7 @@ export default function CustomerRegisterForm() {
             <div className="flex-1 flex flex-col gap-6 md:gap-8">
               <FormField
                 control={form.control}
-                name="phone"
+                name="phoneNumber"
                 render={({ field }) => (
                   <FormItem className="space-y-0.5 hidden">
                     <FormLabel className="sm:text-xl md:text-2xl">Telefone</FormLabel>
@@ -159,7 +181,7 @@ export default function CustomerRegisterForm() {
               <div className="w-full flex justify-between items-start gap-4">
                 <FormField
                   control={form.control}
-                  name="givenName"
+                  name="name"
                   render={({ field }) => (
                     <FormItem className="space-y-0.5 w-full">
                       <FormLabel className="sm:text-xl md:text-2xl">Nome e Sobrenome</FormLabel>
@@ -170,30 +192,9 @@ export default function CustomerRegisterForm() {
                           // autoFocus
                           onFocus={() => {
                             setKeyboardLayout("qwerty")
-                            setActiveField("givenName")
+                            setActiveField("name")
                           }}
-                          className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "givenName" ? "border-ring ring-ring/50 ring-[3px]" : "")}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="familyName"
-                  render={({ field }) => (
-                    <FormItem className="space-y-0.5 w-full hidden">
-                      <FormLabel className="sm:text-xl md:text-2xl">Sobrenome</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          readOnly
-                          onFocus={() => {
-                            setKeyboardLayout("qwerty")
-                            setActiveField("familyName")
-                          }}
-                          className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "familyName" ? "border-ring ring-ring/50 ring-[3px]" : "")}
+                          className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "name" ? "border-ring ring-ring/50 ring-[3px]" : "")}
                         />
                       </FormControl>
                       <FormMessage />
@@ -262,7 +263,7 @@ export default function CustomerRegisterForm() {
           />
           <FormField
             control={form.control}
-            name="indicationCode"
+            name="referralCodeUsed"
             render={({ field }) => (
               <FormItem className="space-y-0.5 w-full max-w-sm self-center">
                 <FormLabel className="sm:text-xl md:text-2xl">Possui código de indicação?</FormLabel>
@@ -272,9 +273,9 @@ export default function CustomerRegisterForm() {
                     readOnly
                     onFocus={() => {
                       setKeyboardLayout("qwerty")
-                      setActiveField("indicationCode")
+                      setActiveField("referralCodeUsed")
                     }}
-                    className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "indicationCode" ? "border-ring ring-ring/50 ring-[3px]" : "")}
+                    className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "referralCodeUsed" ? "border-ring ring-ring/50 ring-[3px]" : "")}
                   />
                 </FormControl>
                 <FormMessage />

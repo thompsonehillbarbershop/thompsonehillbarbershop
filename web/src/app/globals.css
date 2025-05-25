@@ -40,7 +40,6 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-radgivare: var(--font-radgivare);
   --font-spectral: var(--font-spectral);
 }
 
@@ -121,3 +120,4 @@
     @apply bg-background text-foreground;
   }
 }
+

@@ -86,7 +86,9 @@ export async function createUserAction(data: CreateUserInput): Promise<IActionRe
 
   try {
     const { data: user } = await axiosClient.post<IUserView>(`/users`, data)
-    return { data: user }
+    return {
+      data: user
+    }
 
   } catch (err) {
     const error = err as Error
@@ -109,7 +111,7 @@ export async function createUserAction(data: CreateUserInput): Promise<IActionRe
   }
 }
 
-export async function updateUserAction(id: string, data: UpdateUserInput): Promise<IActionResponse<IUserView>> {
+export async function updateUserAction(id: string, userName: string, data: UpdateUserInput): Promise<IActionResponse<IUserView>> {
   const session = await getSession()
 
   if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
@@ -130,7 +132,9 @@ export async function updateUserAction(id: string, data: UpdateUserInput): Promi
 
     revalidatePath(EPages.ADMIN_ATTENDANTS)
 
-    return { data: user }
+    return {
+      data: user
+    }
 
   } catch (err) {
     const error = err as Error

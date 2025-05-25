@@ -18,5 +18,5 @@ export enum EPages {
   TOTEM_CONFIRMATION = "/app/totem/confirmacao",
 
 
-  ATTENDANCE_DASHBOARD = "/app/atendimento"
+  ATTENDANCE_DASHBOARD = "/app/atendimento/fila"
 }

@@ -13,17 +13,17 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { EPages } from "@/lib/pages.enum"
-import { CalendarCheck, LayoutDashboard, LogOutIcon, Scissors, TabletIcon, User, UserCog, Users } from "lucide-react"
+import { CalendarCheck, LayoutListIcon, LogOutIcon, Scissors, TabletIcon, User, UserCog, Users } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import React from "react"
 
 const routes = [
   {
     slug: "dashboard",
-    title: "Dashboard",
+    title: "Filas",
     urlPrefix: EPages.ADMIN_DASHBOARD,
     url: EPages.ADMIN_DASHBOARD,
-    icon: <LayoutDashboard />
+    icon: <LayoutListIcon />
   },
   {
     slug: "gerentes",
@@ -61,8 +61,8 @@ const routes = [
     icon: <User />
   },
   {
-    slug: "agendamentos",
-    title: "Agendamentos",
+    slug: "atendimentos",
+    title: "Atendimentos",
     urlPrefix: EPages.ADMIN_APPOINTMENTS,
     url: EPages.ADMIN_APPOINTMENTS,
     icon: <CalendarCheck />

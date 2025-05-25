@@ -18,6 +18,7 @@ import { PlusIcon } from "lucide-react"
 import { EUserRole, IUserView } from "@/models/user"
 import { useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function ManagersPage() {
   const [isSheetOpen, setSheetOpen] = useState(false)
@@ -55,13 +56,17 @@ export default function ManagersPage() {
               {selectedUser ? "Atualize as informações do gerente" : "Preencha os dados para cadastrar um novo gerente"}
             </SheetDescription>
           </SheetHeader>
-          <AddUserForm
-            user={selectedUser}
-            forRole={EUserRole.MANAGER}
-            onSuccess={() => {
-              setSheetOpen(false)
-            }}
-          />
+          <ScrollArea className="h-[90%] pr-4">
+            <div className="px-1">
+              <AddUserForm
+                user={selectedUser}
+                forRole={EUserRole.MANAGER}
+                onSuccess={() => {
+                  setSheetOpen(false)
+                }}
+              />
+            </div>
+          </ScrollArea>
         </SheetContent>
       </Sheet>
 

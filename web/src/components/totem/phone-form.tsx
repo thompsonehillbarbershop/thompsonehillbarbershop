@@ -12,12 +12,14 @@ import { z } from "@/lib/pt-zod"
 import { useRouter } from "next/navigation"
 import { EPages } from "@/lib/pages.enum"
 import { VirtualKeyboard } from "../ui/virtual-keyboard"
+import { useTotem } from "@/hooks/use-totem"
 
 const formSchema = z.object({
   phone: z.string().min(14, { message: "Telefone inválido" }).max(16, { message: "Telefone inválido" }),
 })
 
 export default function PhoneForm() {
+  const { getCustomer } = useTotem()
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,7 +49,13 @@ export default function PhoneForm() {
         return
       }
 
-      router.push(`${EPages.TOTEM_REGISTER}?tel=${encodeURIComponent(formattedPhone)}`)
+      const response = await getCustomer(formattedPhone)
+
+      if (response.data) {
+        router.push(`${EPages.TOTEM_SCHEDULE}?id=${encodeURIComponent(response.data.id)}`)
+      } else {
+        router.push(`${EPages.TOTEM_REGISTER}?tel=${encodeURIComponent(formattedPhone)}`)
+      }
 
     } catch (error) {
       console.error(error)

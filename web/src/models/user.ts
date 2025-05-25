@@ -4,7 +4,7 @@ export interface IUserView {
   userName: string
   role: EUserRole
   profileImage?: string
-  profileImageSignedUrl?: string
+  imageSignedUrl?: string
   status: EUserStatus
   createdAt: Date
 }

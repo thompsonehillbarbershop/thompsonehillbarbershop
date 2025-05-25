@@ -1,6 +1,11 @@
 export interface IServiceView {
   id: string
   name: string
+  description?: string
   value: number
-  image: string
+  promoValue?: number
+  promoEnabled?: boolean
+  coverImage?: string
+  signedUrl?: string
+  createdAt: Date
 }

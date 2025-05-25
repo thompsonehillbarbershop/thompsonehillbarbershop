@@ -10,13 +10,13 @@ import { toast } from "sonner"
 import { createUserSchema } from "@/actions/users/dtos/create-user.input"
 import { EUserRole, EUserStatus, IUserView } from "@/models/user"
 import { PasswordInput } from "../ui/password-input"
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useAdmin } from "@/hooks/use-admin"
 import { Switch } from "../ui/switch"
-// import { CameraIcon } from "lucide-react"
-// import Image from "next/image"
-// import axios from "axios"
+import Image from "next/image"
 import { generateUserName } from "@/lib/utils"
+import { CameraIcon } from "lucide-react"
+import { images } from "@/lib/images"
 
 interface Props {
   forRole: EUserRole
@@ -28,7 +28,7 @@ interface Props {
 export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
   const formSchema = createUserSchema(user ? "update" : "create")
   const { createUser, updateUser } = useAdmin()
-  // const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
+  const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,12 +40,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
     }
   })
 
-  // const photoRef = useRef<HTMLInputElement>(null)
-
-  // Log form errors
-  useEffect(() => {
-    // console.log(form.formState.errors)
-  }, [form.formState.errors])
+  const photoRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (user) return
@@ -55,34 +50,35 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
   }, [form.watch().name])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // const profileImage = selectedFile?.name
-    // const profileImageContentType = selectedFile?.type
-    const profileImage = undefined
-    const profileImageContentType = undefined
+    const profileImage = selectedFile?.name
+    const imageContentType = selectedFile?.type
 
     try {
       if (user) {
         const response = await updateUser({
           id: user.id,
+          userName: user.userName,
           data: {
             name: values.name,
             password: values.password,
             role: forRole,
             status: values.status,
             profileImage,
-            profileImageContentType
+            imageContentType
           }
         })
 
         if (response.data) {
           // Upload the photo to the google firebase server using the signed URL
-          // if (response.data.profileImageSignedUrl) {
-          //   await axios.put(response.data.profileImageSignedUrl, selectedFile, {
-          //     headers: {
-          //       "Content-Type": selectedFile?.type || "image/jpeg",
-          //     }
-          //   })
-          // }
+          if (response.data.imageSignedUrl) {
+            await fetch(response.data.imageSignedUrl, {
+              method: "PUT",
+              body: selectedFile,
+              headers: {
+                "Content-Type": selectedFile?.type || "image/jpeg",
+              }
+            })
+          }
 
           toast.success("Usuário atualizado com sucesso")
           if (onSuccess) onSuccess()
@@ -98,11 +94,20 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
         const response = await createUser({
           ...values,
           profileImage,
-          profileImageContentType
+          imageContentType
         })
 
         if (response.data) {
           // Upload the photo to the google firebase server using the signed URL
+          if (response.data.imageSignedUrl) {
+            await fetch(response.data.imageSignedUrl, {
+              method: "PUT",
+              body: selectedFile,
+              headers: {
+                "Content-Type": selectedFile?.type || "image/jpeg",
+              }
+            })
+          }
           // if (response.data?.profileImageSignedUrl) {
           //   await axios.put(response.data?.profileImageSignedUrl, selectedFile, {
           //     headers: {
@@ -143,10 +148,9 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
     }
   }
 
-  // async function handlePhotoInput(file: File) {
-  //   setSelectedFile(file)
-  //   console.log("Photo input", file)
-  // }
+  async function handlePhotoInput(file: File) {
+    setSelectedFile(file)
+  }
 
   return (
     <Form {...form}>
@@ -175,7 +179,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
             )}
           />
         )}
-        {/* {forRole === EUserRole.ATTENDANT && (
+        {forRole === EUserRole.ATTENDANT && (
           <div className="w-full h-48 pt-4 flex items-center justify-center">
             <input
               autoFocus={false}
@@ -219,7 +223,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
                 <Image
                   width={192}
                   height={192}
-                  src={user.profileImage}
+                  src={user.profileImage || images.userPlaceholder}
                   alt="Foto capturada"
                   className="size-48 object-cover rounded-lg aspect-square"
                 />
@@ -235,7 +239,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
               </div>
             )}
           </div>
-        )} */}
+        )}
         <FormField
           control={form.control}
           name="name"
@@ -287,7 +291,8 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
         <Button
           isLoading={form.formState.isSubmitting}
           type="submit"
-          className="w-full sm:w-fit sm:px-10 self-center"
+          size="lg"
+          className="w-full"
         >Salvar</Button>
       </form>
     </Form>

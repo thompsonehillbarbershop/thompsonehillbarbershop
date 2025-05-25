@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono, Spectral } from "next/font/google"
-import localFont from 'next/font/local'
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import QueryContext from "@/contexts/query-context"
@@ -13,12 +12,6 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-})
-
-const radgivare = localFont({
-  src: './radgivare.otf',
-  display: 'swap',
-  variable: '--font-radgivare',
 })
 
 const spectral = Spectral({
@@ -43,7 +36,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Thompson & Hill" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${radgivare.variable} ${spectral.variable} antialiased dark w-screen h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} ${spectral.variable} antialiased dark w-screen h-screen`}
       >
         <QueryContext>
           {children}

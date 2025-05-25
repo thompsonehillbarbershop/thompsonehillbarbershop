@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import slugify from "slugify"
+import { addHours } from "date-fns"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -34,20 +36,20 @@ export function applyDateMask(input: string): string {
   if (!date) return ""
   if (date.length > 2) date = `${date.slice(0, 2)}/${date.slice(2)}`
   if (date.length > 5) date = `${date.slice(0, 5)}/${date.slice(5)}`
+  if (date.length > 10) date = `${date.slice(0, 5)}/${date.slice(5, 10)}`
   return date
 }
 
 export function isDateValid(input: string): boolean {
-  if (input.length < 10) {
+  if (input.length !== 10) {
     return false
   }
 
   const [day, month, year] = input.split("/").map(Number)
-  const date = new Date(`${year}-${month}-${day}`)
-  console.log(date)
+  const date = addHours(new Date(`${year}-${month}-${day}`), 5)
+
   // Check if date is valid in calendar
   if (!date || date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) {
-    console.log("Invalid date")
     return false
   }
   return true
@@ -82,11 +84,11 @@ export function generateUserName(name: string | undefined): string {
   if (!name) return ""
 
   const parts = name.trim().split(/\s+/)
-  if (parts.length < 2) return name.toLowerCase() // fallback para nome único
+  if (parts.length < 2) return slugify(name, { lower: true, strict: true, trim: true }) // fallback para nome único
 
   const firstLetter = parts[0][0].toLowerCase()
   const lastName = parts[parts.length - 1].toLowerCase()
 
-  return firstLetter + lastName
+  return slugify(firstLetter + lastName, { lower: true, strict: true, trim: true })
 }
 
