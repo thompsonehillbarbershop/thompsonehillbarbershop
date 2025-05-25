@@ -1,29 +1,22 @@
-import { ApiPropertyOptional } from "@nestjs/swagger"
-import { IsBoolean, IsEnum, IsIn, IsNumber, IsOptional, IsString, Min } from "class-validator"
-import { EAppointmentStatuses, EPaymentMethod } from "../entities/appointment.entity"
-import { Transform, Type } from "class-transformer"
+import { ApiPropertyOptional } from '@nestjs/swagger'
+import { IsOptional, IsString, IsNumber, IsIn, Min } from 'class-validator'
+import { Type } from 'class-transformer'
 
-export class AppointmentQuery {
-  @ApiPropertyOptional()
-  @Transform(({ value }) => value === 'true')
-  @IsBoolean()
-  @IsOptional()
-  onlyToday?: boolean = false
-
-  @ApiPropertyOptional()
-  @IsEnum(EAppointmentStatuses)
-  @IsOptional()
-  status?: EAppointmentStatuses
-
-  @ApiPropertyOptional()
-  @IsEnum(EPaymentMethod)
-  @IsOptional()
-  paymentMethod?: EPaymentMethod
-
-  @ApiPropertyOptional()
+export class CustomerQuery {
+  @ApiPropertyOptional({ description: "Query by name (partial, case-insensitive)" })
   @IsOptional()
   @IsString()
-  customerName?: string
+  name?: string
+
+  @ApiPropertyOptional({ description: "Query by phone number (exact match)" })
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string
+
+  @ApiPropertyOptional({ description: "Query by referral code (exact match)" })
+  @IsOptional()
+  @IsString()
+  referralCode?: string
 
   @ApiPropertyOptional({ default: 1, description: "Page number" })
   @Type(() => Number)

@@ -1,10 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode, Put } from '@nestjs/common'
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode, Put, Query } from '@nestjs/common'
 import { CustomersService } from './customers.service'
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard"
 import { CreateCustomerInput } from "./dto/create-customer.input"
 import { CustomerView } from "./dto/customer.view"
 import { UpdateCustomerInput } from "./dto/update-customer.input"
+import { CustomerQuery } from "./dto/customer.query"
+import { createPaginatedDto } from "../common/dto/paginated.view"
+
+const PaginatedCustomersView = createPaginatedDto(CustomerView)
 
 @ApiTags('Customers')
 @Controller('customers')
@@ -36,10 +40,16 @@ export class CustomersController {
 
   @Get()
   @ApiOperation({ summary: 'Get all customers' })
-  @ApiOkResponse({ type: [CustomerView] })
-  async findAll() {
-    const customer = await this.customersService.findAll()
-    return customer.map((customer) => new CustomerView(customer))
+  @ApiOkResponse({ type: PaginatedCustomersView })
+  async findAll(@Query() query: CustomerQuery) {
+    const { page = 1, limit = 10 } = query
+    const { results, total } = await this.customersService.findAll(query)
+    return {
+      data: results.map((customer) => new CustomerView(customer)),
+      total,
+      page,
+      limit,
+    }
   }
 
   @Get('/phoneNumber/:phoneNumber')

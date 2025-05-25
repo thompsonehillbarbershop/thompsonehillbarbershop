@@ -38,6 +38,8 @@ export class ServicesService {
       name: dto.name,
       description: dto.description,
       value: dto.value,
+      promoValue: dto.promoValue,
+      promoEnabled: dto.promoEnabled,
       coverImage: fileUrl,
       createdAt: new Date(),
     })

@@ -8,6 +8,7 @@ import { UsersModule } from "src/users/users.module"
 @Module({
   controllers: [AppointmentsController],
   providers: [AppointmentsService],
-  imports: [CustomersModule, ServicesModule, UsersModule]
+  imports: [CustomersModule, ServicesModule, UsersModule],
+  exports: [AppointmentsService]
 })
 export class AppointmentsModule { }

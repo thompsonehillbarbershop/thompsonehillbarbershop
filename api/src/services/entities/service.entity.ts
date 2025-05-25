@@ -4,6 +4,8 @@ export interface IService {
   name: string
   description?: string
   value: number
+  promoValue?: number
+  promoEnabled?: boolean
   coverImage?: string
   signedUrl?: string
   createdAt: Date
@@ -14,6 +16,8 @@ export class Service {
   name: string
   description?: string
   value: number
+  promoValue?: number
+  promoEnabled?: boolean
   coverImage?: string
   signedUrl?: string
   createdAt: Date
@@ -29,6 +33,8 @@ export class Service {
       name: this.name,
       description: this.description || null,
       value: this.value,
+      promoValue: this.promoValue || null,
+      promoEnabled: this.promoEnabled || false,
       coverImage: this.coverImage || null,
       createdAt: this.createdAt.toISOString()
     }

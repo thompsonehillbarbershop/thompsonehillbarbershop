@@ -10,6 +10,9 @@ export class CustomerView {
     this.signedUrl = customer.signedUrl
     this.birthDate = customer.birthDate
     this.gender = customer.gender
+    this.referralCode = customer.referralCode
+    this.referralCodeUsed = customer.referralCodeUsed
+    this.referralCodeCount = customer.referralCodeCount
     this.createdAt = customer.createdAt
   }
 
@@ -36,4 +39,13 @@ export class CustomerView {
 
   @ApiProperty()
   gender: ECustomerGender
+
+  @ApiProperty()
+  referralCode: string
+
+  @ApiProperty()
+  referralCodeUsed?: string
+
+  @ApiProperty()
+  referralCodeCount: number
 }

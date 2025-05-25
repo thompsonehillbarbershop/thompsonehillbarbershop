@@ -8,6 +8,7 @@ import { createId } from "@paralleldrive/cuid2"
 import { UpdateCustomerInput } from "./dto/update-customer.input"
 import { capitalizeName } from "../utils"
 import { FirebaseService } from "../firebase/firebase.service"
+import { CustomerQuery } from "./dto/customer.query"
 
 @Injectable()
 export class CustomersService {
@@ -18,10 +19,11 @@ export class CustomersService {
 
   private readonly STORAGE = "customers"
 
-  async findOne({ id, phoneNumber }: { id?: string, phoneNumber?: string }): Promise<Customer> {
+  async findOne({ id, phoneNumber, referralCode }: { id?: string, phoneNumber?: string, referralCode?: string }): Promise<Customer> {
     const query: any = {}
     if (id) query._id = id
     if (phoneNumber) query.phoneNumber = phoneNumber.toLowerCase().trim()
+    if (referralCode) query.referralCode = referralCode.toUpperCase().trim()
 
     const customer = await this.customerSchema.findOne(query)
     if (!customer) throw new CustomerNotFoundException
@@ -50,6 +52,9 @@ export class CustomersService {
           profileImage: fileUrl,
           birthDate: dto.birthDate,
           gender: dto.gender,
+          referralCode: generateRandomReferralCode(),
+          referralCodeUsed: dto.referralCodeUsed,
+          referralCodeCount: 0,
           createdAt: new Date(),
         })
 
@@ -62,9 +67,44 @@ export class CustomersService {
     }
   }
 
-  async findAll(): Promise<Customer[]> {
-    const customers = await this.customerSchema.find().sort({ name: 1 })
-    return customers.map((customer) => new Customer(toCustomer(customer)))
+  async findAll(
+    filters: CustomerQuery = {}
+  ) {
+    const {
+      name,
+      phoneNumber,
+      referralCode,
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      order = 'desc',
+      ...otherFilters
+    } = filters
+
+    const filterFields: any = {
+      ...otherFilters,
+    }
+    if (name) filterFields.name = { $regex: name, $options: 'i' }
+    if (phoneNumber) filterFields.phoneNumber = { $regex: phoneNumber, $options: 'i' }
+    if (referralCode) filterFields.referralCode = referralCode
+
+    const skip = (page - 1) * limit
+
+    const query = this.customerSchema
+      .find(filterFields)
+      .sort({ [sortBy]: order === 'asc' ? 1 : -1 })
+      .skip(skip)
+      .limit(limit)
+
+    const [results, total] = await Promise.all([
+      query.exec(),
+      this.customerSchema.countDocuments(filterFields),
+    ])
+
+    return {
+      results: results.map((customer) => new Customer(toCustomer(customer))),
+      total,
+    }
   }
 
   async update(id: string, dto: UpdateCustomerInput): Promise<Customer> {
@@ -98,4 +138,33 @@ export class CustomersService {
     if (!customer) throw new CustomerNotFoundException()
     return new Customer(toCustomer(customer))
   }
+
+  async incrementReferralCodeCount(id: string): Promise<Customer> {
+    try {
+      const customer = await this.customerSchema.findOneAndUpdate(
+        { _id: id },
+        { $inc: { referralCodeCount: 1 } },
+        { new: true }
+      )
+
+      if (!customer) {
+        throw new CustomerNotFoundException()
+      }
+
+      return new Customer({ ...toCustomer(customer) })
+
+    } catch (error) {
+      throw error
+    }
+  }
+}
+
+function generateRandomReferralCode(length: number = 6): string {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let code = ''
+  for (let i = 0; i < length; i++) {
+    const indice = Math.floor(Math.random() * letters.length)
+    code += letters[indice]
+  }
+  return code
 }

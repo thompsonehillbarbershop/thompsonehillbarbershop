@@ -8,6 +8,8 @@ export class FirebaseService {
     @Inject('FIREBASE_ADMIN') private readonly app: admin.app.App,
   ) { }
 
+  private readonly APPOINTMENTS_COLLECTION = 'appointments'
+
   getFirestore() {
     return this.app.firestore()
   }
@@ -47,14 +49,24 @@ export class FirebaseService {
   }
 
   async addAppointmentToQueue(appointment: Appointment) {
-    const collectionRef = this.getFirestore().collection('queue')
-    const docRef = collectionRef.doc(appointment.attendant?.userName || "common")
-    const appointmentRef = docRef.collection('appointments').doc(appointment.id)
+    const collectionRef = this.getFirestore().collection(this.APPOINTMENTS_COLLECTION)
+    const docRef = collectionRef.doc(appointment.id)
     try {
-      await appointmentRef.set({ ...appointment.toFirebaseObject(), createdAt: admin.firestore.Timestamp.fromDate(appointment.createdAt) }, { merge: true })
+      await docRef.set({ ...appointment.toFirebaseObject(), createdAt: admin.firestore.Timestamp.fromDate(appointment.createdAt) }, { merge: true })
     } catch (error) {
       console.error('Error adding appointment to queue:', error)
       throw new Error('Error adding appointment to queue')
+    }
+  }
+
+  async updateAppointment(appointment: Appointment) {
+    const collectionRef = this.getFirestore().collection(this.APPOINTMENTS_COLLECTION)
+    const docRef = collectionRef.doc(appointment.id)
+    try {
+      await docRef.set({ ...appointment.toFirebaseObject(), createdAt: admin.firestore.Timestamp.fromDate(appointment.createdAt) }, { merge: true })
+    } catch (error) {
+      console.error('Error updating appointment:', error)
+      throw new Error('Error updating appointment')
     }
   }
 }

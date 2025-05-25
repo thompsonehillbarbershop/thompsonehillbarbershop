@@ -10,6 +10,8 @@ export const serviceSchema: Schema<IMongoService> = new Schema({
   _id: { type: String, required: true },
   name: { type: String, required: true },
   value: { type: Number, required: true },
+  promoValue: { type: Number, required: false },
+  promoEnabled: { type: Boolean, required: false, default: false },
   description: { type: String, required: false },
   coverImage: { type: String, required: false },
 }, {
@@ -29,6 +31,8 @@ export function toService(mongoService: IMongoService): IService {
     name: mongoService.name,
     description: mongoService.description,
     value: mongoService.value,
+    promoValue: mongoService.promoValue,
+    promoEnabled: mongoService.promoEnabled,
     coverImage: mongoService.coverImage,
     createdAt: mongoService.createdAt,
   }

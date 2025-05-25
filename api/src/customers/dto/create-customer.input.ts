@@ -33,5 +33,5 @@ export class CreateCustomerInput {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  indicationCode?: string
+  referralCodeUsed?: string
 }

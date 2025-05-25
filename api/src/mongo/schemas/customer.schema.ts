@@ -1,7 +1,6 @@
 import { Schema, Document, Model } from "mongoose"
 import { ECustomerGender, ICustomer } from "../../customers/entities/customer.entity"
 
-
 export interface IMongoCustomer extends ICustomer, Document {
   id: string
 }
@@ -13,6 +12,9 @@ export const customerSchema: Schema<IMongoCustomer> = new Schema({
   profileImage: { type: String, required: false },
   birthDate: { type: Date, required: true },
   gender: { type: String, enum: Object.values(ECustomerGender), required: true },
+  referralCode: { type: String, required: true, unique: true },
+  referralCodeUsed: { type: String, required: false },
+  referralCodeCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 }, {
   timestamps: true,
@@ -34,5 +36,8 @@ export function toCustomer(mongoCustomer: IMongoCustomer): ICustomer {
     gender: mongoCustomer.gender,
     birthDate: mongoCustomer.birthDate,
     createdAt: mongoCustomer.createdAt,
+    referralCode: mongoCustomer.referralCode,
+    referralCodeUsed: mongoCustomer.referralCodeUsed,
+    referralCodeCount: mongoCustomer.referralCodeCount,
   }
 }

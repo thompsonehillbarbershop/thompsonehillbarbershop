@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsNumber, IsOptional, IsString } from "class-validator"
+import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator"
 
 export class CreateServiceInput {
   @ApiProperty()
@@ -14,6 +14,16 @@ export class CreateServiceInput {
   @ApiProperty()
   @IsNumber()
   value: number
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  promoValue?: number
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  promoEnabled?: boolean
 
   @ApiProperty({ required: false })
   @IsOptional()

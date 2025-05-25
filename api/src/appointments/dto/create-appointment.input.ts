@@ -19,4 +19,6 @@ export class CreateAppointmentInput {
   @IsString()
   @IsOptional()
   redeemCoupon?: string
+
+  createdAt?: Date
 }

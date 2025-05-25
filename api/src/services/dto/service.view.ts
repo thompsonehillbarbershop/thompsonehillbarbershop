@@ -7,6 +7,8 @@ export class ServiceView {
     this.name = service.name
     this.description = service.description
     this.value = service.value
+    this.promoValue = service.promoValue
+    this.promoEnabled = service.promoEnabled
     this.coverImage = service.coverImage
     this.signedUrl = service.signedUrl
     this.createdAt = service.createdAt
@@ -23,6 +25,12 @@ export class ServiceView {
 
   @ApiProperty()
   value: number
+
+  @ApiProperty()
+  promoValue?: number
+
+  @ApiProperty()
+  promoEnabled?: boolean
 
   @ApiProperty()
   coverImage?: string

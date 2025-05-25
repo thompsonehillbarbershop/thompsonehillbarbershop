@@ -11,6 +11,9 @@ export interface ICustomer {
   signedUrl?: string
   birthDate: Date
   gender: ECustomerGender
+  referralCode: string
+  referralCodeUsed?: string
+  referralCodeCount: number
   createdAt: Date
 }
 
@@ -22,6 +25,9 @@ export class Customer {
   signedUrl?: string
   birthDate: Date
   gender: ECustomerGender
+  referralCode: string
+  referralCodeUsed?: string
+  referralCodeCount: number
   createdAt: Date
 
   constructor(data: ICustomer) {
@@ -37,6 +43,9 @@ export class Customer {
       gender: this.gender,
       phoneNumber: this.phoneNumber,
       profileImage: this.profileImage || null,
+      referralCode: this.referralCode,
+      referralCodeUsed: this.referralCodeUsed || null,
+      referralCodeCount: this.referralCodeCount,
       birthDate: this.birthDate.toISOString(),
       createdAt: this.createdAt.toISOString()
     }
