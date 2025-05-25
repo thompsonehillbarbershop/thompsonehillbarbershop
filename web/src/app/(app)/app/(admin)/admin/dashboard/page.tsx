@@ -20,7 +20,6 @@ export default function AdminDashboardPage() {
   return (
     <div className="w-full flex flex-col max-w-[1440px] mx-auto">
       <H1>Filas de Atendimento</H1>
-
       <ScrollArea className="w-[calc(100vw-6rem)]">
         <div className="flex flex-row gap-1 pb-4">
           {activeAttendants?.map((attendant) => (

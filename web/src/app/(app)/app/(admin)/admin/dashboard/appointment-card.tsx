@@ -14,9 +14,12 @@ export default function AppointmentCard({ appointment }: AppointmentCardProps) {
     <div
       key={appointment.id}
       className={cn("bg-input/10 flex flex-col gap-1 border-2 border-input rounded-xl p-2",
-        (appointment.status === EAppointmentStatuses.CANCELLED || appointment.status === EAppointmentStatuses.NO_SHOW || appointment.status === EAppointmentStatuses.FINISHED) && "opacity-30",
+        (appointment.status === EAppointmentStatuses.CANCELLED || appointment.status === EAppointmentStatuses.NO_SHOW || appointment.status === EAppointmentStatuses.FINISHED) && "opacity-25",
+        appointment.status === EAppointmentStatuses.WAITING && "opacity-90",
+        !appointment.attendant && "border-dashed",
       )}
     >
+      <p className={cn("text-sm font-semibold text-center bg-secondary text-secondary-foreground rounded", appointment.attendant && "hidden")}>Fila Geral</p>
       <div className="flex items-center justify-between">
         <p>{format(new Date(appointment.createdAt || ""), "HH:mm")}</p>
         <p
@@ -26,7 +29,6 @@ export default function AppointmentCard({ appointment }: AppointmentCardProps) {
             color: EAppointmentStatusesMapper[appointment.status].textColor,
           }}
         >{EAppointmentStatusesMapper[appointment.status].label}</p>
-        <p className={cn("text-sm font-semibold", appointment.attendant ? "text-transparent" : "text-primary")}>Fila Geral</p>
       </div>
       <h3 className="font-bold text-lg">{appointment.customer?.name}</h3>
       {appointment.services.map((service) => (
