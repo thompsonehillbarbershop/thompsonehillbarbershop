@@ -78,11 +78,6 @@ export default function AttendantsPage() {
             forRole={EUserRole.ATTENDANT}
             isLoading={isLoadingUsers}
             emptyMessage="Nenhum atendente encontrado"
-            filtering={{
-              enableFiltering: true,
-              field: "name",
-              placeholder: "Buscar por nome",
-            }}
             onEditButtonClick={(user) => {
               setSelectedUser(user)
               setSheetOpen(true)
