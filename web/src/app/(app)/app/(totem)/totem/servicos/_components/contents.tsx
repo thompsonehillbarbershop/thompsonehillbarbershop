@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { EPages } from "@/lib/pages.enum"
 import { useTotem } from "@/hooks/use-totem"
 import LoadingIndicator from "@/components/ui/loading-indicator"
-import TotemServiceCardAlternative from "@/components/totem/service-card-alt"
+import TotemServiceCard from "@/components/totem/service-card"
 
 export default function ServicesPageContents() {
   const { services, isLoadingServices } = useTotem()
@@ -28,7 +28,7 @@ export default function ServicesPageContents() {
         ) : (
           <div className="w-full flex flex-col flex-wrap justify-center items-center gap-2 pb-4">
             {services?.data?.map((service) => (
-              <TotemServiceCardAlternative
+              <TotemServiceCard
                 key={service.id}
                 service={service}
                 handleClick={() => handleSelect(service)}
