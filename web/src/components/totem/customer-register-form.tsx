@@ -5,16 +5,16 @@ import { z } from "@/lib/pt-zod"
 import { applyDateMask, applyPhoneMask, cn, formatPhoneToE164 } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { VirtualKeyboard } from "../ui/virtual-keyboard"
 import { Button } from "../ui/button"
-import { CameraIcon, ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { EGender } from "@/models/customer"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
-import Image from "next/image"
+// import Image from "next/image"
 import { useTotem } from "@/hooks/use-totem"
 import { toast } from "sonner"
 import { createCustomerSchema } from "@/actions/customers/dto/create-customer.input"
@@ -28,8 +28,8 @@ export default function CustomerRegisterForm() {
   const [activeField, setActiveField] = useState<keyof z.infer<typeof formSchema> | null>(null)
   const [keyBoardLayout, setKeyboardLayout] = useState<"qwerty" | "numpad">("qwerty")
   const router = useRouter()
-  const photoRef = useRef<HTMLInputElement>(null)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  // const photoRef = useRef<HTMLInputElement>(null)
+  // const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const phoneNumber = searchParams.get('tel')
 
@@ -59,8 +59,8 @@ export default function CustomerRegisterForm() {
   }, [])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const profileImage = selectedFile?.name
-    const imageContentType = selectedFile?.type
+    // const profileImage = selectedFile?.name
+    // const imageContentType = selectedFile?.type
 
     try {
       const formattedPhone = formatPhoneToE164(values.phoneNumber)
@@ -79,21 +79,21 @@ export default function CustomerRegisterForm() {
 
       const response = await registerCustomer({
         ...normalizedValues,
-        profileImage,
-        imageContentType
+        // profileImage,
+        // imageContentType
       })
 
       if (response.data) {
         // Upload the photo to the google firebase server using the signed URL
-        if (response.data.signedUrl) {
-          await fetch(response.data.signedUrl, {
-            method: "PUT",
-            body: selectedFile,
-            headers: {
-              "Content-Type": selectedFile?.type || "image/jpeg",
-            }
-          })
-        }
+        // if (response.data.signedUrl) {
+        //   await fetch(response.data.signedUrl, {
+        //     method: "PUT",
+        //     body: selectedFile,
+        //     headers: {
+        //       "Content-Type": selectedFile?.type || "image/jpeg",
+        //     }
+        //   })
+        // }
 
         router.push(`${EPages.TOTEM_SCHEDULE}?id=${encodeURIComponent(response.data.id)}`)
       }
@@ -109,16 +109,16 @@ export default function CustomerRegisterForm() {
     }
   }
 
-  async function handlePhotoInput(file: File) {
-    setSelectedFile(file)
-  }
+  // async function handlePhotoInput(file: File) {
+  //   setSelectedFile(file)
+  // }
 
   return (
     <div className="w-full flex flex-col flex-1 justify-start items-center">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-col gap-2 md:gap-6 max-w-2xl">
           <div className="flex flex-row justify-start items-start gap-4">
-            <div className="size-64 pt-4">
+            {/* <div className="size-64 pt-4">
               <input
                 autoFocus={false}
                 id="file"
@@ -156,7 +156,7 @@ export default function CustomerRegisterForm() {
                   <span className="ml-2"></span>
                 </Button>
               )}
-            </div>
+            </div> */}
 
             <div className="flex-1 flex flex-col gap-6 md:gap-8">
               <FormField

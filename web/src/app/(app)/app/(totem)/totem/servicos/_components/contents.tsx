@@ -26,7 +26,7 @@ export default function ServicesPageContents() {
         {isLoadingServices ? (
           <LoadingIndicator size="xl" />
         ) : (
-          <div className="w-full flex flex-col flex-wrap justify-center items-center gap-2 pb-4">
+          <div className="w-full flex flex-row flex-wrap justify-center items-center gap-6 pb-4">
             {services?.data?.map((service) => (
               <TotemServiceCard
                 key={service.id}
