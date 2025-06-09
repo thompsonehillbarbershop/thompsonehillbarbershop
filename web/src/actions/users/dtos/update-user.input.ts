@@ -7,7 +7,8 @@ export const updateUserSchema = z.object({
   role: z.nativeEnum(EUserRole).optional(),
   status: z.nativeEnum(EUserStatus).optional(),
   profileImage: z.string().optional(),
-  imageContentType: z.string().optional()
+  imageContentType: z.string().optional(),
+  delete: z.boolean().optional(),
 })
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>

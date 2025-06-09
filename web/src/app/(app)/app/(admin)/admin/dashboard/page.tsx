@@ -14,8 +14,10 @@ export default function AdminDashboardPage() {
   const { users } = useAdmin()
 
   const activeAttendants = useMemo(() => {
-    return users?.filter((user) => user.role === EUserRole.ATTENDANT && user.status === EUserStatus.ACTIVE)
+    return users?.filter((user) => (user.role === EUserRole.ATTENDANT || user.role === EUserRole.ATTENDANT_MANAGER) && user.status === EUserStatus.ACTIVE)
   }, [users])
+
+  console.log("Queue:", queue)
 
   return (
     <div className="w-full flex flex-col max-w-[1440px] mx-auto">
@@ -28,7 +30,7 @@ export default function AdminDashboardPage() {
                 <CardTitle className="text-primary capitalize text-xl font-bold">{attendant.name}</CardTitle>
               </CardHeader>
               <CardContent className="px-3 space-y-1">
-                {queue[queue[attendant.userName]?.length > 0 ? attendant.userName : "fila_geral"]?.map((appointment) => (
+                {queue[queue[attendant.id]?.length > 0 ? attendant.id : "fila_geral"]?.map((appointment) => (
                   <AppointmentCard
                     key={appointment.id}
                     appointment={appointment}

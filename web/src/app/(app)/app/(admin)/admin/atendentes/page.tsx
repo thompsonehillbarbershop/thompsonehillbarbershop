@@ -26,7 +26,7 @@ export default function AttendantsPage() {
   const { users, isLoadingUsers } = useAdmin()
 
   const attendants = useMemo(() => {
-    return users?.filter((user) => user.role === EUserRole.ATTENDANT).sort((a, b) => {
+    return users?.filter((user) => (user.role === EUserRole.ATTENDANT || user.role === EUserRole.ATTENDANT_MANAGER)).sort((a, b) => {
       if (a.userName < b.userName) return -1
       if (a.userName > b.userName) return 1
       return 0

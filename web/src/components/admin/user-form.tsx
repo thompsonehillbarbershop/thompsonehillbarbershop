@@ -17,6 +17,7 @@ import Image from "next/image"
 import { generateUserName } from "@/lib/utils"
 import { CameraIcon } from "lucide-react"
 import { images } from "@/lib/images"
+import { Checkbox } from "../ui/checkbox"
 
 interface Props {
   forRole: EUserRole
@@ -36,11 +37,13 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
       password: undefined,
       userName: user?.userName,
       status: user?.status || EUserStatus.ACTIVE,
-      role: forRole
+      role: user?.role || forRole
     }
   })
 
   const photoRef = useRef<HTMLInputElement>(null)
+  const [enableDelete, setEnableDelete] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (user) return
@@ -61,7 +64,7 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
           data: {
             name: values.name,
             password: values.password,
-            role: forRole,
+            role: values.role,
             status: values.status,
             profileImage,
             imageContentType
@@ -150,6 +153,27 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
 
   async function handlePhotoInput(file: File) {
     setSelectedFile(file)
+  }
+
+  async function handleDelete() {
+    setIsDeleting(true)
+    if (!user) return
+
+    const response = await updateUser({
+      id: user.id,
+      userName: user.userName,
+      data: {
+        delete: true
+      }
+    })
+    setIsDeleting(false)
+    if (response.data) {
+      toast.success("Usuário excluído com sucesso")
+      if (onSuccess) onSuccess()
+    } else {
+      toast.error("Erro ao excluir usuário")
+      if (onError) onError()
+    }
   }
 
   return (
@@ -275,6 +299,30 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
             </FormItem>
           )}
         />
+        {forRole === EUserRole.ATTENDANT && !!user && (
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>Administrador</FormLabel>
+                  <FormDescription>
+                    Deixando o atendente como administrador permite que ele tenha acesso a algumas funcionalidades do sistema
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value === EUserRole.ATTENDANT_MANAGER}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked ? EUserRole.ATTENDANT_MANAGER : EUserRole.ATTENDANT)
+                    }}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="password"
@@ -288,6 +336,23 @@ export default function UserForm({ onSuccess, onError, forRole, user }: Props) {
             </FormItem>
           )}
         />
+        {user && (
+          <div className="flex items-center gap-2">
+            <Checkbox
+              className="dark:border-destructive dark:data-[state=checked]:bg-destructive dark:data-[state=checked]:text-destructive-foreground size-8 border-2"
+              checked={enableDelete}
+              onCheckedChange={() => setEnableDelete(!enableDelete)}
+            />
+            <Button
+              onClick={() => handleDelete()}
+              disabled={!enableDelete}
+              isLoading={isDeleting}
+              type="button"
+              variant="destructive"
+              className="w-full flex-1"
+            >Excluir</Button>
+          </div>
+        )}
         <Button
           isLoading={form.formState.isSubmitting}
           type="submit"

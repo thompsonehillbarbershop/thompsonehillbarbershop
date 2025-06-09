@@ -6,14 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker:build": "docker build -t thompson-web .",
+    "docker:run": "docker run -d --name thompson-web -p 3000:3000 thompson-web",
+    "docker:start": "docker start thompson-web",
+    "docker:stop": "docker stop thompson-web",
+    "docker:remove": "docker rm thompson-web",
+    "docker:logs": "docker logs -f thompson-web"
   },
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
     "@eslint/eslintrc": "^3",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-checkbox": "^1.2.3",
-    "@radix-ui/react-dialog": "^1.1.11",
+    "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.4",
     "@radix-ui/react-radio-group": "^1.3.4",
     "@radix-ui/react-scroll-area": "^1.2.9",

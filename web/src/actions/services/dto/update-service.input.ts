@@ -26,7 +26,19 @@ export const updateServiceSchema = z.object({
   ]).optional(),
   promoEnabled: z.boolean().default(false).optional(),
   coverImage: z.string().optional(),
-  imageContentType: z.string().optional()
+  imageContentType: z.string().optional(),
+  delete: z.boolean().optional(),
+  weight: z.union([
+    z.string({ message: "Valor inválido" })
+      .refine((val) => /^\d+$/.test(val), {
+        message: "Formato inválido. Insira apenas números inteiros positivos."
+      }) // Permite apenas números inteiros positivos
+      .transform((val) => parseInt(val, 10)) // Converte para inteiro
+      .refine((val) => val > 1, {
+        message: "O valor precisa ser positivo e maior que um"
+      }),
+    z.number().int().positive(),
+  ])
 })
 
 export type UpdateServiceInput = z.infer<typeof updateServiceSchema>

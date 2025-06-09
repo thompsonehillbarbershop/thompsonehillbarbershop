@@ -28,7 +28,8 @@ export default function CreateServiceForm({ onSuccess, onError }: Props) {
       name: undefined,
       description: undefined,
       coverImage: undefined,
-      value: 0
+      value: 0,
+      weight: 1,
     }
   })
 
@@ -146,6 +147,21 @@ export default function CreateServiceForm({ onSuccess, onError }: Props) {
               <FormControl>
                 <Input
                   placeholder="Digite a descrição do serviço"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="weight"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Peso</FormLabel>
+              <FormControl>
+                <Input
                   {...field}
                 />
               </FormControl>

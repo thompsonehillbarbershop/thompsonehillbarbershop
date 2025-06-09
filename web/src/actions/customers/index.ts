@@ -1,24 +1,14 @@
 "use server"
 
-import { getSession } from "@/lib/session"
 import { IActionResponse } from "@/models/action-response"
 import { CreateCustomerInput, createCustomerSchema } from "./dto/create-customer.input"
 import { ICustomerView } from "@/models/customer"
-import { EUserRole } from "@/models/user"
 import axiosClient from "@/lib/axios"
 import { UpdateCustomerInput, updateCustomerSchema } from "./dto/update-customer.input"
 import { format } from "date-fns"
 import { IPaginated } from "@/hooks/use-paginated-query"
 
 export async function getCustomerByPhoneAction(phoneNumber: string): Promise<IActionResponse<ICustomerView>> {
-  const session = await getSession()
-
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER && session?.user.role !== EUserRole.TOTEM) {
-    return {
-      error: "Você não tem permissão para visualizar clientes"
-    }
-  }
-
   try {
     const { data } = await axiosClient.get<ICustomerView>(`/customers/phoneNumber/${phoneNumber}`)
     return {
@@ -40,14 +30,6 @@ export async function getCustomerByPhoneAction(phoneNumber: string): Promise<IAc
 }
 
 export async function createCustomerAction(data: CreateCustomerInput): Promise<IActionResponse<ICustomerView>> {
-  const session = await getSession()
-
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER && session?.user.role !== EUserRole.TOTEM) {
-    return {
-      error: "Você não tem permissão para registrar clientes"
-    }
-  }
-
   const result = createCustomerSchema.safeParse(data)
   if (!result.success) {
     return {
@@ -86,13 +68,6 @@ export async function createCustomerAction(data: CreateCustomerInput): Promise<I
 }
 
 export async function updateCustomerAction(id: string, data: UpdateCustomerInput): Promise<IActionResponse<ICustomerView>> {
-  const session = await getSession()
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER && session?.user.role !== EUserRole.TOTEM) {
-    return {
-      error: "Você não tem permissão para registrar clientes"
-    }
-  }
-
   const result = updateCustomerSchema.safeParse({
     ...data,
     birthDate: data.birthDate ? format(data.birthDate, "dd/MM/yyyy") : undefined,

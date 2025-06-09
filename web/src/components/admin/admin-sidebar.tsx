@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { EPages } from "@/lib/pages.enum"
-import { CalendarCheck, LayoutListIcon, LogOutIcon, Scissors, TabletIcon, User, UserCog, Users } from "lucide-react"
+import { CalendarCheck, HandshakeIcon, LayoutListIcon, LogOutIcon, Scissors, SettingsIcon, ShoppingBagIcon, TabletIcon, User, UserCog, Users } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import React from "react"
 
@@ -54,6 +54,20 @@ const routes = [
     icon: <Scissors />
   },
   {
+    slug: "produtos",
+    title: "Produtos",
+    urlPrefix: EPages.ADMIN_PRODUCTS,
+    url: EPages.ADMIN_PRODUCTS,
+    icon: <ShoppingBagIcon />
+  },
+  {
+    slug: "convenios",
+    title: "Convênios",
+    urlPrefix: EPages.ADMIN_PARTNERSHIPS,
+    url: EPages.ADMIN_PARTNERSHIPS,
+    icon: <HandshakeIcon />
+  },
+  {
     slug: "clientes",
     title: "Clientes",
     urlPrefix: EPages.ADMIN_CUSTOMERS,
@@ -66,6 +80,13 @@ const routes = [
     urlPrefix: EPages.ADMIN_APPOINTMENTS,
     url: EPages.ADMIN_APPOINTMENTS,
     icon: <CalendarCheck />
+  },
+  {
+    slug: "configuracoes",
+    title: "Configurações",
+    urlPrefix: EPages.ADMIN_SETTINGS,
+    url: EPages.ADMIN_SETTINGS,
+    icon: <SettingsIcon />
   },
 ]
 

@@ -36,6 +36,11 @@ export default function AdminUsersTable({
         cell: (row) => <p className="text-center">{row.getValue() as string}</p>,
       },
       {
+        accessorKey: "role",
+        header: () => <p className="text-center">Administrador</p>,
+        cell: (row) => <p className="text-center">{(row.getValue() as EUserRole) === EUserRole.ATTENDANT_MANAGER ? "Sim" : "Não"}</p>,
+      },
+      {
         accessorKey: "status",
         header: () => <p className={cn("text-center", forRole === EUserRole.ATTENDANT ? "" : "hidden")}>Ativo</p>,
         cell: (row) => {
@@ -69,7 +74,7 @@ export default function AdminUsersTable({
       },
       {
         accessorKey: "createdAt",
-        header: () => <p className="hidden sm:block text-center">Criado em</p>,
+        header: () => <p className="hidden sm:block text-center">Cadastrado em</p>,
         cell: (row) => <p className="hidden sm:block text-center">{format(new Date(row.getValue() as string), "dd/MMM/yy", {
           locale: ptBR
         })}</p>,

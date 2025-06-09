@@ -25,31 +25,31 @@ export function useQueue() {
         appointment.createdAt && isSameDay(appointment.createdAt, today)
       ))
 
-      // Agrupa os documentos por attendant.userName
+      // Agrupa os documentos por attendant.id
       const groupedQueue: Record<string, IFirebaseAppointment[]> = {}
 
       filteredQueue.forEach((appointment) => {
-        const attendantName = appointment.attendant?.userName || "fila_geral"
-        if (!groupedQueue[attendantName]) {
-          groupedQueue[attendantName] = []
+        const attendantId = appointment.attendant?.id || "fila_geral"
+        if (!groupedQueue[attendantId]) {
+          groupedQueue[attendantId] = []
         }
-        groupedQueue[attendantName].push(appointment)
+        groupedQueue[attendantId].push(appointment)
       })
 
       // Inclui todos os atendimentos da fila_geral na fila de todos os atendentes
       const generalQueue = groupedQueue["fila_geral"] || []
-      Object.keys(groupedQueue).forEach((attendantName) => {
-        if (attendantName !== "fila_geral") {
-          groupedQueue[attendantName] = [
-            ...(groupedQueue[attendantName] || []),
+      Object.keys(groupedQueue).forEach((attendantId) => {
+        if (attendantId !== "fila_geral") {
+          groupedQueue[attendantId] = [
+            ...(groupedQueue[attendantId] || []),
             ...generalQueue,
           ]
         }
       })
 
       // Ordena a fila de cada atendente pelo campo 'createdAt' em ordem crescente
-      Object.keys(groupedQueue).forEach((attendantName) => {
-        groupedQueue[attendantName].sort((a, b) => {
+      Object.keys(groupedQueue).forEach((attendantId) => {
+        groupedQueue[attendantId].sort((a, b) => {
           if (a.createdAt && b.createdAt) {
             return a.createdAt.getTime() - b.createdAt.getTime()
           }

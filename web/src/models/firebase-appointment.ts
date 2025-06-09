@@ -4,26 +4,27 @@ export interface IFirebaseAppointment {
   id: string
   status: EAppointmentStatuses
   services: IFirebaseService[]
-  redeemCoupon?: null
-  totalPrice: number
-  finalPrice: number
-  finishedAt: null
+  // products: IFirebaseProduct[]
+  // redeemCoupon?: null
+  // totalPrice: number
+  // finalPrice: number
+  // finishedAt: null
   attendant?: IFirebaseAttendant | null
   customer: IFirebaseCustomer
-  discount?: number
+  // discount?: number
   onServiceAt?: null
-  paymentMethod?: null
+  // paymentMethod?: null
   createdAt: Date
 }
 
 export interface IFirebaseAttendant {
-  profileImage?: string
-  status?: string
+  // profileImage?: string
+  // status?: string
   id?: string
-  createdAt?: Date
+  // createdAt?: Date
   name?: string
-  role?: string
-  userName?: string
+  // role?: string
+  // userName?: string
 }
 
 export interface IFirebaseCreatedAt {
@@ -33,22 +34,33 @@ export interface IFirebaseCreatedAt {
 }
 
 export interface IFirebaseCustomer {
-  id?: string
-  phoneNumber?: string
+  // id?: string
+  // phoneNumber?: string
   profileImage?: string
-  birthDate?: Date
-  createdAt?: Date
-  gender?: string
+  // birthDate?: Date
+  // createdAt?: Date
+  // gender?: string
   name?: string
 }
 
 export interface IFirebaseService {
-  coverImage?: string
-  createdAt?: Date
-  value?: number
-  promoValue?: number
-  promoEnabled?: boolean
+  // coverImage?: string
+  // createdAt?: Date
+  // value?: number
+  // promoValue?: number
+  // promoEnabled?: boolean
   name?: string
-  id?: string
-  description?: null
+  // id?: string
+  // description?: null
+}
+
+export interface IFirebaseProduct {
+  // coverImage?: string
+  // createdAt?: Date
+  // value?: number
+  // promoValue?: number
+  // promoEnabled?: boolean
+  name?: string
+  // id?: string
+  // description?: null
 }

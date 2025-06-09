@@ -8,4 +8,6 @@ export interface IServiceView {
   coverImage?: string
   signedUrl?: string
   createdAt: Date
+  deletedAt?: Date
+  weight: number
 }

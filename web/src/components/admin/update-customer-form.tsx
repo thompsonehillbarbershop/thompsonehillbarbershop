@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { CameraIcon } from "lucide-react"
 import { toast } from "sonner"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { EGender, EGenderMapper, ICustomerView } from "@/models/customer"
 import { updateCustomerSchema } from "@/actions/customers/dto/update-customer.input"
@@ -17,6 +17,8 @@ import { tz } from "@date-fns/tz"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { applyDateMask, applyPhoneMask, formatPhoneToE164 } from "@/lib/utils"
 import { useCustomers, UseCustomersParams } from "@/hooks/use-customers"
+import { useAdmin } from "@/hooks/use-admin"
+import { EPartnershipType } from "@/models/partnerships"
 
 interface Props {
   customer: ICustomerView
@@ -28,6 +30,20 @@ interface Props {
 export default function UpdateCustomerForm({ onSuccess, onError, customer, params }: Props) {
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
   const { updateCustomer } = useCustomers(params)
+  const { partnerships } = useAdmin()
+
+  const partnershipOptions = useMemo(() => {
+    const dynamicOptions = partnerships?.filter(partnership => partnership.type === EPartnershipType.COMMON).map((partnership) => ({
+      label: partnership.name,
+      label2: partnership.identificationLabel || "",
+      value: partnership.id,
+    })) || []
+
+    return [
+      { label: 'Nenhum', value: "none", label2: "" },
+      ...dynamicOptions
+    ]
+  }, [partnerships])
 
   const formSchema = updateCustomerSchema
   const form = useForm<z.infer<typeof formSchema>>({
@@ -40,6 +56,8 @@ export default function UpdateCustomerForm({ onSuccess, onError, customer, param
       }),
       gender: customer.gender,
       profileImage: customer.profileImage,
+      partnershipId: customer.partnershipId,
+      partnershipIdentificationId: customer.partnershipIdentificationId
     }
   })
 
@@ -65,6 +83,8 @@ export default function UpdateCustomerForm({ onSuccess, onError, customer, param
     const profileImage = selectedFile?.name
     const imageContentType = selectedFile?.type
 
+    if (!values.birthDate || !values.phoneNumber) return
+
     const [day, month, year] = values.birthDate?.split("/").map(Number)
     const birthDate = new Date(year, month - 1, day)
 
@@ -82,7 +102,9 @@ export default function UpdateCustomerForm({ onSuccess, onError, customer, param
           birthDate: birthDate.toISOString(),
           phoneNumber: formattedPhone,
           profileImage,
-          imageContentType
+          imageContentType,
+          partnershipId: values.partnershipId === "none" ? undefined : (values.partnershipId || undefined),
+          partnershipIdentificationId: values.partnershipId === "none" ? undefined : (values.partnershipIdentificationId || undefined)
         }
       })
       if (response.data) {
@@ -255,6 +277,51 @@ export default function UpdateCustomerForm({ onSuccess, onError, customer, param
                   ))}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="partnershipId"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Convênio</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {partnershipOptions?.map((item) => (
+                    <SelectItem
+                      key={item.value}
+                      value={item.value}
+                    >{item.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="partnershipIdentificationId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Identificação Convênio</FormLabel>
+              <FormControl>
+                <Input
+                  disabled={form.watch().partnershipId === "none" || !form.watch().partnershipId}
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

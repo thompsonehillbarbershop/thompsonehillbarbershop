@@ -2,12 +2,14 @@ import { createAppointmentAction } from "@/actions/appointments"
 import { CreateAppointmentInput } from "@/actions/appointments/dto/create-appointment.input"
 import { createCustomerAction, getCustomerByPhoneAction } from "@/actions/customers"
 import { CreateCustomerInput } from "@/actions/customers/dto/create-customer.input"
+import { getPartnershipsAction } from "@/actions/partnerships"
 import { getServicesAction } from "@/actions/services"
 import { getAttendantsAction } from "@/actions/users"
 import { queries } from "@/lib/query-client"
 import { IActionResponse } from "@/models/action-response"
 import { IAppointmentView } from "@/models/appointment"
 import { ICustomerView } from "@/models/customer"
+import { EPartnershipType, IPartnershipView } from "@/models/partnerships"
 import { IServiceView } from "@/models/service"
 import { IUserView } from "@/models/user"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -82,6 +84,22 @@ export const useTotem = () => {
     }
   })
 
+  const { data: partnerships, isLoading: isLoadingPartnerships } = useQuery({
+    queryKey: [queries.admin.partnerships],
+    queryFn: async (): Promise<IPartnershipView[]> => {
+      const response = await getPartnershipsAction()
+
+      if (response.data) {
+        return response.data.filter(partnership => partnership.type === EPartnershipType.COMMON).map((partnership) => ({
+          ...partnership,
+          createdAt: new Date(partnership.createdAt)
+        }))
+      }
+
+      return response.data || []
+    },
+  })
+
   return {
     getCustomer,
     registerCustomer,
@@ -90,6 +108,8 @@ export const useTotem = () => {
     attendants,
     isLoadingAttendants,
     createAppointment,
-    isCreatingAppointment
+    isCreatingAppointment,
+    partnerships,
+    isLoadingPartnerships,
   }
 }

@@ -1,9 +1,8 @@
 "use server"
 
 import axiosClient from "@/lib/axios"
-import { EUserRole, IUserView } from "@/models/user"
+import { IUserView } from "@/models/user"
 import { CreateUserInput, createUserSchema } from "./dtos/create-user.input"
-import { getSession } from "@/lib/session"
 import { UpdateUserInput, updateUserSchema } from "./dtos/update-user.input"
 import { revalidatePath } from "next/cache"
 import { EPages } from "@/lib/pages.enum"
@@ -69,14 +68,6 @@ export async function getAttendantsAction(): Promise<IActionResponse<IUserView[]
 }
 
 export async function createUserAction(data: CreateUserInput): Promise<IActionResponse<IUserView>> {
-  const session = await getSession()
-
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
-    return {
-      error: "Você não tem permissão para criar usuários"
-    }
-  }
-
   const result = createUserSchema("create").safeParse(data)
   if (!result.success) {
     return {
@@ -112,14 +103,6 @@ export async function createUserAction(data: CreateUserInput): Promise<IActionRe
 }
 
 export async function updateUserAction(id: string, userName: string, data: UpdateUserInput): Promise<IActionResponse<IUserView>> {
-  const session = await getSession()
-
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
-    return {
-      error: "Você não tem permissão para editar usuários"
-    }
-  }
-
   const result = updateUserSchema.safeParse(data)
   if (!result.success) {
     return {

@@ -20,7 +20,7 @@ export default function AppointmentsPage() {
   const [isSheetOpen, setSheetOpen] = useState(false)
   const [isFiltersOpen, setFiltersOpen] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<IAppointmentView | undefined>(undefined)
-  const { users, isLoadingUsers, services, isLoadingServices } = useAdmin()
+  const { users, isLoadingUsers, services, isLoadingServices, products, isLoadingProducts } = useAdmin()
   const [params, setParams] = useState<UseAppointmentsParams>({
     page: 1,
     limit: 10,
@@ -70,7 +70,8 @@ export default function AppointmentsPage() {
                 params={params}
                 attendants={attendants || []}
                 services={services || []}
-                isLoading={isLoadingAppointments || isLoadingUsers || isLoadingServices}
+                products={products || []}
+                isLoading={isLoadingAppointments || isLoadingUsers || isLoadingServices || isLoadingProducts}
                 onSuccess={() => {
                   setSheetOpen(false)
                 }}

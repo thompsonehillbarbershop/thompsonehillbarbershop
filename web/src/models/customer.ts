@@ -10,6 +10,8 @@ export interface ICustomerView {
   referralCode: string
   referralCodeUsed?: string
   referralCodeCount: number
+  partnershipId?: string
+  partnershipIdentificationId?: string
 }
 
 export enum EGender {

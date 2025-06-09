@@ -8,7 +8,6 @@ import { PropsWithChildren } from "react"
 export const dynamic = "force-dynamic"
 
 export default async function TotemLayout({ children }: PropsWithChildren) {
-  // const user = await getProfileAction()
   const session = await getSession()
 
   if (session?.user.role !== EUserRole.TOTEM) {

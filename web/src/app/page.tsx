@@ -20,6 +20,9 @@ export default async function Home() {
       case EUserRole.ATTENDANT:
         redirect(EPages.ATTENDANCE_DASHBOARD)
         break
+      case EUserRole.ATTENDANT_MANAGER:
+        redirect(EPages.ATTENDANCE_DASHBOARD)
+        break
     }
   } else {
     redirect(EPages.LOGIN)

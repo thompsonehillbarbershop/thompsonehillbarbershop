@@ -5,7 +5,7 @@ import { z } from "@/lib/pt-zod"
 import { applyDateMask, applyPhoneMask, cn, formatPhoneToE164 } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { VirtualKeyboard } from "../ui/virtual-keyboard"
 import { Button } from "../ui/button"
@@ -14,25 +14,35 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "../ui/input"
 import { EGender } from "@/models/customer"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
-// import Image from "next/image"
 import { useTotem } from "@/hooks/use-totem"
 import { toast } from "sonner"
 import { createCustomerSchema } from "@/actions/customers/dto/create-customer.input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 export default function CustomerRegisterForm() {
   const formSchema = createCustomerSchema
 
-  const { registerCustomer } = useTotem()
+  const { registerCustomer, partnerships } = useTotem()
 
   const searchParams = useSearchParams()
   const [activeField, setActiveField] = useState<keyof z.infer<typeof formSchema> | null>(null)
   const [keyBoardLayout, setKeyboardLayout] = useState<"qwerty" | "numpad">("qwerty")
   const router = useRouter()
-  // const photoRef = useRef<HTMLInputElement>(null)
-  // const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const phoneNumber = searchParams.get('tel')
 
+  const partnershipOptions = useMemo(() => {
+    const dynamicOptions = partnerships?.map((partnership) => ({
+      label: partnership.name,
+      label2: partnership.identificationLabel || "",
+      value: partnership.id,
+    })) || []
+
+    return [
+      { label: 'Não', value: "none", label2: "" },
+      ...dynamicOptions
+    ]
+  }, [partnerships])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,6 +52,8 @@ export default function CustomerRegisterForm() {
       referralCodeUsed: "",
       gender: EGender.MALE,
       birthDate: "",
+      partnershipId: "",
+      partnershipIdentificationId: "",
     },
   })
 
@@ -59,9 +71,6 @@ export default function CustomerRegisterForm() {
   }, [])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // const profileImage = selectedFile?.name
-    // const imageContentType = selectedFile?.type
-
     try {
       const formattedPhone = formatPhoneToE164(values.phoneNumber)
       if (!formattedPhone) {
@@ -73,28 +82,19 @@ export default function CustomerRegisterForm() {
         name: values.name,
         phoneNumber: formattedPhone,
         gender: values.gender,
-        referralCodeUsed: values.referralCodeUsed,
+        referralCodeUsed: values.referralCodeUsed || undefined,
         birthDate: values.birthDate,
+        partnershipId: values.partnershipId === "none" ? undefined : (values.partnershipId || undefined),
+        partnershipIdentificationId: values.partnershipId === "none" ? undefined : (values.partnershipIdentificationId || undefined),
       }
 
+      console.log("Normalized Values:", normalizedValues)
+
       const response = await registerCustomer({
-        ...normalizedValues,
-        // profileImage,
-        // imageContentType
+        ...normalizedValues
       })
 
       if (response.data) {
-        // Upload the photo to the google firebase server using the signed URL
-        // if (response.data.signedUrl) {
-        //   await fetch(response.data.signedUrl, {
-        //     method: "PUT",
-        //     body: selectedFile,
-        //     headers: {
-        //       "Content-Type": selectedFile?.type || "image/jpeg",
-        //     }
-        //   })
-        // }
-
         router.push(`${EPages.TOTEM_SCHEDULE}?id=${encodeURIComponent(response.data.id)}`)
       }
 
@@ -109,55 +109,11 @@ export default function CustomerRegisterForm() {
     }
   }
 
-  // async function handlePhotoInput(file: File) {
-  //   setSelectedFile(file)
-  // }
-
   return (
     <div className="w-full flex flex-col flex-1 justify-start items-center">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-col gap-2 md:gap-6 max-w-2xl">
           <div className="flex flex-row justify-start items-start gap-4">
-            {/* <div className="size-64 pt-4">
-              <input
-                autoFocus={false}
-                id="file"
-                name="file"
-                type="file"
-                className="hidden"
-                accept="image/*"
-                capture="environment"
-                ref={photoRef}
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) {
-                    handlePhotoInput(file)
-                  }
-                }}
-              />
-              {selectedFile ? (
-                <Image
-                  width={256}
-                  height={256}
-                  src={URL.createObjectURL(selectedFile)}
-                  alt="Foto capturada"
-                  className="w-full h-full object-cover rounded-lg"
-                  onClick={() => photoRef.current?.click()}
-                />
-              ) : (
-                <Button
-                  autoFocus={false}
-                  type="button"
-                  variant="outline"
-                  className="w-full size-64"
-                  onClick={() => photoRef.current?.click()}
-                >
-                  <CameraIcon className="size-24 stroke-[1.5px]" />
-                  <span className="ml-2"></span>
-                </Button>
-              )}
-            </div> */}
-
             <div className="flex-1 flex flex-col gap-6 md:gap-8">
               <FormField
                 control={form.control}
@@ -178,89 +134,89 @@ export default function CustomerRegisterForm() {
                   </FormItem>
                 )}
               />
-              <div className="w-full flex justify-between items-start gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-0.5 w-full">
+                    <FormLabel className="sm:text-xl md:text-2xl">Nome e Sobrenome</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        readOnly
+                        // autoFocus
+                        onFocus={() => {
+                          setKeyboardLayout("qwerty")
+                          setActiveField("name")
+                        }}
+                        className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "name" ? "border-ring ring-ring/50 ring-[3px]" : "")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="w-full flex flex-row justify-between items-center gap-4">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="birthDate"
                   render={({ field }) => (
-                    <FormItem className="space-y-0.5 w-full">
-                      <FormLabel className="sm:text-xl md:text-2xl">Nome e Sobrenome</FormLabel>
+                    <FormItem className="space-y-0.5">
+                      <FormLabel className="sm:text-xl md:text-2xl">Data de Nascimento</FormLabel>
                       <FormControl>
                         <Input
-                          {...field}
+                          type="text"
+                          maxLength={10}
+                          placeholder="dd/mm/aaaa"
                           readOnly
-                          // autoFocus
                           onFocus={() => {
-                            setKeyboardLayout("qwerty")
-                            setActiveField("name")
+                            setKeyboardLayout("numpad")
+                            setActiveField("birthDate")
                           }}
-                          className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "name" ? "border-ring ring-ring/50 ring-[3px]" : "")}
-                        />
+                          className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "birthDate" ? "border-ring ring-ring/50 ring-[3px]" : "")}
+                          {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3 w-full max-w-sm self-center pt-4">
+                      <FormLabel className="sm:text-xl md:text-2xl">Gênero</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-row space-y-1"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value={EGender.MALE} />
+                            </FormControl>
+                            <FormLabel className="sm:text-xl md:text-2xl">
+                              Masculino
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value={EGender.FEMALE} />
+                            </FormControl>
+                            <FormLabel className="sm:text-xl md:text-2xl">
+                              Feminino
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="birthDate"
-                render={({ field }) => (
-                  <FormItem className="space-y-0.5">
-                    <FormLabel className="sm:text-xl md:text-2xl">Data de Nascimento</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        maxLength={10}
-                        placeholder="dd/mm/aaaa"
-                        readOnly
-                        onFocus={() => {
-                          setKeyboardLayout("numpad")
-                          setActiveField("birthDate")
-                        }}
-                        className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "birthDate" ? "border-ring ring-ring/50 ring-[3px]" : "")}
-                        {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
           </div>
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem className="space-y-3 w-full max-w-sm self-center pt-4">
-                <FormLabel className="sm:text-xl md:text-2xl">Gênero</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className="flex flex-row space-y-1"
-                  >
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value={EGender.MALE} />
-                      </FormControl>
-                      <FormLabel className="sm:text-xl md:text-2xl">
-                        Masculino
-                      </FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value={EGender.FEMALE} />
-                      </FormControl>
-                      <FormLabel className="sm:text-xl md:text-2xl">
-                        Feminino
-                      </FormLabel>
-                    </FormItem>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="referralCodeUsed"
@@ -282,6 +238,66 @@ export default function CustomerRegisterForm() {
               </FormItem>
             )}
           />
+          <div className="w-full flex flex-row justify-between items-start gap-4">
+            <FormField
+              control={form.control}
+              name="partnershipId"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel className="sm:text-xl md:text-2xl">Possui Convênio?</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger
+                        onFocus={() => {
+                          setActiveField("partnershipId")
+                        }}
+                        className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "partnershipId" ? "border-ring ring-ring/50 ring-[3px]" : "")}>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {partnershipOptions?.map((item) => (
+                        <SelectItem
+                          key={item.value}
+                          value={item.value}
+                          className="text-center sm:text-2xl md:text-3xl"
+                        >{item.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {form.watch("partnershipId") && form.watch("partnershipId") !== "none" && (
+              <FormField
+                control={form.control}
+                name="partnershipIdentificationId"
+                render={({ field }) => (
+                  <FormItem className="space-y-0.5 w-full">
+                    <FormLabel className="sm:text-xl md:text-2xl">{partnershipOptions?.find(partnership => partnership.value === form.watch().partnershipId)?.label2 || "Oi"}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        readOnly
+                        // autoFocus
+                        onFocus={() => {
+                          setKeyboardLayout("qwerty")
+                          setActiveField("partnershipIdentificationId")
+                        }}
+                        className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "partnershipIdentificationId" ? "border-ring ring-ring/50 ring-[3px]" : "")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
           <Button
             isLoading={form.formState.isSubmitting}
             type="submit"

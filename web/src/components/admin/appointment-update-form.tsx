@@ -5,9 +5,9 @@ import { EAppointmentStatuses, EAppointmentStatusesMapper, EPaymentMethod, EPaym
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import ReactSelect from 'react-select'
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import Indicator from "../ui/indicator"
 import { differenceInMinutes, format } from "date-fns"
@@ -15,20 +15,23 @@ import { IUserView } from "@/models/user"
 import { IServiceView } from "@/models/service"
 import { updateAppointmentSchema } from "@/actions/appointments/dto/update-appointment.input"
 import { PlusIcon, XIcon } from "lucide-react"
-import { formatCurrency } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { useAppointments, UseAppointmentsParams } from "@/hooks/use-appointments"
+import { IProductView } from "@/models/product"
+import { Checkbox } from "../ui/checkbox"
 
 interface Props {
   params: UseAppointmentsParams
   appointment: IAppointmentView
   attendants: IUserView[]
   services: IServiceView[]
+  products: IProductView[]
   isLoading?: boolean
   onSuccess?: () => void
 }
 
-export default function AppointmentUpdateForm({ appointment, attendants, services, isLoading, onSuccess, params }: Props) {
+export default function AppointmentUpdateForm({ appointment, attendants, services, products, isLoading, onSuccess, params }: Props) {
+  const [enableSaveButton, setEnableSaveButton] = useState(false)
   const formSchema = updateAppointmentSchema
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,6 +39,7 @@ export default function AppointmentUpdateForm({ appointment, attendants, service
       attendantId: appointment.attendant?.id,
       redeemCoupon: appointment.redeemCoupon,
       serviceIds: appointment.services.map((service) => service.id) || [],
+      productIds: appointment.products.map((product) => product.id) || [],
       status: appointment.status,
       paymentMethod: appointment.paymentMethod,
     },
@@ -52,10 +56,18 @@ export default function AppointmentUpdateForm({ appointment, attendants, service
 
   const servicesOptions = useMemo(() => {
     return services.map((service) => ({
-      label: `${service.name} - ${formatCurrency(service.promoEnabled && service.promoValue ? service.promoValue : service.value)}`,
+      // label: `${service.name} - ${formatCurrency(service.promoEnabled && service.promoValue ? service.promoValue : service.value)}`,
+      label: service.name,
       value: service.id,
     }))
   }, [services])
+
+  const productsOptions = useMemo(() => {
+    return products.map((product) => ({
+      label: product.name,
+      value: product.id,
+    }))
+  }, [products])
 
   function handleAddService() {
     const serviceIds = form.getValues("serviceIds")
@@ -67,6 +79,18 @@ export default function AppointmentUpdateForm({ appointment, attendants, service
     const serviceIds = form.getValues("serviceIds")
     const newServicesIds = serviceIds.filter((_, i) => i !== index)
     form.reset({ ...form.getValues(), serviceIds: newServicesIds })
+  }
+
+  function handleAddProduct() {
+    const productIds = form.getValues("productIds") || []
+    form.setValue("productIds", [...productIds, ""])
+    form.clearErrors("productIds")
+  }
+
+  function handleRemoveProduct(index: number) {
+    const productIds = form.getValues("productIds") || []
+    const newProductIds = productIds.filter((_, i) => i !== index)
+    form.reset({ ...form.getValues(), productIds: newProductIds })
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -311,6 +335,107 @@ export default function AppointmentUpdateForm({ appointment, attendants, service
           onClick={handleAddService}
           className="w-full border-3 border-dashed"
         ><PlusIcon /> Adicionar serviço</Button>
+        <FormItem>
+          <FormLabel>Produtos</FormLabel>
+          <FormMessage>{form.getFieldState("productIds").error?.message}</FormMessage>
+          {form.watch().productIds?.map((_, index) => (
+            <div
+              key={index}
+            >
+              <div
+                className="w-full flex justify-start items-center gap-1"
+              >
+                <ReactSelect
+                  options={productsOptions}
+                  value={productsOptions.find((option) => option.value === form.watch(`productIds.${index}`))}
+                  onChange={(option) => {
+                    if (option?.value) {
+                      form.setValue(`productIds.${index}`, option.value)
+                    }
+                  }}
+                  className="w-full"
+                  placeholder="Selecione um produto"
+                  isLoading={isLoading}
+                  isDisabled={isLoading}
+                  noOptionsMessage={() => "Nenhum produto encontrado"}
+                  styles={{
+                    control: (provided) => ({
+                      ...provided,
+                      backgroundColor: "transparent",
+                      borderColor: "var(--border)",
+                      color: "var(--foreground)",
+                      border: "none"
+                    }),
+                    container: (provided) => ({
+                      ...provided,
+                      backgroundColor: "var(--input)",
+                      borderRadius: "8px",
+                      height: "3.5rem",
+                    }),
+                    valueContainer: (provided) => ({
+                      ...provided,
+                      backgroundColor: "transparent",
+                      height: "3.5rem",
+                    }),
+                    option: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: state.isSelected ? "var(--primary)" : state.isFocused ? "var(--accent)" : "var(--popover)",
+                      color: state.isSelected ? "var(--primary-foreground)" : state.isFocused ? "var(--accent-foreground)" : "var(--popover-foreground)",
+                      fontSize: "0.875rem"
+                    }),
+                    menu: (provided) => ({
+                      ...provided,
+                      backgroundColor: "var(--popover)",
+                      borderRadius: "0 0 8px 8px",
+                      marginTop: 0,
+                      zIndex: 9999,
+                    }),
+                    singleValue: (provided) => ({
+                      ...provided,
+                      color: "var(--foreground)",
+                      fontSize: "0.875rem"
+                    }),
+                    input: (provided) => ({
+                      ...provided,
+                      color: "var(--foreground)",
+                      fontSize: "0.875rem"
+                    }),
+                    clearIndicator: (provided) => ({
+                      ...provided,
+                      color: "var(--muted-foreground)",
+                    }),
+                    indicatorSeparator: (provided) => ({
+                      ...provided,
+                      display: "none"
+                    }),
+                    dropdownIndicator: (provided) => ({
+                      ...provided,
+                      color: "var(--muted-foreground)",
+                      strokeWidth: 1,
+                    }),
+                  }}
+                />
+                <Button
+                  type="button"
+                  disabled={isLoading}
+                  size="icon"
+                  variant="destructive"
+                  onClick={() => handleRemoveProduct(index)}
+                  className="h-14"
+                ><XIcon /></Button>
+              </div>
+              <FormMessage>{form.getFieldState(`productIds.${index}`).error?.message}</FormMessage>
+            </div>
+          ))}
+        </FormItem>
+        <Button
+          isLoading={isLoading}
+          type="button"
+          variant="outline"
+          size="lg"
+          onClick={handleAddProduct}
+          className="w-full border-3 border-dashed"
+        ><PlusIcon /> Adicionar produto</Button>
 
         <FormField
           control={form.control}
@@ -341,13 +466,26 @@ export default function AppointmentUpdateForm({ appointment, attendants, service
             </FormItem>
           )}
         />
-
-        <Button
-          isLoading={form.formState.isSubmitting}
-          type="submit"
-          size="lg"
-          className="w-full"
-        >Salvar</Button>
+        <FormDescription
+          hidden={appointment.status !== EAppointmentStatuses.FINISHED}
+        >
+          Alterar um atendimento que já foi finalizado não é recomendado, pois pode causar inconsistências nos dados.
+        </FormDescription>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            className="size-8 border-2"
+            checked={enableSaveButton}
+            onCheckedChange={() => setEnableSaveButton(!enableSaveButton)}
+            hidden={appointment.status !== EAppointmentStatuses.FINISHED}
+          />
+          <Button
+            isLoading={form.formState.isSubmitting}
+            type="submit"
+            size="lg"
+            className="w-full flex-1"
+            disabled={appointment.status === EAppointmentStatuses.FINISHED && !enableSaveButton}
+          >Salvar</Button>
+        </div>
       </form>
     </Form>
   )

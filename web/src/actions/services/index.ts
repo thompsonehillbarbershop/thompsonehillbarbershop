@@ -3,8 +3,6 @@
 import { IServiceView } from "@/models/service"
 import { CreateServiceInput, createServiceSchema } from "./dto/create-service.input"
 import { IActionResponse } from "@/models/action-response"
-import { getSession } from "@/lib/session"
-import { EUserRole } from "@/models/user"
 import axiosClient from "@/lib/axios"
 import { UpdateServiceInput, updateServiceSchema } from "./dto/update-service.input"
 import { revalidatePath } from "next/cache"
@@ -31,14 +29,6 @@ export async function getServicesAction(): Promise<IActionResponse<IServiceView[
 }
 
 export async function createServiceAction(data: CreateServiceInput): Promise<IActionResponse<IServiceView>> {
-  const session = await getSession()
-
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
-    return {
-      error: "Você não tem permissão para criar serviços"
-    }
-  }
-
   const result = createServiceSchema.safeParse(data)
   if (!result.success) {
     return {
@@ -68,14 +58,6 @@ export async function createServiceAction(data: CreateServiceInput): Promise<IAc
 }
 
 export async function updateServiceAction(id: string, data: UpdateServiceInput): Promise<IActionResponse<IServiceView>> {
-  const session = await getSession()
-
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
-    return {
-      error: "Você não tem permissão para editar serviços"
-    }
-  }
-
   const result = updateServiceSchema.safeParse(data)
   if (!result.success) {
     return {

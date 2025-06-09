@@ -36,7 +36,7 @@ export default function CustomersTable({
       },
       {
         accessorKey: "referralCode",
-        header: "Código de Indicação",
+        header: () => <p className="text-center">Código de Indicação</p>,
         cell: (row) => <p className="text-center">{row.getValue() as string}</p>,
       },
       {
@@ -47,7 +47,7 @@ export default function CustomersTable({
       {
         accessorKey: "gender",
         header: () => <p className="text-center">Genero</p>,
-        cell: (row) => <p className="text-start">{EGenderMapper[row.getValue() as EGender]}</p>,
+        cell: (row) => <p className="text-center">{EGenderMapper[row.getValue() as EGender]}</p>,
       },
       {
         accessorKey: "phoneNumber",

@@ -11,7 +11,10 @@ export const createCustomerSchema = z.object({
   referralCodeUsed: z.string().optional(),
 
   profileImage: z.string().optional(),
-  imageContentType: z.string().optional()
+  imageContentType: z.string().optional(),
+
+  partnershipId: z.string().optional(),
+  partnershipIdentificationId: z.string().optional(),
 })
 
 export type CreateCustomerInput = z.infer<typeof createCustomerSchema>

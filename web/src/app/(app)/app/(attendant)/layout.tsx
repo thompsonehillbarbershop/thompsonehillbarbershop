@@ -11,13 +11,13 @@ export const dynamic = "force-dynamic"
 export default async function AdminLayout({ children }: PropsWithChildren) {
   const session = await getSession()
 
-  if (session?.user.role !== EUserRole.ATTENDANT) {
+  if (session?.user.role !== EUserRole.ATTENDANT && session?.user.role !== EUserRole.ATTENDANT_MANAGER) {
     return notFound()
   }
 
   return (
     <SidebarProvider className='flex flow-row w-full' defaultOpen={false}>
-      <AttendantSidebar />
+      <AttendantSidebar role={session.user.role} />
       <div className='w-full'>
         <AttendantHeader />
         <main

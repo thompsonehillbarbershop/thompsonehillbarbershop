@@ -13,21 +13,39 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { EPages } from "@/lib/pages.enum"
-import { LayoutDashboard, LogOutIcon } from "lucide-react"
+import { EUserRole } from "@/models/user"
+import { LayoutDashboard, LogOutIcon, NotebookPenIcon, Users } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import React from "react"
 
 const routes = [
   {
-    slug: "dashboard",
-    title: "Dashboard",
+    slug: "atendimento",
+    title: "Atendimento",
     urlPrefix: EPages.ATTENDANCE_DASHBOARD,
     url: EPages.ATTENDANCE_DASHBOARD,
-    icon: <LayoutDashboard />
+    icon: <LayoutDashboard />,
+    admin: false
+  },
+  {
+    slug: "sumario",
+    title: "Resumo do Dia",
+    urlPrefix: EPages.ATTENDANCE_SUMMARY,
+    url: EPages.ATTENDANCE_SUMMARY,
+    icon: <NotebookPenIcon />,
+    admin: false
+  },
+  {
+    slug: "atendentes",
+    title: "Atendentes",
+    urlPrefix: EPages.ATTENDANCE_ATTENDANTS,
+    url: EPages.ATTENDANCE_ATTENDANTS,
+    icon: <Users />,
+    admin: true
   }
 ]
 
-export default function AttendantSidebar() {
+export default function AttendantSidebar({ role }: { role: EUserRole }) {
   const { setOpenMobile, open, isMobile } = useSidebar()
   const router = useRouter()
   const pathname = usePathname()
@@ -51,7 +69,7 @@ export default function AttendantSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className={(open || isMobile) ? '' : 'mt-16'}>
-              {routes.map((item) => (
+              {routes.filter((item) => !item.admin || role === EUserRole.ATTENDANT_MANAGER).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.urlPrefix)}

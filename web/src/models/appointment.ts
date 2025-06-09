@@ -1,3 +1,9 @@
+import { ICustomerView } from "./customer"
+import { IPartnershipView } from "./partnerships"
+import { IProductView } from "./product"
+import { IServiceView } from "./service"
+import { IUserView } from "./user"
+
 export enum EPaymentMethod {
   CASH = 'CASH',
   CREDIT_CARD = 'CREDIT_CARD',
@@ -60,20 +66,12 @@ export const EPaymentMethodMapper: Record<EPaymentMethod, string> = {
 
 export interface IAppointmentView {
   id: string
-  customer: {
-    id: string
-    name: string
-    phoneNumber: string
-  }
-  attendant?: {
-    id: string
-    name: string
-  }
-  services: {
-    id: string
-    name: string
-    value: number
-  }[]
+  customer: ICustomerView
+  attendant?: IUserView
+  services: IServiceView[]
+  products: IProductView[],
+  partnerships?: IPartnershipView[]
+  totalServiceWeight: number
   totalPrice: number
   discount?: number
   finalPrice: number

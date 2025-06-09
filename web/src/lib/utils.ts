@@ -80,6 +80,27 @@ export function formatCurrency(value: number = 0, options?: FormatCurrencyOption
   }).format(value)}`
 }
 
+interface FormatPercentageOptions {
+  minimumFractionDigits?: number
+  maximumFractionDigits?: number
+  appendSignage?: boolean
+  hidePercentage?: boolean
+}
+
+export function formatPercentage(value: number = 0, options?: FormatPercentageOptions) {
+  const signage = options?.appendSignage ? (value < 0 ? "" : "+") : ""
+
+  if (options?.hidePercentage) {
+    return signage + (value / 100).toFixed(2).replace(".", ",")
+  }
+
+  return `${signage}${Intl.NumberFormat("pt-BR", {
+    style: "percent",
+    minimumFractionDigits: options?.minimumFractionDigits || 2,
+    maximumFractionDigits: options?.maximumFractionDigits || 2
+  }).format(value / 100)}`
+}
+
 export function generateUserName(name: string | undefined): string {
   if (!name) return ""
 

@@ -57,6 +57,9 @@ export default function LoginForm() {
           case EUserRole.ATTENDANT:
             router.push(EPages.ATTENDANCE_DASHBOARD)
             break
+          case EUserRole.ATTENDANT_MANAGER:
+            router.push(EPages.ATTENDANCE_DASHBOARD)
+            break
         }
       }
     } catch (err) {
