@@ -37,8 +37,8 @@ export default function AdminUsersTable({
       },
       {
         accessorKey: "role",
-        header: () => <p className="text-center">Administrador</p>,
-        cell: (row) => <p className="text-center">{(row.getValue() as EUserRole) === EUserRole.ATTENDANT_MANAGER ? "Sim" : "Não"}</p>,
+        header: () => <p className={cn("text-center", forRole === EUserRole.ATTENDANT ? "" : "hidden")}>Administrador</p>,
+        cell: (row) => <p className={cn("text-center", forRole === EUserRole.ATTENDANT ? "" : "hidden")}>{(row.getValue() as EUserRole) === EUserRole.ATTENDANT_MANAGER ? "Sim" : "Não"}</p>,
       },
       {
         accessorKey: "status",

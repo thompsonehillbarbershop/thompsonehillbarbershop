@@ -66,7 +66,7 @@ export default function ProductsTable({
       {
         accessorKey: "description",
         header: () => <p className="text-start">Descrição</p>,
-        cell: (row) => <p className="text-start">{row.getValue() as string}</p>,
+        cell: (row) => <p className="text-start max-w-40 text-ellipsis line-clamp-1">{row.getValue() as string}</p>,
       },
       {
         accessorKey: "createdAt",

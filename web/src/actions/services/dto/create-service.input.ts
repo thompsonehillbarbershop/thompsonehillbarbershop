@@ -34,7 +34,7 @@ export const createServiceSchema = z.object({
         message: "Formato inválido. Insira apenas números inteiros positivos."
       }) // Permite apenas números inteiros positivos
       .transform((val) => parseInt(val, 10)) // Converte para inteiro
-      .refine((val) => val > 1, {
+      .refine((val) => val >= 1, {
         message: "O valor precisa ser positivo e maior que um"
       }),
     z.number().int().positive(),

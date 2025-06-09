@@ -367,14 +367,14 @@ export default function AppointmentCheckoutForm({ attendantId, appointment, serv
         {/* Partnership */}
         {step === 3 && (
           <FormItem className="flex flex-col gap-4">
-            <Indicator className="text-lg sm:text-2xl">
+            <Indicator className="text-lg sm:text-2xl md:text-2xl">
 
               {partnerships.find(partnership => partnership.id === appointment.customer.partnershipId)?.name || ""}
               {" - "}
               {partnerships.find(partnership => partnership.id === appointment.customer.partnershipId)?.discountType === EPartnershipDiscountType.FIXED ? formatCurrency(partnerships.find(partnership => partnership.id === appointment.customer.partnershipId)?.discountValue) : formatPercentage(partnerships.find(partnership => partnership.id === appointment.customer.partnershipId)?.discountValue)}
 
             </Indicator>
-            <Indicator className="text-lg sm:text-2xl">{appointment.customer.partnershipIdentificationId}</Indicator>
+            <Indicator className="text-lg sm:text-2xl md:text-2xl">{appointment.customer.partnershipIdentificationId}</Indicator>
             <div className="w-full sm:flex flex-col sm:flex-row justify-start sm:justify-between items-center gap-4 space-y-2 sm:space-y-0">
               <Button
                 type="button"

@@ -35,7 +35,7 @@ export default function AttendantsPage() {
   }
 
   return (
-    <div className="w-full flex flex-col max-w-72 mx-auto">
+    <div className="w-full flex flex-col max-w-lg mx-auto">
       <H1>Atendentes</H1>
 
       <Card className="mt-2">

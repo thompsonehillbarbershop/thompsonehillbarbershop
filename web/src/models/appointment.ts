@@ -10,7 +10,7 @@ export enum EPaymentMethod {
   DEBIT_CARD = 'DEBIT_CARD',
   PIX = 'PIX',
   TRANSFER = 'TRANSFER',
-  BONUS = 'BONUS',
+  // BONUS = 'BONUS',
 }
 
 export enum EAppointmentStatuses {
@@ -61,7 +61,7 @@ export const EPaymentMethodMapper: Record<EPaymentMethod, string> = {
   [EPaymentMethod.DEBIT_CARD]: 'Cartão de Débito',
   [EPaymentMethod.PIX]: 'Pix',
   [EPaymentMethod.TRANSFER]: 'Transferência',
-  [EPaymentMethod.BONUS]: 'Bônus',
+  // [EPaymentMethod.BONUS]: 'Bônus',
 }
 
 export interface IAppointmentView {

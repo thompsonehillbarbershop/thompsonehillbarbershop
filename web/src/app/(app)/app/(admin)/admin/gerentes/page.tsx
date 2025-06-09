@@ -76,11 +76,6 @@ export default function ManagersPage() {
             data={managers}
             isLoading={isLoadingUsers}
             emptyMessage="Nenhum gerente encontrado"
-            filtering={{
-              enableFiltering: true,
-              field: "name",
-              placeholder: "Buscar por nome",
-            }}
             onEditButtonClick={(user) => {
               setSelectedUser(user)
               setSheetOpen(true)
