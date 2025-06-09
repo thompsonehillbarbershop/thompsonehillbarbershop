@@ -9,5 +9,6 @@ export function getRandomServiceCreateInputData(data?: Partial<CreateServiceInpu
     promoValue: data?.promoValue,
     promoEnabled: data?.promoEnabled,
     coverImage: data?.coverImage || faker.image.urlPicsumPhotos(),
+    weight: data?.weight || faker.number.int({ min: 1, max: 3 }),
   }
 }

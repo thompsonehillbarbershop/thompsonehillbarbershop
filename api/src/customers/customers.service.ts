@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Model } from "mongoose"
 import { IMongoCustomer, toCustomer } from "../mongo/schemas/customer.schema"
-import { CustomerAlreadyExistsException, CustomerNotFoundException } from "../errors"
+import { CustomerAlreadyExistsException, CustomerNotFoundException, MissingPartnershipIdentificationException } from "../errors"
 import { Customer } from "./entities/customer.entity"
 import { CreateCustomerInput } from "./dto/create-customer.input"
 import { createId } from "@paralleldrive/cuid2"
@@ -9,12 +9,14 @@ import { UpdateCustomerInput } from "./dto/update-customer.input"
 import { capitalizeName } from "../utils"
 import { FirebaseService } from "../firebase/firebase.service"
 import { CustomerQuery } from "./dto/customer.query"
+import { PartnershipsService } from "../partnerships/partnerships.service"
 
 @Injectable()
 export class CustomersService {
   constructor(
     @Inject("CustomerSchema") private readonly customerSchema: Model<IMongoCustomer>,
     private readonly firebaseService: FirebaseService,
+    private readonly partnershipService: PartnershipsService
   ) { }
 
   private readonly STORAGE = "customers"
@@ -32,10 +34,19 @@ export class CustomersService {
 
   async create(dto: CreateCustomerInput): Promise<Customer> {
     try {
+      if (dto.partnershipId && !dto.partnershipIdentificationId) {
+        throw new MissingPartnershipIdentificationException
+      }
+
       await this.findOne({ phoneNumber: dto.phoneNumber })
       throw new CustomerAlreadyExistsException()
     } catch (error) {
       if (error instanceof CustomerNotFoundException) {
+        // Check if partnershipId is valid
+        if (dto.partnershipId) {
+          await this.partnershipService.findOne(dto.partnershipId)
+        }
+
         const id = createId()
 
         const { fileUrl, signedUrl } = await this.firebaseService.createSignedUrl({
@@ -55,6 +66,8 @@ export class CustomersService {
           referralCode: generateRandomReferralCode(),
           referralCodeUsed: dto.referralCodeUsed,
           referralCodeCount: 0,
+          partnershipId: dto.partnershipId,
+          partnershipIdentificationId: dto.partnershipIdentificationId,
           createdAt: new Date(),
         })
 
@@ -109,6 +122,11 @@ export class CustomersService {
 
   async update(id: string, dto: UpdateCustomerInput): Promise<Customer> {
     try {
+      // Check if partnershipId is valid
+      if (dto.partnershipId) {
+        await this.partnershipService.findOne(dto.partnershipId)
+      }
+
       const { fileUrl, signedUrl } = await this.firebaseService.createSignedUrl({
         contentType: dto.imageContentType,
         fileName: dto.profileImage,

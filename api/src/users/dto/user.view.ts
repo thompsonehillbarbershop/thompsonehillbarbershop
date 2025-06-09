@@ -10,6 +10,7 @@ export class UserView {
     this.profileImage = user.profileImage
     this.imageSignedUrl = user.imageSignedUrl
     this.createdAt = user.createdAt
+    this.deletedAt = user.deletedAt || undefined
     this.status = user.status
   }
 
@@ -33,6 +34,9 @@ export class UserView {
 
   @ApiProperty()
   createdAt: Date
+
+  @ApiProperty()
+  deletedAt?: Date
 
   @ApiProperty()
   status: EUserStatus

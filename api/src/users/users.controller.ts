@@ -1,28 +1,24 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode, Req, Put } from '@nestjs/common'
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode, Req, Put, Patch } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserInput } from './dto/create-user.input'
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { UserView } from "./dto/user.view"
 import { UpdateUserInput } from "./dto/update-user.input"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard"
 import { UserNotFoundException } from "../errors"
 import { AdminGuard } from "./guards/is-admin.guard"
-import { EUserRole } from "./entities/user.entity"
+import { CombinedAuthGuard } from "../auth/guards/jwt-api-key/jwt-api-key.guard"
 
 @ApiTags('Users')
 @Controller('users')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiBearerAuth()
   @HttpCode(201)
-  // @UseInterceptors(ProfileImageInterceptor)
   @ApiOperation({ summary: 'Register a new user' })
-  // @ApiConsumes("multipart/form-data")
-  // @ApiBody({ type: CreateUserMultipartInput })
   @ApiBody({
     type: CreateUserInput,
   })
@@ -36,14 +32,19 @@ export class UsersController {
     }
   })
   async create(
-    // @UploadedFile() profileImage: Express.Multer.File,
     @Body() data: CreateUserInput
   ) {
     return new UserView(await this.usersService.create(data))
   }
 
   @Get()
-  @UseGuards(AdminGuard)
+  @UseGuards(CombinedAuthGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API Key for alternative authentication',
+    required: false,
+  })
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse({
     type: [UserView],
@@ -53,6 +54,8 @@ export class UsersController {
   }
 
   @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiOkResponse({
     type: UserView,
@@ -69,6 +72,13 @@ export class UsersController {
   }
 
   @Get('attendants')
+  @UseGuards(CombinedAuthGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API Key for alternative authentication',
+    required: false,
+  })
   @ApiOperation({ summary: 'Get all available attendants' })
   @ApiOkResponse({
     type: [UserView],
@@ -78,7 +88,13 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(AdminGuard)
+  @UseGuards(CombinedAuthGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API Key for alternative authentication',
+    required: false,
+  })
   @ApiOperation({ summary: 'Get a user by id' })
   @ApiOkResponse({
     type: UserView,
@@ -92,7 +108,8 @@ export class UsersController {
   }
 
   @Put(':id')
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a user by id' })
   @ApiOkResponse({
     type: UserView,
@@ -101,13 +118,17 @@ export class UsersController {
     type: UserNotFoundException,
     example: "User not found"
   })
-  async update(@Param('id') id: string, @Body() data: UpdateUserInput) {
+  async update(
+    @Param('id') id: string,
+    @Body() data: UpdateUserInput
+  ) {
     return new UserView(await this.usersService.update({ id }, data))
   }
 
-  @Delete(':id')
-  @UseGuards(AdminGuard)
-  @ApiOperation({ summary: 'Delete a user by id' })
+  @Patch(':id/status')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Toggle user status' })
   @ApiOkResponse({
     type: UserView,
   })
@@ -115,7 +136,22 @@ export class UsersController {
     type: UserNotFoundException,
     example: "User not found"
   })
-  async remove(@Param('id') id: string) {
-    return new UserView(await this.usersService.remove({ id }))
+  async toggleUserStatus(@Param('id') id: string) {
+    return new UserView(await this.usersService.toggleUserStatus(id))
   }
+
+  // @Delete(':id')
+  // @UseGuards(JwtAuthGuard, AdminGuard)
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Delete a user by id' })
+  // @ApiOkResponse({
+  //   type: UserView,
+  // })
+  // @ApiBadRequestResponse({
+  //   type: UserNotFoundException,
+  //   example: "User not found"
+  // })
+  // async remove(@Param('id') id: string) {
+  //   return new UserView(await this.usersService.remove({ id }))
+  // }
 }

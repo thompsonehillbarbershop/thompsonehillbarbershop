@@ -20,7 +20,13 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "docker": "docker compose down && docker compose up -d",
-    "seed": "npx ts-node ./utils/seed.ts"
+    "seed": "npx ts-node ./utils/seed.ts",
+    "docker:build": "docker build -t thompson-api .",
+    "docker:run": "docker run -d --name thompson-api -p 3333:3333 thompson-api",
+    "docker:start": "docker start thompson-api",
+    "docker:stop": "docker stop thompson-api",
+    "docker:remove": "docker rm thompson-api",
+    "docker:logs": "docker logs -f thompson-api"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -31,11 +37,13 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
     "@types/node": "^22.10.7",
+    "archiver": "^7.0.1",
     "argon2": "^0.43.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "date-fns": "^4.1.0",
     "firebase-admin": "^13.4.0",
+    "json2csv": "^6.0.0-alpha.2",
     "mongoose": "^8.14.1",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",

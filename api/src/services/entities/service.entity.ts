@@ -9,6 +9,8 @@ export interface IService {
   coverImage?: string
   signedUrl?: string
   createdAt: Date
+  deletedAt?: Date
+  weight: number
 }
 
 export class Service {
@@ -21,10 +23,15 @@ export class Service {
   coverImage?: string
   signedUrl?: string
   createdAt: Date
+  deletedAt?: Date
+  weight: number
 
   constructor(data: IService) {
     Object.assign(this, data)
     this.createdAt = new Date(data.createdAt)
+    if (data.deletedAt) {
+      this.deletedAt = new Date(data.deletedAt)
+    }
   }
 
   toFirebaseObject() {
@@ -36,7 +43,9 @@ export class Service {
       promoValue: this.promoValue || null,
       promoEnabled: this.promoEnabled || false,
       coverImage: this.coverImage || null,
-      createdAt: this.createdAt.toISOString()
+      createdAt: this.createdAt.toISOString(),
+      deletedAt: this.deletedAt ? this.deletedAt.toISOString() : null,
+      weight: this.weight || 1,
     }
   }
 }

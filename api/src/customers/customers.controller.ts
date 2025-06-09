@@ -1,23 +1,24 @@
 import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode, Put, Query } from '@nestjs/common'
 import { CustomersService } from './customers.service'
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard"
 import { CreateCustomerInput } from "./dto/create-customer.input"
 import { CustomerView } from "./dto/customer.view"
 import { UpdateCustomerInput } from "./dto/update-customer.input"
 import { CustomerQuery } from "./dto/customer.query"
 import { createPaginatedDto } from "../common/dto/paginated.view"
+import { CombinedAuthGuard } from "../auth/guards/jwt-api-key/jwt-api-key.guard"
 
 const PaginatedCustomersView = createPaginatedDto(CustomerView)
 
 @ApiTags('Customers')
 @Controller('customers')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @HttpCode(201)
   @ApiOperation({ summary: 'Register a new customer' })
   @ApiBody({ type: CreateCustomerInput })
@@ -39,6 +40,13 @@ export class CustomersController {
   }
 
   @Get()
+  @UseGuards(CombinedAuthGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API Key for alternative authentication',
+    required: false,
+  })
   @ApiOperation({ summary: 'Get all customers' })
   @ApiOkResponse({ type: PaginatedCustomersView })
   async findAll(@Query() query: CustomerQuery) {
@@ -53,6 +61,13 @@ export class CustomersController {
   }
 
   @Get('/phoneNumber/:phoneNumber')
+  @UseGuards(CombinedAuthGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API Key for alternative authentication',
+    required: false,
+  })
   @ApiOperation({ summary: 'Get a customer by phone number' })
   @ApiOkResponse({ type: CustomerView })
   @ApiBadRequestResponse({
@@ -66,6 +81,13 @@ export class CustomersController {
   }
 
   @Get(':id')
+  @UseGuards(CombinedAuthGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API Key for alternative authentication',
+    required: false,
+  })
   @ApiOperation({ summary: 'Get a customer by ID' })
   @ApiOkResponse({ type: CustomerView })
   @ApiBadRequestResponse({
@@ -79,6 +101,8 @@ export class CustomersController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a customer by ID' })
   @ApiBody({ type: UpdateCustomerInput })
   @ApiOkResponse({ type: CustomerView })
@@ -92,17 +116,19 @@ export class CustomersController {
     return new CustomerView(await this.customersService.update(id, dto))
   }
 
-  @Delete(':id')
-  @HttpCode(204)
-  @ApiOperation({ summary: 'Delete a customer by ID' })
-  @ApiNoContentResponse()
-  @ApiBadRequestResponse({
-    description: "Customer not found",
-    schema: {
-      example: "Customer not found"
-    }
-  })
-  async remove(@Param('id') id: string) {
-    return this.customersService.remove(id)
-  }
+  // @Delete(':id')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @HttpCode(204)
+  // @ApiOperation({ summary: 'Delete a customer by ID' })
+  // @ApiNoContentResponse()
+  // @ApiBadRequestResponse({
+  //   description: "Customer not found",
+  //   schema: {
+  //     example: "Customer not found"
+  //   }
+  // })
+  // async remove(@Param('id') id: string) {
+  //   return this.customersService.remove(id)
+  // }
 }

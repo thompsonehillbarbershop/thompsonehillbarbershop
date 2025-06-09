@@ -13,9 +13,6 @@ import { FirebaseService } from "./firebase.service"
       useFactory: (configService: ConfigService) => {
         const storageBucket = configService.get<string>('FIREBASE_STORAGE_BUCKET')
 
-        console.log('FIREBASE_STORAGE_BUCKET', storageBucket)
-        console.log('FIREBASE_STORAGE_BUCKET_OLD', process.env.FIREBASE_STORAGE_BUCKET)
-
         if (!admin.apps.length) {
           const serviceAccount = JSON.parse(
             Buffer.from(

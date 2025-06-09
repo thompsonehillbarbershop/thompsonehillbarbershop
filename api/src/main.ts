@@ -21,11 +21,9 @@ async function bootstrap() {
 
   //Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('Example API')
-    .setDescription('The example API description')
+    .setTitle('Thompson & Hill API')
+    .setDescription('API for Thompson & Hill application')
     .setVersion('1.0')
-    .setContact('Thiago Elias', 'https://github.com/thiagoelias99', 'thiagoelias99@gmail.com')
-    .setLicense('MIT', 'https://www.mit.edu/~amini/LICENSE.md')
     .addBearerAuth()
     .build()
   const document = SwaggerModule.createDocument(app, config)

@@ -3,6 +3,7 @@ export enum EUserRole {
   MANAGER = "MANAGER",
   TOTEM = "TOTEM",
   ATTENDANT = "ATTENDANT",
+  ATTENDANT_MANAGER = "ATTENDANT_MANAGER",
 }
 
 export enum EUserStatus {
@@ -20,6 +21,7 @@ export interface IUser {
   imageSignedUrl?: string
   status: EUserStatus
   createdAt: Date
+  deletedAt?: Date | null
 }
 
 export class User {
@@ -32,6 +34,7 @@ export class User {
   imageSignedUrl?: string
   status: EUserStatus
   createdAt: Date
+  deletedAt?: Date | null
 
   constructor(data: IUser) {
     Object.assign(this, data)
@@ -46,7 +49,8 @@ export class User {
       role: this.role,
       profileImage: this.profileImage || null,
       status: this.status,
-      createdAt: this.createdAt.toISOString()
+      createdAt: this.createdAt.toISOString(),
+      deletedAt: this.deletedAt ? this.deletedAt.toISOString() : null
     }
   }
 }

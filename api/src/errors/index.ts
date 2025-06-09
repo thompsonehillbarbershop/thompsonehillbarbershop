@@ -33,6 +33,13 @@ export class ServiceNotFoundException extends BadRequestException {
   }
 }
 
+// Products Errors
+export class ProductNotFoundException extends BadRequestException {
+  constructor() {
+    super("Product not found")
+  }
+}
+
 // Customer Errors
 export class CustomerNotFoundException extends BadRequestException {
   constructor() {
@@ -56,5 +63,18 @@ export class AppointmentNotFoundException extends BadRequestException {
 export class MissingServicesException extends BadRequestException {
   constructor() {
     super("Missing services in appointment registration")
+  }
+}
+
+// Partnership
+export class PartnershipNotFoundException extends BadRequestException {
+  constructor() {
+    super("Partnership not found")
+  }
+}
+
+export class MissingPartnershipIdentificationException extends BadRequestException {
+  constructor() {
+    super("Partnership identification is required when partnership id is provided")
   }
 }

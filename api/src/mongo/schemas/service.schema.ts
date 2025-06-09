@@ -14,6 +14,8 @@ export const serviceSchema: Schema<IMongoService> = new Schema({
   promoEnabled: { type: Boolean, required: false, default: false },
   description: { type: String, required: false },
   coverImage: { type: String, required: false },
+  deletedAt: { type: Date, required: false, default: null },
+  weight: { type: Number, required: true, default: 1 },
 }, {
   timestamps: true,
   versionKey: false,
@@ -35,5 +37,7 @@ export function toService(mongoService: IMongoService): IService {
     promoEnabled: mongoService.promoEnabled,
     coverImage: mongoService.coverImage,
     createdAt: mongoService.createdAt,
+    deletedAt: mongoService.deletedAt || undefined,
+    weight: mongoService.weight,
   }
 }

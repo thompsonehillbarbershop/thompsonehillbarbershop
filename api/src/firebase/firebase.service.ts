@@ -49,6 +49,7 @@ export class FirebaseService {
   }
 
   async addAppointmentToQueue(appointment: Appointment) {
+    // return
     const collectionRef = this.getFirestore().collection(this.APPOINTMENTS_COLLECTION)
     const docRef = collectionRef.doc(appointment.id)
     try {
@@ -60,6 +61,7 @@ export class FirebaseService {
   }
 
   async updateAppointment(appointment: Appointment) {
+    // return
     const collectionRef = this.getFirestore().collection(this.APPOINTMENTS_COLLECTION)
     const docRef = collectionRef.doc(appointment.id)
     try {
@@ -69,4 +71,33 @@ export class FirebaseService {
       throw new Error('Error updating appointment')
     }
   }
+
+  async deleteAllAppointments(): Promise<void> {
+    const collectionRef = this.getFirestore().collection(this.APPOINTMENTS_COLLECTION)
+
+    try {
+      const snapshot = await collectionRef.get()
+
+      const batchSize = 500
+      if (snapshot.empty) {
+        // No appointments to delete
+        return
+      }
+
+      const deleteBatch = async (docs: FirebaseFirestore.QueryDocumentSnapshot[]) => {
+        const batch = this.getFirestore().batch()
+        docs.forEach((doc) => batch.delete(doc.ref))
+        await batch.commit()
+      }
+
+      const docs = snapshot.docs
+      for (let i = 0; i < docs.length; i += batchSize) {
+        const chunk = docs.slice(i, i + batchSize)
+        await deleteBatch(chunk)
+      }
+    } catch (error) {
+      throw new Error('Failed to delete all appointments')
+    }
+  }
+
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator"
+import { IsBoolean, IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator"
 
 export class CreateServiceInput {
   @ApiProperty()
@@ -34,4 +34,9 @@ export class CreateServiceInput {
   @IsOptional()
   @IsString()
   imageContentType?: string
+
+  @ApiProperty()
+  @IsInt()
+  @Min(1)
+  weight: number
 }

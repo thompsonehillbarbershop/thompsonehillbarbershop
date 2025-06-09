@@ -3,14 +3,18 @@ import { CustomersService } from "./customers.service"
 import { ConfigModule } from "@nestjs/config"
 import { MongoModule } from "../mongo/mongo.module"
 import { getRandomCustomerCreateInputData } from "./mocks"
-import { CustomerAlreadyExistsException, CustomerNotFoundException } from "../errors"
+import { CustomerAlreadyExistsException, CustomerNotFoundException, MissingPartnershipIdentificationException, PartnershipNotFoundException } from "../errors"
 import { UpdateCustomerInput } from "./dto/update-customer.input"
 import { CreateCustomerInput } from "./dto/create-customer.input"
 import { ECustomerGender } from "./entities/customer.entity"
 import { FirebaseModule } from "../firebase/firebase.module"
+import { PartnershipsService } from "../partnerships/partnerships.service"
+import { PartnershipsModule } from "../partnerships/partnerships.module"
+import { getRandomPartnershipCreateInputData } from "../partnerships/mocks"
 
 describe("Customers Module", () => {
   let customersService: CustomersService
+  let partnershipService: PartnershipsService
   let app: TestingModule
 
   beforeAll(async () => {
@@ -21,11 +25,13 @@ describe("Customers Module", () => {
           isGlobal: true
         }),
         MongoModule,
-        FirebaseModule
+        FirebaseModule,
+        PartnershipsModule
       ]
     }).compile()
 
     customersService = app.get<CustomersService>(CustomersService)
+    partnershipService = app.get<PartnershipsService>(PartnershipsService)
   })
 
   afterAll(async () => {
@@ -35,6 +41,7 @@ describe("Customers Module", () => {
   describe("CustomersService", () => {
     it("should be defined", () => {
       expect(customersService).toBeDefined()
+      expect(partnershipService).toBeDefined()
     })
 
     it("should create a customer with all fields", async () => {
@@ -323,6 +330,99 @@ describe("Customers Module", () => {
       const foundCustomer = await customersService.findOne({ id: customer.id })
       expect(foundCustomer).toBeDefined()
       expect(foundCustomer.referralCodeCount).toBe(6)
+
+      await customersService.remove(customer.id)
+    })
+
+    it("should create a customer with a partnership id", async () => {
+      const partnership = await partnershipService.create(getRandomPartnershipCreateInputData())
+
+      const data = getRandomCustomerCreateInputData({
+        partnershipId: partnership.id,
+        partnershipIdentificationId: "CODE12345"
+      })
+
+      const customer = await customersService.create(data)
+      expect(customer).toBeDefined()
+      expect(customer.partnershipId).toBe(partnership.id)
+      expect(customer.partnershipIdentificationId).toBe(data.partnershipIdentificationId)
+
+      const foundCustomer = await customersService.findOne({ id: customer.id })
+      expect(foundCustomer).toBeDefined()
+      expect(foundCustomer.partnershipId).toBe(partnership.id)
+      expect(foundCustomer.partnershipIdentificationId).toBe(data.partnershipIdentificationId)
+
+      await customersService.remove(customer.id)
+      await partnershipService.remove(partnership.id)
+    })
+
+    it("should not create a customer with a partnership id and missing partnershipIdentification", async () => {
+      const partnership = await partnershipService.create(getRandomPartnershipCreateInputData())
+
+      const data = getRandomCustomerCreateInputData({
+        partnershipId: partnership.id
+      })
+
+      await expect(customersService.create(data))
+        .rejects
+        .toThrow(MissingPartnershipIdentificationException)
+    })
+
+    it("should not create a customer with a invalid partnership id", async () => {
+      const data = getRandomCustomerCreateInputData({
+        partnershipId: "invalid-partnership-id",
+        partnershipIdentificationId: "CODE12345"
+      })
+
+      await expect(customersService.create(data))
+        .rejects
+        .toThrow(PartnershipNotFoundException)
+    })
+
+    it("should update a customer partnership id and identification", async () => {
+      const partnership = await partnershipService.create(getRandomPartnershipCreateInputData())
+
+      const data = getRandomCustomerCreateInputData({
+        partnershipId: partnership.id,
+        partnershipIdentificationId: "CODE12345"
+      })
+
+      const customer = await customersService.create(data)
+
+      const newPartnership = await partnershipService.create(getRandomPartnershipCreateInputData())
+      const updatedData: UpdateCustomerInput = {
+        partnershipId: newPartnership.id,
+        partnershipIdentificationId: "NEWCODE67890"
+      }
+
+      const updatedCustomer = await customersService.update(customer.id, updatedData)
+      expect(updatedCustomer).toBeDefined()
+      expect(updatedCustomer.partnershipId).toBe(newPartnership.id)
+      expect(updatedCustomer.partnershipIdentificationId).toBe(updatedData.partnershipIdentificationId)
+
+      const foundCustomer = await customersService.findOne({ id: customer.id })
+      expect(foundCustomer).toBeDefined()
+      expect(foundCustomer.partnershipId).toBe(newPartnership.id)
+      expect(foundCustomer.partnershipIdentificationId).toBe(updatedData.partnershipIdentificationId)
+
+      await customersService.remove(customer.id)
+      await partnershipService.remove(partnership.id)
+      await partnershipService.remove(newPartnership.id)
+    })
+
+    it("should not update a customer partnership id and identification with invalid partnership id", async () => {
+      const data = getRandomCustomerCreateInputData()
+
+      const customer = await customersService.create(data)
+
+      const updatedData: UpdateCustomerInput = {
+        partnershipId: "invalid-partnership-id",
+        partnershipIdentificationId: "NEWCODE67890"
+      }
+
+      await expect(customersService.update(customer.id, updatedData))
+        .rejects
+        .toThrow(PartnershipNotFoundException)
 
       await customersService.remove(customer.id)
     })

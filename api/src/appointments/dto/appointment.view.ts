@@ -1,35 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Appointment, EAppointmentStatuses, EPaymentMethod } from "../entities/appointment.entity"
-
-class AppointmentCustomerView {
-  @ApiProperty()
-  id: string
-
-  @ApiProperty()
-  name: string
-
-  @ApiProperty()
-  phoneNumber: string
-}
-
-class AppointmentAttendantView {
-  @ApiProperty()
-  id: string
-
-  @ApiProperty()
-  name: string
-}
-
-class AppointmentServiceView {
-  @ApiProperty()
-  id: string
-
-  @ApiProperty()
-  name: string
-
-  @ApiProperty()
-  value: number
-}
+import { CustomerView } from "../../customers/dto/customer.view"
+import { UserView } from "src/users/dto/user.view"
+import { ServiceView } from "src/services/dto/service.view"
+import { ProductView } from "src/products/dto/product.view"
+import { PartnershipView } from "src/partnerships/dto/partnership.view"
 
 export class AppointmentView {
   constructor(appointment: Appointment) {
@@ -38,35 +13,33 @@ export class AppointmentView {
     this.onServiceAt = appointment.onServiceAt ? new Date(appointment.onServiceAt) : undefined
     this.finishedAt = appointment.finishedAt ? new Date(appointment.finishedAt) : undefined
 
-    this.customer = {
-      id: appointment.customer.id,
-      name: appointment.customer.name,
-      phoneNumber: appointment.customer.phoneNumber
-    }
-
-    this.attendant = this.attendant ? {
-      id: appointment.attendant!.id,
-      name: appointment.attendant!.name
-    } : undefined
-
-    this.services = appointment.services.map((service) => ({
-      id: service.id,
-      name: service.name,
-      value: service.value
-    }))
+    this.customer = new CustomerView(appointment.customer)
+    this.attendant = appointment.attendant ? new UserView(appointment.attendant) : undefined
+    this.services = appointment.services.map((service) => (new ServiceView(service)))
+    this.products = appointment.products.map((product) => (new ProductView(product)))
+    this.partnerships = appointment.partnerships ? appointment.partnerships.map((partnership) => (new PartnershipView(partnership))) : undefined
   }
 
   @ApiProperty()
   id: string
 
-  @ApiProperty({ type: AppointmentCustomerView })
-  customer: AppointmentCustomerView
+  @ApiProperty({ type: CustomerView })
+  customer: CustomerView
 
-  @ApiProperty({ type: AppointmentAttendantView })
-  attendant?: AppointmentAttendantView
+  @ApiProperty({ type: UserView })
+  attendant?: UserView
 
-  @ApiProperty({ type: [AppointmentServiceView] })
-  services: AppointmentServiceView[]
+  @ApiProperty({ type: [ServiceView] })
+  services: ServiceView[]
+
+  @ApiProperty({ type: [ProductView] })
+  products: ProductView[]
+
+  @ApiProperty({ type: [PartnershipView] })
+  partnerships?: PartnershipView[]
+
+  @ApiProperty()
+  totalServiceWeight: number
 
   @ApiProperty()
   totalPrice: number

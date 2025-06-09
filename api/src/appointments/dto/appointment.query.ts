@@ -25,6 +25,11 @@ export class AppointmentQuery {
   @IsString()
   customerName?: string
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  attendantId?: string
+
   @ApiPropertyOptional({ default: 1, description: "Page number" })
   @Type(() => Number)
   @IsOptional()

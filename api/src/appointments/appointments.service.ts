@@ -9,9 +9,11 @@ import { CustomersService } from "../customers/customers.service"
 import { UsersService } from "../users/users.service"
 import { ServicesService } from "../services/services.service"
 import { AppointmentQuery } from "./dto/appointment.query"
-import { endOfDay, startOfDay } from "date-fns"
+import { endOfDay, startOfDay, subHours } from "date-fns"
 import { UpdateAppointmentInput } from "./dto/update-appointment.input"
 import { FirebaseService } from "../firebase/firebase.service"
+import { ProductsService } from "../products/products.service"
+import { EPartnershipDiscountType } from "../partnerships/entities/partnership.entity"
 
 @Injectable()
 export class AppointmentsService {
@@ -20,6 +22,7 @@ export class AppointmentsService {
     private readonly customersService: CustomersService,
     private readonly usersService: UsersService,
     private readonly servicesService: ServicesService,
+    private readonly productsService: ProductsService,
     private readonly firebaseService: FirebaseService
   ) { }
 
@@ -41,9 +44,15 @@ export class AppointmentsService {
       await this.servicesService.findOne(serviceId)
     }
 
+    //Check if products exists
+    for (const productId of dto.productIds || []) {
+      await this.productsService.findOne(productId)
+    }
+
     const id = createId()
 
     let serviceIds: string[] = dto.serviceIds
+    let productIds: string[] = dto.productIds || []
 
     const appointment = new this.appointmentSchema(
       {
@@ -51,6 +60,7 @@ export class AppointmentsService {
         customerId: customer.id,
         attendantId: dto.attendantId,
         serviceIds,
+        productIds,
         totalPrice: 0,
         discount: 0,
         finalPrice: 0,
@@ -61,9 +71,12 @@ export class AppointmentsService {
 
     const createdAppointment = await appointment.save()
 
-    createdAppointment.totalPrice = createdAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0
-    createdAppointment.discount = createdAppointment?.services?.reduce((acc, service) => acc + (service.promoValue && service.promoEnabled ? (service.value - service.promoValue) : 0), 0)
+    createdAppointment.totalPrice = (createdAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0) + (createdAppointment?.products?.reduce((acc, product) => acc + product.value, 0) || 0)
+
+    createdAppointment.discount = (createdAppointment?.services?.reduce((acc, service) => acc + (service.promoValue && service.promoEnabled ? (service.value - service.promoValue) : 0), 0) || 0) + (createdAppointment?.products?.reduce((acc, product) => acc + (product.promoValue && product.promoEnabled ? (product.value - product.promoValue) : 0), 0) || 0)
+
     createdAppointment.finalPrice = createdAppointment.totalPrice - (createdAppointment.discount || 0)
+
     await createdAppointment.save()
 
     const createdAppointmentObj = new Appointment(toAppointment(createdAppointment))
@@ -84,6 +97,7 @@ export class AppointmentsService {
       customerName,
       status,
       paymentMethod,
+      attendantId
     } = filters
 
     const skip = (page - 1) * limit
@@ -91,8 +105,8 @@ export class AppointmentsService {
 
     if (onlyToday) {
       const today = new Date()
-      const start = startOfDay(today)
-      const end = endOfDay(today)
+      const start = subHours(startOfDay(today), 3)
+      const end = subHours(endOfDay(today), 3)
       matchFilters.createdAt = { $gte: start, $lte: end }
     }
 
@@ -120,6 +134,14 @@ export class AppointmentsService {
       },
       {
         $lookup: {
+          from: 'products',
+          localField: 'productIds',
+          foreignField: '_id',
+          as: 'products',
+        },
+      },
+      {
+        $lookup: {
           from: 'users',
           localField: 'attendantId',
           foreignField: '_id',
@@ -133,6 +155,14 @@ export class AppointmentsService {
       pipeline.push({
         $match: {
           'customer.name': { $regex: customerName, $options: 'i' }, // case-insensitive
+        },
+      })
+    }
+
+    if (attendantId) {
+      pipeline.push({
+        $match: {
+          attendantId: attendantId,
         },
       })
     }
@@ -159,6 +189,10 @@ export class AppointmentsService {
         services: doc.services.map((service) => ({
           ...service,
           id: service._id,
+        })),
+        products: doc.products.map((product) => ({
+          ...product,
+          id: product._id,
         })),
       }))
     )
@@ -196,6 +230,9 @@ export class AppointmentsService {
 
   async update(id: string, dto: UpdateAppointmentInput): Promise<Appointment> {
     try {
+      //Check if the appointment has at least one service
+      if (!!dto.serviceIds && dto.serviceIds.length === 0) throw new MissingServicesException()
+
       const appointment = await this.appointmentSchema.findOne({ _id: id })
       if (!appointment) throw new AppointmentNotFoundException()
 
@@ -211,6 +248,13 @@ export class AppointmentsService {
       if (dto.serviceIds) {
         for (const serviceId of dto.serviceIds) {
           await this.servicesService.findOne(serviceId)
+        }
+      }
+
+      //Check if products exists
+      if (dto.productIds) {
+        for (const productId of dto.productIds) {
+          await this.productsService.findOne(productId)
         }
       }
 
@@ -254,10 +298,30 @@ export class AppointmentsService {
 
       const updatedAppointment = await appointment.save()
 
-      if (dto.serviceIds) {
-        updatedAppointment.totalPrice = updatedAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0
-        updatedAppointment.discount = updatedAppointment?.services?.reduce((acc, service) => acc + (service.promoValue && service.promoEnabled ? (service.value - service.promoValue) : 0), 0)
+      if (dto.serviceIds || dto.productIds || dto.partnershipIds) {
+        updatedAppointment.totalPrice = (updatedAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + product.value, 0) || 0)
+
+        updatedAppointment.discount = (updatedAppointment?.services?.reduce((acc, service) => acc + (service.promoValue && service.promoEnabled ? (service.value - service.promoValue) : 0), 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + (product.promoValue && product.promoEnabled ? (product.value - product.promoValue) : 0), 0) || 0)
+
+        // Check partnerships fixed discounts
+        updatedAppointment.partnerships?.forEach(partnership => {
+          if (partnership.discountType === EPartnershipDiscountType.FIXED) {
+            updatedAppointment.discount ? updatedAppointment.discount += partnership.discountValue : updatedAppointment.discount = partnership.discountValue
+          }
+        })
+
         updatedAppointment.finalPrice = updatedAppointment.totalPrice - (updatedAppointment.discount || 0)
+
+        // Check partnerships percentage discounts
+        updatedAppointment.partnerships?.forEach(partnership => {
+          if (partnership.discountType === EPartnershipDiscountType.PERCENTAGE) {
+            const discountValue = (updatedAppointment.finalPrice * partnership.discountValue) / 100
+
+            updatedAppointment.finalPrice = updatedAppointment.finalPrice - discountValue
+            updatedAppointment.discount ? updatedAppointment.discount = updatedAppointment.discount + discountValue : updatedAppointment.discount = discountValue
+          }
+        })
+
         await updatedAppointment.save()
       }
 

@@ -34,4 +34,14 @@ export class CreateCustomerInput {
   @IsString()
   @IsOptional()
   referralCodeUsed?: string
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  partnershipId?: string
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  partnershipIdentificationId?: string
 }

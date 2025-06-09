@@ -10,5 +10,7 @@ export function getRandomCustomerCreateInputData(data?: Partial<CreateCustomerIn
     profileImage: data?.profileImage || faker.image.urlPicsumPhotos(),
     gender: data?.gender || faker.helpers.enumValue(ECustomerGender),
     referralCodeUsed: data?.referralCodeUsed,
+    partnershipId: data?.partnershipId,
+    partnershipIdentificationId: data?.partnershipIdentificationId,
   }
 }

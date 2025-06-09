@@ -12,13 +12,13 @@ import { FirebaseModule } from "../firebase/firebase.module"
 import { getRandomUserData } from "./mocks"
 
 describe('Users Module', () => {
-  let usersController: UsersController
+  // let usersController: UsersController
   let usersServices: UsersService
   let app: TestingModule
 
   beforeAll(async () => {
     app = await Test.createTestingModule({
-      controllers: [UsersController],
+      // controllers: [UsersController],
       providers: [UsersService],
       imports: [
         ConfigModule.forRoot({
@@ -29,7 +29,7 @@ describe('Users Module', () => {
       ]
     }).compile()
 
-    usersController = app.get<UsersController>(UsersController)
+    // usersController = app.get<UsersController>(UsersController)
     usersServices = app.get<UsersService>(UsersService)
   })
 
@@ -149,6 +149,39 @@ describe('Users Module', () => {
       for (const data of inputData) {
         await usersServices.remove({ userName: data.userName })
       }
+    }, 30000)
+
+    it.skip("should not return deleted users by default when finding all users", async () => {
+      const initialUsers = await usersServices.findAll()
+
+      const inputData = Array.from({ length: 5 }, () => getRandomUserData())
+
+      const inputDeleteUserData = getRandomUserData({ name: "User to be deleted" })
+
+      for (const data of inputData) {
+        await usersServices.create(data)
+      }
+
+      const users1 = await usersServices.findAll()
+
+      expect(users1).toHaveLength(initialUsers.length + inputData.length)
+
+      await usersServices.create(inputDeleteUserData)
+
+      const users2 = await usersServices.findAll()
+
+      expect(users2).toHaveLength(initialUsers.length + inputData.length + 1)
+
+      await usersServices.update({ userName: inputDeleteUserData.userName }, { delete: true })
+
+      const users3 = await usersServices.findAll()
+
+      expect(users3).toHaveLength(initialUsers.length + inputData.length)
+
+      for (const data of inputData) {
+        await usersServices.remove({ userName: data.userName })
+      }
+      await usersServices.remove({ userName: inputDeleteUserData.userName })
     }, 30000)
 
     it.skip("should find all users filtering by role", async () => {
@@ -388,6 +421,67 @@ describe('Users Module', () => {
       }).rejects.toThrow(InvalidCredentialsException)
 
       await usersServices.remove({ userName: inputData.userName })
+    })
+
+    it("should soft delete a user by id", async () => {
+      const inputData = getRandomUserData()
+
+      const user = await usersServices.create(inputData)
+      const deletedUser = await usersServices.update({ id: user.id }, {
+        delete: true
+      })
+
+      expect(deletedUser).toHaveProperty("id", user.id)
+      expect(deletedUser).toHaveProperty("name", inputData.name)
+      expect(deletedUser).toHaveProperty("userName", inputData.userName.toLowerCase())
+      expect(deletedUser).toHaveProperty("password")
+      expect(deletedUser).toHaveProperty("deletedAt")
+    })
+
+    it("should not login with a soft deleted user", async () => {
+      const inputData = getRandomUserData()
+
+      await usersServices.create(inputData)
+      await usersServices.update({ userName: inputData.userName }, { delete: true })
+
+      expect(async () => {
+        await usersServices.loginWithCredentials(inputData.userName, inputData.password)
+      }).rejects.toThrow(InvalidCredentialsException)
+
+      await usersServices.remove({ userName: inputData.userName })
+    })
+
+    it("should toggle a user status", async () => {
+      const inputData = getRandomUserData(
+        {
+          role: EUserRole.ADMIN,
+          status: EUserStatus.ACTIVE,
+        })
+
+      const user = await usersServices.create(inputData)
+
+      const foundUser1 = await usersServices.findOne({ id: user.id })
+      expect(foundUser1).toHaveProperty("id", user.id)
+      expect(foundUser1).toHaveProperty("status", EUserStatus.ACTIVE)
+
+      const updatedUser1 = await usersServices.toggleUserStatus(user.id)
+
+      expect(updatedUser1).toHaveProperty("id", user.id)
+      expect(updatedUser1).toHaveProperty("status", EUserStatus.INACTIVE)
+
+      const foundUser2 = await usersServices.findOne({ id: user.id })
+      expect(foundUser2).toHaveProperty("id", user.id)
+      expect(foundUser2).toHaveProperty("status", EUserStatus.INACTIVE)
+
+      const updatedUser2 = await usersServices.toggleUserStatus(user.id)
+      expect(updatedUser2).toHaveProperty("id", user.id)
+      expect(updatedUser2).toHaveProperty("status", EUserStatus.ACTIVE)
+
+      const foundUser3 = await usersServices.findOne({ id: user.id })
+      expect(foundUser3).toHaveProperty("id", user.id)
+      expect(foundUser3).toHaveProperty("status", EUserStatus.ACTIVE)
+
+      await usersServices.remove({ id: user.id })
     })
   })
 })

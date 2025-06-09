@@ -15,6 +15,8 @@ export const customerSchema: Schema<IMongoCustomer> = new Schema({
   referralCode: { type: String, required: true, unique: true },
   referralCodeUsed: { type: String, required: false },
   referralCodeCount: { type: Number, default: 0 },
+  partnershipId: { type: String, required: false },
+  partnershipIdentificationId: { type: String, required: false },
   createdAt: { type: Date, default: Date.now }
 }, {
   timestamps: true,
@@ -39,5 +41,7 @@ export function toCustomer(mongoCustomer: IMongoCustomer): ICustomer {
     referralCode: mongoCustomer.referralCode,
     referralCodeUsed: mongoCustomer.referralCodeUsed,
     referralCodeCount: mongoCustomer.referralCodeCount,
+    partnershipId: mongoCustomer.partnershipId,
+    partnershipIdentificationId: mongoCustomer.partnershipIdentificationId,
   }
 }

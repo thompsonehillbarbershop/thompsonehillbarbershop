@@ -1,4 +1,4 @@
-import { Schema, Document, Model } from "mongoose"
+import { Schema, Document } from "mongoose"
 import { EUserRole, EUserStatus, IUser } from "../../users/entities/user.entity"
 
 
@@ -14,6 +14,7 @@ export const userSchema: Schema<IMongoUser> = new Schema({
   role: { type: String, enum: Object.values(EUserRole), required: true },
   profileImage: { type: String, required: false },
   status: { type: String, enum: Object.values(EUserStatus), required: true },
+  deletedAt: { type: Date, default: null, required: false },
 }, {
   timestamps: true,
   versionKey: false,
@@ -35,5 +36,6 @@ export function toUser(mongoUser: IMongoUser): IUser {
     profileImage: mongoUser.profileImage,
     status: mongoUser.status,
     createdAt: mongoUser.createdAt,
+    deletedAt: mongoUser.deletedAt || null,
   }
 }

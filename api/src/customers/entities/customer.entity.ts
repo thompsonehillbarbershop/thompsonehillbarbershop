@@ -14,6 +14,8 @@ export interface ICustomer {
   referralCode: string
   referralCodeUsed?: string
   referralCodeCount: number
+  partnershipId?: string
+  partnershipIdentificationId?: string
   createdAt: Date
 }
 
@@ -28,6 +30,8 @@ export class Customer {
   referralCode: string
   referralCodeUsed?: string
   referralCodeCount: number
+  partnershipId?: string
+  partnershipIdentificationId?: string
   createdAt: Date
 
   constructor(data: ICustomer) {
@@ -46,6 +50,8 @@ export class Customer {
       referralCode: this.referralCode,
       referralCodeUsed: this.referralCodeUsed || null,
       referralCodeCount: this.referralCodeCount,
+      partnershipId: this.partnershipId || null,
+      partnershipIdentificationId: this.partnershipIdentificationId || null,
       birthDate: this.birthDate.toISOString(),
       createdAt: this.createdAt.toISOString()
     }
