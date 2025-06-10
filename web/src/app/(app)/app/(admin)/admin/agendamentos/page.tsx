@@ -30,7 +30,7 @@ export default function AppointmentsPage() {
   const { data: appointments, isLoading: isLoadingAppointments } = useAppointments(params)
 
   const attendants = useMemo(() => {
-    return users?.filter(user => user.role === EUserRole.ATTENDANT)
+    return users?.filter(user => user.role === EUserRole.ATTENDANT || user.role === EUserRole.ATTENDANT_MANAGER)
   }, [users])
 
   function handleFormSubmit(values: AppointmentSearchFormSchema) {

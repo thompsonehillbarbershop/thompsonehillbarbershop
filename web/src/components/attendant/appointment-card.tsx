@@ -26,14 +26,14 @@ export default function AttendanceAppointmentCard({ index, appointment, onAttend
       {index === 0 && (
         <Card className="w-full">
           {
-            userId && (userId !== appointment.attendant?.id) && (
-              <div className="w-full"><p className="w-full text-center text-2xl font-semibold">Cliente da Fila: <strong className="text-primary">{appointment.attendant?.name}</strong></p></div>
+            userId && appointment.attendant?.id && (userId !== appointment.attendant?.id) && (
+              <div className="w-full"><p className="w-full text-center text-2xl font-semibold">Fila: <strong className="text-primary">{appointment.attendant?.name}</strong></p></div>
             )
           }
           <CardHeader>
             <div className="w-full flex items-center justify-between">
-              <p className={cn("text-primary font-semibold", index === 0 ? "text-primary" : "text-transparent")}>{appointment.status === EAppointmentStatuses.WAITING ? "Próximo Cliente" : "Atendendo"}</p>
-              <p className={cn("text-sm font-semibold", appointment.attendant ? "text-transparent" : "text-primary")}>Fila Geral</p>
+              <p className={cn("text-primary font-semibold text-center w-full text-xl", index === 0 ? "text-primary" : "text-transparent")}>{appointment.status === EAppointmentStatuses.WAITING ? "Próximo Cliente" : "Atendendo"}</p>
+              {/* <p className={cn("text-sm font-semibold", appointment.attendant ? "text-transparent" : "text-primary")}>Fila Geral</p> */}
             </div>
             <H2 className={cn("text-center pb-4", index === 0 && "text-3xl")}>{appointment.customer.name}</H2>
             <Image
