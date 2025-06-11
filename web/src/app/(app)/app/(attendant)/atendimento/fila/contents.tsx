@@ -15,7 +15,6 @@ export default function AttendantQueuePageContents({ userId }: { userId: string 
   const router = useRouter()
 
   const userQueue = useMemo(() => {
-
     // Check if the user has an official queue
     const officialQueue = queue[userId] || []
     if (officialQueue.filter(appointment => appointment.status === EAppointmentStatuses.WAITING || appointment.status === EAppointmentStatuses.ON_SERVICE).length > 0) {
