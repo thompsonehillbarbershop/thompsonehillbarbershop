@@ -63,6 +63,22 @@ export default function ProductsPage() {
       >
         Exportar Dados para CSV
       </Button>
+
+      <H1 className="pt-4">Suporte e Manuteção</H1>
+      <Card className="mt-2">
+        <CardContent className="space-y-2">
+          <p className="text-xl"><strong>Thompson & Hill - Aplicação Web Fullstack</strong></p>
+          <p className="text-muted-foreground">Para manutenção ou suporte entrar em contato preferencialmente com o desenvolvedor resposável ou buscar desenvolvedores com conhecimento de acordo com as tecnologias utilizadas</p>
+          <p><strong>Desenvolvedor resposável: </strong>Thiago Elias</p>
+          <p><strong>Email de contato: </strong>contato@thiagoeliaseng.com.br</p>
+          <p><strong>Git Hub do Desenvolvedor: </strong>https://github.com/thiagoelias99</p>
+          <p><strong>Tecnologia Front End: </strong>Next.js + Tailwind CSS + Typescript</p>
+          <p><strong>Tecnologia Back End: </strong>Nest.js + Mongoose + Typescript</p>
+          <p><strong>Banco de dados: </strong>MongoDB Atlas</p>
+          <p><strong>Repositório da Aplicação GitHub: </strong>https://github.com/thompsonehillbarbershop/thompsonehillbarbershop</p>
+          <p><strong>Email de acesso oficial da aplicação: </strong>app.thompsonehillbarbershop@gmail.com</p>
+        </CardContent>
+      </Card>
     </div>
   )
 }
