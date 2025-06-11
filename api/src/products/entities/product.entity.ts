@@ -34,15 +34,15 @@ export class Product {
 
   toFirebaseObject() {
     return {
-      id: this.id,
+      // id: this.id,
       name: this.name,
-      description: this.description || null,
-      value: this.value,
-      promoValue: this.promoValue || null,
-      promoEnabled: this.promoEnabled || false,
-      coverImage: this.coverImage || null,
-      createdAt: this.createdAt.toISOString(),
-      deletedAt: this.deletedAt ? this.deletedAt.toISOString() : null,
+      // description: this.description || null,
+      // value: this.value,
+      // promoValue: this.promoValue || null,
+      // promoEnabled: this.promoEnabled || false,
+      // coverImage: this.coverImage || null,
+      // createdAt: this.createdAt.toISOString(),
+      // deletedAt: this.deletedAt ? this.deletedAt.toISOString() : null,
     }
   }
 }

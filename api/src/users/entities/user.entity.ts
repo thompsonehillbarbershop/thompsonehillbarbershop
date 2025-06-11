@@ -45,12 +45,12 @@ export class User {
     return {
       id: this.id,
       name: this.name,
-      userName: this.userName,
-      role: this.role,
-      profileImage: this.profileImage || null,
-      status: this.status,
-      createdAt: this.createdAt.toISOString(),
-      deletedAt: this.deletedAt ? this.deletedAt.toISOString() : null
+      // userName: this.userName,
+      // role: this.role,
+      // profileImage: this.profileImage || null,
+      // status: this.status,
+      // createdAt: this.createdAt.toISOString(),
+      // deletedAt: this.deletedAt ? this.deletedAt.toISOString() : null
     }
   }
 }

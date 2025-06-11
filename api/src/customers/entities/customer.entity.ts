@@ -42,18 +42,18 @@ export class Customer {
 
   toFirebaseObject() {
     return {
-      id: this.id,
+      // id: this.id,
       name: this.name,
-      gender: this.gender,
-      phoneNumber: this.phoneNumber,
+      // gender: this.gender,
+      // phoneNumber: this.phoneNumber,
       profileImage: this.profileImage || null,
-      referralCode: this.referralCode,
-      referralCodeUsed: this.referralCodeUsed || null,
-      referralCodeCount: this.referralCodeCount,
-      partnershipId: this.partnershipId || null,
-      partnershipIdentificationId: this.partnershipIdentificationId || null,
-      birthDate: this.birthDate.toISOString(),
-      createdAt: this.createdAt.toISOString()
+      // referralCode: this.referralCode,
+      // referralCodeUsed: this.referralCodeUsed || null,
+      // referralCodeCount: this.referralCodeCount,
+      // partnershipId: this.partnershipId || null,
+      // partnershipIdentificationId: this.partnershipIdentificationId || null,
+      // birthDate: this.birthDate.toISOString(),
+      // createdAt: this.createdAt.toISOString()
     }
   }
 }
