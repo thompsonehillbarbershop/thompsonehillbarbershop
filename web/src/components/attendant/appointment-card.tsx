@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card"
 import { H2 } from "../ui/typography"
 import { format } from "date-fns"
 import { Button } from "../ui/button"
-import { CircleCheckBigIcon, PlayIcon } from "lucide-react"
+import { CircleCheckBigIcon, PlayIcon, SettingsIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { EAppointmentStatuses } from "@/models/appointment"
 import Image from "next/image"
@@ -16,17 +16,23 @@ interface IAppointmentCardProps {
   appointment: IFirebaseAppointment
   onAttendanceStart: (appointment: IFirebaseAppointment) => void
   onAttendanceEnd: (appointment: IFirebaseAppointment) => void
+  onSettingsClick: (appointment: IFirebaseAppointment) => void
   isStartingAttendance: boolean
   userId: string
 }
 
-export default function AttendanceAppointmentCard({ index, appointment, onAttendanceStart, isStartingAttendance, onAttendanceEnd, userId }: IAppointmentCardProps) {
+export default function AttendanceAppointmentCard({ index, appointment, onAttendanceStart, isStartingAttendance, onAttendanceEnd, onSettingsClick, userId }: IAppointmentCardProps) {
   return (
     <>
       <Card className="w-full">
         {
           userId && appointment.attendant?.id && (userId !== appointment.attendant?.id) && (
             <div className="w-full"><p className="w-full text-center text-2xl font-semibold">Fila: <strong className="text-primary">{appointment.attendant?.name}</strong></p></div>
+          )
+        }
+        {
+          !appointment.attendant?.id && (
+            <div className="w-full"><p className="w-full text-center text-2xl font-semibold">Fila: <strong className="text-primary">Geral</strong></p></div>
           )
         }
         <CardHeader>
@@ -80,6 +86,13 @@ export default function AttendanceAppointmentCard({ index, appointment, onAttend
               Encerrar Atendimento
             </Button>
           )}
+          <Button
+            size="lg"
+            variant={index === 0 ? "secondary" : "outline"}
+            onClick={() => onSettingsClick(appointment)}
+          >
+            <SettingsIcon className="size-5" />
+          </Button>
         </CardFooter>
 
       </Card>

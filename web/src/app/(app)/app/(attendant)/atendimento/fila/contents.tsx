@@ -10,19 +10,46 @@ import { EAppointmentStatuses } from "@/models/appointment"
 import { IFirebaseAppointment } from "@/models/firebase-appointment"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { BanIcon, UserPlusIcon } from "lucide-react"
 
 export default function AttendantQueuePageContents({ userId }: { userId: string }) {
   const [showAll, setShowAll] = useState(false)
+  const [selectedAppointment, setSelectedAppointment] = useState<IFirebaseAppointment | null>(null)
+  const [openDialog, setOpenDialog] = useState(false)
   const queue = useQueue()
-  const { startAttendance, isStartingAttendance } = useAttendant()
+  const { startAttendance, isStartingAttendance, cancelAttendance, assumeAttendance } = useAttendant()
   const router = useRouter()
 
   const userQueue = useMemo(() => {
     // If showAll is true, return all appointments
     if (showAll) {
-      const allAppointments = Object.values(queue).flat().filter(appointment => appointment.status === EAppointmentStatuses.WAITING || (appointment.status === EAppointmentStatuses.ON_SERVICE && appointment.attendant?.id === userId))
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      return allAppointments.sort((a, b) => a.status === EAppointmentStatuses.ON_SERVICE ? -1 : 1).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      const allAppointments = Object.values(queue)
+        .flat()
+        .filter(appointment =>
+          appointment.status === EAppointmentStatuses.WAITING ||
+          (appointment.status === EAppointmentStatuses.ON_SERVICE && appointment.attendant?.id === userId)
+        )
+
+      // Remove duplicates by appointment ID
+      const uniqueAppointmentsMap = new Map()
+      allAppointments.forEach(appointment => {
+        uniqueAppointmentsMap.set(appointment.id, appointment)
+      })
+      const uniqueAppointments = Array.from(uniqueAppointmentsMap.values())
+
+      // Order appointments by creation date and prioritize ON_SERVICE status
+      return uniqueAppointments
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .sort((a, b) => a.status === EAppointmentStatuses.ON_SERVICE ? -1 : 1)
     }
 
     // Check if the user has an official queue
@@ -58,13 +85,59 @@ export default function AttendantQueuePageContents({ userId }: { userId: string 
     })
 
     if (response.error) {
-      console.error("Error starting attendance:", response.error)
+      console.error("Erro ao iniciar", response.error)
       return
     }
   }
 
   async function onAttendanceEnd(appointment: IFirebaseAppointment) {
     router.push(`${EPages.ATTENDANCE_CHECKOUT}?appointmentId=${appointment.id}&attendantId=${userId}`)
+  }
+
+  async function onAttendanceCancel(appointment?: IFirebaseAppointment | null) {
+    if (!appointment) {
+      console.error("Nenhum atendimento selecionado para cancelar")
+      return
+    }
+
+    const response = await cancelAttendance({
+      id: appointment.id,
+    })
+    if (response.error) {
+      console.error("Erro ao cancelar", response.error)
+      return
+    }
+  }
+
+  // async function onAttendanceNoShow(appointment?: IFirebaseAppointment | null) {
+  //   if (!appointment) {
+  //     console.error("Nenhum atendimento selecionado para marcar como não compareceu")
+  //     return
+  //   }
+
+  //   const response = await noShowAttendance({
+  //     id: appointment.id,
+  //   })
+  //   if (response.error) {
+  //     console.error("Erro ao marcar como não compareceu", response.error)
+  //     return
+  //   }
+  // }
+
+  async function onAttendanceAssume(appointment?: IFirebaseAppointment | null) {
+    if (!appointment) {
+      console.error("Nenhum atendimento selecionado para assumir")
+      return
+    }
+
+    const response = await assumeAttendance({
+      id: appointment.id,
+      attendantId: userId,
+    })
+    if (response.error) {
+      console.error("Erro ao assumir atendimento", response.error)
+      return
+    }
   }
 
   return (
@@ -98,9 +171,59 @@ export default function AttendantQueuePageContents({ userId }: { userId: string 
           userId={userId}
           onAttendanceStart={onAttendanceStart}
           onAttendanceEnd={onAttendanceEnd}
+          onSettingsClick={() => {
+            setSelectedAppointment(appointment)
+            setOpenDialog(true)
+          }}
           isStartingAttendance={isStartingAttendance}
         />
       ))}
+
+      <Dialog
+        open={openDialog}
+        onOpenChange={setOpenDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ações Rápidas</DialogTitle>
+            <DialogDescription className="space-y-2 pt-4">
+              <Button
+                className="w-full"
+                size="lg"
+                variant="secondary"
+                onClick={() => {
+                  setOpenDialog(false)
+                  onAttendanceAssume(selectedAppointment)
+                }}
+              >
+                <UserPlusIcon className="size-6" /> Atribuir a Mim
+              </Button>
+              {/* <Button
+                className="w-full"
+                size="lg"
+                variant="secondary"
+                onClick={() => {
+                  setOpenDialog(false)
+                  onAttendanceNoShow(selectedAppointment)
+                }}
+              >
+                <UserXIcon className="size-6" /> Cliente Não Compareceu
+              </Button> */}
+              <Button
+                className="w-full"
+                size="lg"
+                variant="secondary"
+                onClick={() => {
+                  setOpenDialog(false)
+                  onAttendanceCancel(selectedAppointment)
+                }}
+              >
+                <BanIcon className="size-6" /> Cancelar Atendimento
+              </Button>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -5,7 +5,7 @@ export const updateAppointmentSchema = z.object({
   attendantId: z.string().optional(),
   serviceIds: z.array(z.string().nonempty({ message: "Deve selecionar um serviço" })).min(1, {
     message: "Selecione pelo menos um serviço",
-  }),
+  }).optional(),
   productIds: z.array(z.string().nonempty({ message: "Deve selecionar um produto" })).optional(),
   redeemCoupon: z.string().optional(),
   status: z.nativeEnum(EAppointmentStatuses).optional(),

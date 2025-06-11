@@ -1,4 +1,4 @@
-import { getAppointmentByIdAction, getUserAppointmentsSummaryAction, startAttendingAppointmentAction } from "@/actions/appointments"
+import { getAppointmentByIdAction, getUserAppointmentsSummaryAction, startAttendingAppointmentAction, updateAppointmentAction } from "@/actions/appointments"
 import { updateCustomerAction } from "@/actions/customers"
 import { UpdateCustomerInput } from "@/actions/customers/dto/update-customer.input"
 import { getPartnershipsAction } from "@/actions/partnerships"
@@ -6,7 +6,7 @@ import { getProductsAction } from "@/actions/products"
 import { getServicesAction } from "@/actions/services"
 import { queries } from "@/lib/query-client"
 import { IActionResponse } from "@/models/action-response"
-import { IAppointmentView } from "@/models/appointment"
+import { EAppointmentStatuses, IAppointmentView } from "@/models/appointment"
 import { IAppointmentSummaryView } from "@/models/appointments-summary"
 import { ICustomerView } from "@/models/customer"
 import { IPartnershipView } from "@/models/partnerships"
@@ -110,6 +110,47 @@ export const useAttendant = () => {
     },
   })
 
+  const { mutateAsync: cancelAttendance } = useMutation({
+    mutationKey: ["cancelAppointment"],
+    mutationFn: async ({ id }: {
+      id: string
+    }): Promise<IActionResponse<IAppointmentView>> => {
+      const response = await updateAppointmentAction(id, {
+        status: EAppointmentStatuses.CANCELLED,
+      })
+
+      return response
+    },
+  })
+
+  const { mutateAsync: noShowAttendance } = useMutation({
+    mutationKey: ["noShowAppointment"],
+    mutationFn: async ({ id }: {
+      id: string
+    }): Promise<IActionResponse<IAppointmentView>> => {
+      const response = await updateAppointmentAction(id, {
+        status: EAppointmentStatuses.NO_SHOW,
+      })
+
+      return response
+    },
+  })
+
+  const { mutateAsync: assumeAttendance } = useMutation({
+    mutationKey: ["assumeAttendance"],
+    mutationFn: async ({ id, attendantId }: {
+      id: string,
+      attendantId: string
+    }): Promise<IActionResponse<IAppointmentView>> => {
+      const response = await updateAppointmentAction(id, {
+        attendantId,
+      })
+
+      return response
+    },
+  })
+
+
   return {
     startAttendance,
     isStartingAttendance,
@@ -122,6 +163,9 @@ export const useAttendant = () => {
     partnerships,
     updateCustomerPhoto,
     getSummary,
-    isGettingDaySummary
+    isGettingDaySummary,
+    cancelAttendance,
+    noShowAttendance,
+    assumeAttendance,
   }
 }
