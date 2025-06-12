@@ -11,6 +11,7 @@ export const queries = {
     appointments: "admin_appointments",
     partnerships: "admin_partnerships",
     apiKeys: "admin_api_keys",
+    daySummary: "admin_day_summary",
   },
   totem: {
     attendants: "totem_attendants",

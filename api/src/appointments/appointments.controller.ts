@@ -51,6 +51,20 @@ export class AppointmentsController {
     }
   }
 
+  @Get("adminSummary")
+  @UseGuards(CombinedAuthGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'API Key for alternative authentication',
+    required: false,
+  })
+  @ApiOperation({ summary: 'Get day summary overview' })
+  @ApiOkResponse({ type: [AppointmentSummaryView] })
+  async getSummaryAdmin() {
+    return this.appointmentsService.adminSummary()
+  }
+
   @Get(':id')
   @UseGuards(CombinedAuthGuard)
   @ApiBearerAuth()

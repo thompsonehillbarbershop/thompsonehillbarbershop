@@ -156,3 +156,23 @@ export async function getUserAppointmentsSummaryAction(userId: string): Promise<
     }
   }
 }
+
+export async function getAdminAppointmentsSummaryAction(): Promise<IActionResponse<IAppointmentSummaryView[]>> {
+  try {
+    const { data } = await axiosClient.get<IAppointmentSummaryView[]>(`${APPOINTMENTS_END_POINT}/adminSummary`)
+    return { data }
+
+  } catch (err) {
+    const error = err as Error
+    if (error.message.includes("ECONNREFUSED")) {
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
+    }
+
+    console.error(error)
+    return {
+      error: error.message
+    }
+  }
+}

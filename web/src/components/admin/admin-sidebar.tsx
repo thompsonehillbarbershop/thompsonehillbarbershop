@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { EPages } from "@/lib/pages.enum"
-import { CalendarCheck, HandshakeIcon, LayoutListIcon, LogOutIcon, Scissors, SettingsIcon, ShoppingBagIcon, TabletIcon, User, UserCog, Users } from "lucide-react"
+import { CalendarCheck, HandshakeIcon, LayoutListIcon, LogOutIcon, NotebookPenIcon, Scissors, SettingsIcon, ShoppingBagIcon, TabletIcon, User, UserCog, Users } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import React from "react"
 
@@ -24,6 +24,14 @@ const routes = [
     urlPrefix: EPages.ADMIN_DASHBOARD,
     url: EPages.ADMIN_DASHBOARD,
     icon: <LayoutListIcon />
+  },
+  {
+    slug: "sumario",
+    title: "Resumo do Dia",
+    urlPrefix: EPages.ADMIN_SUMMARY,
+    url: EPages.ADMIN_SUMMARY,
+    icon: <NotebookPenIcon />,
+    admin: false
   },
   {
     slug: "gerentes",

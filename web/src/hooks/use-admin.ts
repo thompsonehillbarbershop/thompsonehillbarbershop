@@ -1,3 +1,4 @@
+import { getAdminAppointmentsSummaryAction } from "@/actions/appointments"
 import { createApiKeyAction, deleteApiKeyAction, getApiKeysAction } from "@/actions/auth"
 import { CreateApiKeyInput } from "@/actions/auth/dto/create-api-key.input"
 import { createPartnershipAction, getPartnershipsAction, updatePartnershipAction } from "@/actions/partnerships"
@@ -15,6 +16,7 @@ import { UpdateUserInput } from "@/actions/users/dtos/update-user.input"
 import { queries } from "@/lib/query-client"
 import { IActionResponse } from "@/models/action-response"
 import { IApiKeyView } from "@/models/api-key"
+import { IAppointmentSummaryView } from "@/models/appointments-summary"
 import { IPartnershipView } from "@/models/partnerships"
 import { IProductView } from "@/models/product"
 import { IServiceView } from "@/models/service"
@@ -333,6 +335,17 @@ export const useAdmin = () => {
     }
   })
 
+  const { data: daySummary, isLoading: isGettingDaySummary } = useQuery({
+    queryKey: [queries.admin.daySummary],
+    queryFn: async (): Promise<IAppointmentSummaryView[]> => {
+      const response = await getAdminAppointmentsSummaryAction()
+
+      return response.data || []
+    },
+  })
+
+
+
   return {
     users,
     isLoadingUsers,
@@ -353,6 +366,8 @@ export const useAdmin = () => {
     apiKeys,
     isLoadingApiKeys,
     createApiKey,
-    deleteApiKey
+    deleteApiKey,
+    daySummary,
+    isGettingDaySummary,
   }
 }

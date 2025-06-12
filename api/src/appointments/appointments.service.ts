@@ -14,6 +14,8 @@ import { UpdateAppointmentInput } from "./dto/update-appointment.input"
 import { FirebaseService } from "../firebase/firebase.service"
 import { ProductsService } from "../products/products.service"
 import { EPartnershipDiscountType } from "../partnerships/entities/partnership.entity"
+import { EUserRole } from "src/users/entities/user.entity"
+import { AppointmentSummaryView } from "./dto/appointment-summary.view"
 
 @Injectable()
 export class AppointmentsService {
@@ -353,5 +355,32 @@ export class AppointmentsService {
       console.error('Error deleting appointment:', error)
       throw error
     }
+  }
+
+  async adminSummary() {
+    const attendants = await this.usersService.findAll({
+      role: EUserRole.ATTENDANT
+    })
+    const attendantManagers = await this.usersService.findAll({
+      role: EUserRole.ATTENDANT_MANAGER
+    })
+
+    const allAttendants = [...attendants, ...attendantManagers]
+    const summaries: AppointmentSummaryView[] = []
+
+    for (const attendant of allAttendants) {
+      const { results } = await this.findAll({
+        onlyToday: true,
+        attendantId: attendant.id,
+        limit: 1000,
+        status: EAppointmentStatuses.FINISHED,
+        sortBy: 'createdAt',
+        order: 'asc',
+      })
+
+      summaries.push(new AppointmentSummaryView(results))
+    }
+
+    return summaries
   }
 }

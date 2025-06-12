@@ -1,0 +1,65 @@
+"use client"
+
+import AdminSummaryTable from "@/components/admin/admin-summary-table"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { H1 } from "@/components/ui/typography"
+import { useAdmin } from "@/hooks/use-admin"
+import { formatCurrency } from "@/lib/utils"
+import { useMemo } from "react"
+
+// import { format } from "date-fns"
+
+export default function AttendantSummaryPage() {
+  const { daySummary, isGettingDaySummary } = useAdmin()
+
+  const summary = useMemo(() => {
+    if (!daySummary) return null
+
+    return {
+      totalGrossRevenue: daySummary.reduce((acc, item) => acc + item.totalPrice, 0),
+      totalDiscount: daySummary.reduce((acc, item) => acc + item.totalDiscount, 0),
+      totalNetRevenue: daySummary.reduce((acc, item) => acc + (item.totalPrice - item.totalDiscount), 0),
+    }
+  }, [daySummary])
+
+
+  return (
+    <div>
+      <H1>Resumo do Dia</H1>
+      <div className="w-full flex flex-row justify-start items-start gap-6">
+        <Card className="w-64">
+          <CardHeader>
+            <CardTitle>Faturamento Bruto</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="w-full text-center text-xl font-bold">{formatCurrency(summary?.totalGrossRevenue)}</p>
+          </CardContent>
+        </Card>
+        <Card className="w-64">
+          <CardHeader>
+            <CardTitle>Descontos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="w-full text-center text-xl font-bold">{formatCurrency(summary?.totalDiscount)}</p>
+          </CardContent>
+        </Card>
+        <Card className="w-64">
+          <CardHeader>
+            <CardTitle>Faturamento Líquido</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="w-full text-center text-xl font-bold">{formatCurrency(summary?.totalNetRevenue)}</p>
+          </CardContent>
+        </Card>
+      </div>
+      <Card className="mt-2">
+        <CardContent>
+          <AdminSummaryTable
+            data={daySummary?.filter(item => item.totalPrice > 0) || []}
+            isLoading={isGettingDaySummary}
+          />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
