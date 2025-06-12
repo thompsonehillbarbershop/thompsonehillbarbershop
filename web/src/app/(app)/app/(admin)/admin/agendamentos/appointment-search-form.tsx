@@ -19,6 +19,7 @@ enum ESortOrder {
 
 enum ESortOptions {
   CUSTOMER_NAME = "customer.name",
+  ATTENDANT_NAME = "attendant.name",
   STATUS = "status",
   CREATED_AT = "createdAt",
 }
@@ -30,6 +31,7 @@ const ESortOrderMapper: Record<ESortOrder, string> = {
 
 const ESortOptionsMapper: Record<ESortOptions, string> = {
   [ESortOptions.CUSTOMER_NAME]: "Nome do Cliente",
+  [ESortOptions.ATTENDANT_NAME]: "Nome do Atendente",
   [ESortOptions.STATUS]: "Status",
   [ESortOptions.CREATED_AT]: "Data",
 }
