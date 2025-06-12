@@ -19,9 +19,9 @@ export default function TotemAttendantCard({
     <div
       role="button"
       onClick={handleClick}
-      className={cn("w-full sm:w-52 md:size-68 bg-card flex flex-col items-center justify-center gap-1 pt-4 pb-2 px-4 border-transparent border-4 rounded-lg shadow-md")}>
+      className={cn("w-full sm:w-52 md:size-68 bg-card flex flex-col items-center justify-center gap-1 pt-4 pb-2 px-4 border-transparent border-4 rounded-lg shadow-md min-h-72 h-72")}>
       <Image src={attendant?.profileImage || images.userPlaceholder} alt={attendant.name} className="size-44 md:size-48 object-cover rounded-lg" height={144} width={144} />
-      <h2 className="text-xl font-semibold font-spectral tracking-wide">{attendant.name}</h2>
+      <h2 className="text-xl font-semibold font-spectral tracking-wide flex-1">{attendant.name}</h2>
     </div>
   )
 }
