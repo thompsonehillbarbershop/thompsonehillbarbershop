@@ -66,13 +66,13 @@ export default function AttendantQueuePageContents({ userId }: { userId: string 
     }
 
     // Check if there are other users' queues with waiting appointments
-    const otherUsersQueue = Object.values(queue).flat().filter(appointment => appointment.status === EAppointmentStatuses.WAITING)
-    if (otherUsersQueue.length > 0) {
-      // Order by creation date
-      otherUsersQueue.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    // const otherUsersQueue = Object.values(queue).flat().filter(appointment => appointment.status === EAppointmentStatuses.WAITING)
+    // if (otherUsersQueue.length > 0) {
+    //   // Order by creation date
+    //   otherUsersQueue.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 
-      return otherUsersQueue
-    }
+    //   return otherUsersQueue
+    // }
 
     // If no appointments found, return an empty array
     return []

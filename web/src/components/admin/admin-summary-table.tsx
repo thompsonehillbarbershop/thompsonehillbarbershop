@@ -23,6 +23,16 @@ export default function AdminSummaryTable({
         header: "Atendente",
       },
       {
+        accessorKey: "finalServicesPrice",
+        header: () => <p className="text-center">Serviços</p>,
+        cell: (row) => <p className="text-center">{formatCurrency(Number(row.getValue()))}</p>,
+      },
+      {
+        accessorKey: "finalProductsPrice",
+        header: () => <p className="text-center">Produtos</p>,
+        cell: (row) => <p className="text-center">{formatCurrency(Number(row.getValue()))}</p>,
+      },
+      {
         accessorKey: "totalPrice",
         header: () => <p className="text-center">Faturamento Bruto</p>,
         cell: (row) => <p className="text-center">{formatCurrency(Number(row.getValue()))}</p>,

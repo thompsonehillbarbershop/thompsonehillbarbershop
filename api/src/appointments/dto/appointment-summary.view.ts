@@ -15,6 +15,8 @@ export class AppointmentSummaryView {
       this.lastAppointmentDate = null
       this.totalAttendanceMinutes = 0
       this.meanAttendanceTimeByServicesInMinutes = 0
+      this.finalServicesPrice = 0
+      this.finalProductsPrice = 0
       return
     }
 
@@ -40,6 +42,9 @@ export class AppointmentSummaryView {
     this.meanAttendanceTimeByServicesInMinutes = this.totalServiceWeight > 0
       ? this.totalAttendanceMinutes / this.totalServiceWeight
       : 0
+
+    this.finalServicesPrice = appointments.reduce((total, appointment) => total + appointment.services.reduce((previousDay, service) => previousDay + service.value, 0), 0)
+    this.finalProductsPrice = appointments.reduce((total, appointment) => total + appointment.products.reduce((previousDay, product) => previousDay + product.value, 0), 0)
   }
 
   @ApiProperty()
@@ -68,4 +73,10 @@ export class AppointmentSummaryView {
   totalAttendanceMinutes: number | null = null
   @ApiProperty()
   meanAttendanceTimeByServicesInMinutes: number | null = null
+
+  @ApiProperty()
+  finalServicesPrice: number
+
+  @ApiProperty()
+  finalProductsPrice: number
 }

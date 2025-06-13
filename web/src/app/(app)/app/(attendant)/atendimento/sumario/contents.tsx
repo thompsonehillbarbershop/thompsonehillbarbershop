@@ -49,7 +49,15 @@ export default function AttendantSummaryPage({ userId }: { userId: string }) {
               <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{summary.totalServiceWeight}</Indicator>
             </div>
             <div className="w-full flex flex-row justify-between items-center gap-4">
-              <Label className="flex-1">Faturamento <i>(bruto)</i> </Label>
+              <Label className="flex-1">Faturamento Serviços </Label>
+              <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{formatCurrency(summary.finalServicesPrice)}</Indicator>
+            </div>
+            <div className="w-full flex flex-row justify-between items-center gap-4">
+              <Label className="flex-1">Faturamento Produtos </Label>
+              <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{formatCurrency(summary.finalProductsPrice)}</Indicator>
+            </div>
+            <div className="w-full flex flex-row justify-between items-center gap-4">
+              <Label className="flex-1">Faturamento Total <i>(bruto)</i> </Label>
               <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{formatCurrency(summary.totalPrice)}</Indicator>
             </div>
             <div className="w-full flex flex-row justify-between items-center gap-4">
@@ -57,7 +65,7 @@ export default function AttendantSummaryPage({ userId }: { userId: string }) {
               <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{formatCurrency(summary.totalDiscount)}</Indicator>
             </div>
             <div className="w-full flex flex-row justify-between items-center gap-4">
-              <Label className="flex-1">Faturamento <i>(líquido)</i> </Label>
+              <Label className="flex-1">Faturamento Total <i>(líquido)</i> </Label>
               <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{formatCurrency(summary.totalFinalPrice)}</Indicator>
             </div>
             {/* {summary.firstAppointmentDate && (

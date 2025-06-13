@@ -1,3 +1,4 @@
+import { getProfileAction } from "@/actions/users"
 import AttendantHeader from "@/components/attendant/attendant-header"
 import AttendantSidebar from "@/components/attendant/attendant-sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
@@ -15,11 +16,13 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
     return notFound()
   }
 
+  const profile = await getProfileAction()
+
   return (
     <SidebarProvider className='flex flow-row w-full' defaultOpen={false}>
       <AttendantSidebar role={session.user.role} />
       <div className='w-full'>
-        <AttendantHeader />
+        <AttendantHeader userName={profile.data?.name || ""} />
         <main
           className="w-full h-full bg-[url(/images/background.webp)] bg-no-repeat bg-cover"
         >

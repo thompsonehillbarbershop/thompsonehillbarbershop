@@ -10,4 +10,6 @@ export interface IAppointmentSummaryView {
   lastAppointmentDate: Date | null | undefined
   totalAttendanceMinutes: number | null
   meanAttendanceTimeByServicesInMinutes: number | null
+  finalServicesPrice: number
+  finalProductsPrice: number
 }

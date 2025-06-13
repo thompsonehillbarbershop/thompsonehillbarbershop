@@ -27,12 +27,12 @@ export default function AttendanceAppointmentCard({ index, appointment, onAttend
       <Card className="w-full">
         {
           userId && appointment.attendant?.id && (userId !== appointment.attendant?.id) && (
-            <div className="w-full"><p className="w-full text-center text-2xl font-semibold">Fila: <strong className="text-primary">{appointment.attendant?.name}</strong></p></div>
+            <div className="w-full"><p className="w-full text-center text-2xl font-semibold">Fila: <strong className="text-primary uppercase">{appointment.attendant?.name}</strong></p></div>
           )
         }
         {
           !appointment.attendant?.id && (
-            <div className="w-full"><p className="w-full text-center text-2xl font-semibold">Fila: <strong className="text-primary">Geral</strong></p></div>
+            <div className="w-full"><p className="w-full text-center text-2xl font-semibold">Fila: <strong className="text-primary uppercase">Geral</strong></p></div>
           )
         }
         <CardHeader>
@@ -66,6 +66,7 @@ export default function AttendanceAppointmentCard({ index, appointment, onAttend
             <Button
               size="lg"
               className="flex-1"
+              disabled={!!appointment.attendant?.id && (appointment.attendant?.id !== userId)}
               isLoading={isStartingAttendance}
               variant={index === 0 ? "default" : "outline"}
               onClick={() => onAttendanceStart(appointment)}
