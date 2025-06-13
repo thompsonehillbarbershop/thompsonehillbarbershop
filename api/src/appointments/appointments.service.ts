@@ -9,7 +9,7 @@ import { CustomersService } from "../customers/customers.service"
 import { UsersService } from "../users/users.service"
 import { ServicesService } from "../services/services.service"
 import { AppointmentQuery } from "./dto/appointment.query"
-import { endOfDay, startOfDay, subHours } from "date-fns"
+import { addHours, endOfDay, startOfDay, subHours } from "date-fns"
 import { UpdateAppointmentInput } from "./dto/update-appointment.input"
 import { FirebaseService } from "../firebase/firebase.service"
 import { ProductsService } from "../products/products.service"
@@ -107,13 +107,15 @@ export class AppointmentsService {
 
     if (onlyToday) {
       const today = new Date()
-      const start = subHours(startOfDay(today), 3)
-      const end = subHours(endOfDay(today), 3)
+      const start = subHours(startOfDay(today), 6)
+      const end = addHours(endOfDay(today), 3)
       matchFilters.createdAt = { $gte: start, $lte: end }
     }
 
     if (status) matchFilters.status = status
     if (paymentMethod) matchFilters.paymentMethod = paymentMethod
+
+    console.log('Match Filters:', matchFilters)
 
     const pipeline: any[] = [
       { $match: matchFilters },

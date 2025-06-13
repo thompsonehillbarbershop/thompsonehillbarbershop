@@ -56,28 +56,21 @@ export default function AdminSummaryTable({
       },
       {
         accessorKey: "lastAppointmentDate",
-        header: () => <p className="text-center">Ultimo Atendimento</p>,
+        header: () => <p className="text-center">Último Atendimento</p>,
         cell: (row) => <p className="text-center">{format(new Date(row.getValue() as string), "HH:mm", {
           locale: ptBR
         })}</p>,
       },
       {
         accessorKey: "totalAttendanceMinutes",
-        header: () => <p className="text-center">Tempo total de atendimento</p>,
+        header: () => <p className="text-center">Tempo Total de Atendimento</p>,
         cell: (row) => <p className="text-center">{Number(row.getValue()).toFixed(0)} minutos</p>,
       },
       {
         accessorKey: "meanAttendanceTimeByServicesInMinutes",
-        header: () => <p className="text-center">Tempo médio de atendimento</p>,
+        header: () => <p className="text-center">Tempo Médio por Serviço</p>,
         cell: (row) => <p className="text-center">{Number(row.getValue()).toFixed(0)} minutos</p>,
       }
-      // {
-      //   accessorKey: "createdAt",
-      //   header: () => <p className="hidden sm:block text-center">Cadastrado em</p>,
-      //   cell: (row) => <p className="hidden sm:block text-center">{format(new Date(row.getValue() as string), "dd/MMM/yy", {
-      //     locale: ptBR
-      //   })}</p>,
-      // },
     ]
   }
 
