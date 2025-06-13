@@ -107,8 +107,8 @@ export class AppointmentsService {
 
     if (onlyToday) {
       const today = new Date()
-      const start = subHours(startOfDay(today), 6)
-      const end = addHours(endOfDay(today), 3)
+      const start = startOfDay(subHours(today, 3))
+      const end = endOfDay(subHours(today, 3))
       matchFilters.createdAt = { $gte: start, $lte: end }
     }
 
