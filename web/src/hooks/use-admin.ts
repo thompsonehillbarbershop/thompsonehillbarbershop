@@ -335,13 +335,14 @@ export const useAdmin = () => {
     }
   })
 
-  const { data: daySummary, isLoading: isGettingDaySummary } = useQuery({
+  const { data: daySummary, isLoading: isGettingDaySummary, refetch: refetchSummary, isRefetching: isRefetchingSummary } = useQuery({
     queryKey: [queries.admin.daySummary],
     queryFn: async (): Promise<IAppointmentSummaryView[]> => {
       const response = await getAdminAppointmentsSummaryAction()
 
       return response.data || []
     },
+    refetchOnWindowFocus: true
   })
 
 
@@ -369,5 +370,7 @@ export const useAdmin = () => {
     deleteApiKey,
     daySummary,
     isGettingDaySummary,
+    refetchSummary,
+    isRefetchingSummary,
   }
 }

@@ -115,7 +115,7 @@ export class AppointmentsService {
     if (status) matchFilters.status = status
     if (paymentMethod) matchFilters.paymentMethod = paymentMethod
 
-    console.log('Match Filters:', matchFilters)
+    // console.log('Match Filters:', matchFilters)
 
     const pipeline: any[] = [
       { $match: matchFilters },

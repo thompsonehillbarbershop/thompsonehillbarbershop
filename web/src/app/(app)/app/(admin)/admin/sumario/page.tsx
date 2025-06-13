@@ -1,16 +1,18 @@
 "use client"
 
 import AdminSummaryTable from "@/components/admin/admin-summary-table"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { H1 } from "@/components/ui/typography"
 import { useAdmin } from "@/hooks/use-admin"
 import { formatCurrency } from "@/lib/utils"
+import { RefreshCwIcon } from "lucide-react"
 import { useMemo } from "react"
 
 // import { format } from "date-fns"
 
 export default function AttendantSummaryPage() {
-  const { daySummary, isGettingDaySummary } = useAdmin()
+  const { daySummary, isGettingDaySummary, refetchSummary, isRefetchingSummary } = useAdmin()
 
   const summary = useMemo(() => {
     if (!daySummary) return null
@@ -24,8 +26,14 @@ export default function AttendantSummaryPage() {
 
 
   return (
-    <div>
-      <H1>Resumo do Dia</H1>
+    <div className="w-full flex flex-col max-w-[1440px] mx-auto">
+      <div className="w-full flex flex-row justify-between items-center mb-4">
+        <H1>Resumo do Dia</H1>
+        <Button
+          isLoading={isGettingDaySummary || isRefetchingSummary}
+          onClick={() => refetchSummary()}
+        ><RefreshCwIcon />Atualizar</Button>
+      </div>
       <div className="w-full flex flex-row justify-start items-start gap-6">
         <Card className="w-64">
           <CardHeader>
@@ -56,7 +64,7 @@ export default function AttendantSummaryPage() {
         <CardContent>
           <AdminSummaryTable
             data={daySummary?.filter(item => item.totalPrice > 0) || []}
-            isLoading={isGettingDaySummary}
+            isLoading={isGettingDaySummary || isRefetchingSummary}
           />
         </CardContent>
       </Card>
