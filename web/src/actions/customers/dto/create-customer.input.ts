@@ -6,7 +6,7 @@ export const createCustomerSchema = z.object({
   name: z.string().nonempty("Nome é obrigatório"),
   phoneNumber: z.string().min(13, { message: "Telefone inválido" }).max(16, { message: "Telefone inválido" }),
   birthDate: z.string()
-    .refine(value => isDateValid(value), { message: "Data inválida" }),
+    .refine(value => isDateValid(value), { message: "Data inválida type 1" }),
   gender: z.nativeEnum(EGender),
   referralCodeUsed: z.string().optional(),
 

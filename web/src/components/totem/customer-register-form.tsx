@@ -59,8 +59,11 @@ export default function CustomerRegisterForm() {
 
   useEffect(() => {
     const birthDate = form.getValues("birthDate")
+    console.log("Current Birth Date:", birthDate)
     if (!birthDate) return
     const maskedDate = applyDateMask(birthDate)
+
+    console.log("Masked Birth Date:", maskedDate)
     form.setValue("birthDate", maskedDate)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.watch().birthDate])
@@ -71,6 +74,7 @@ export default function CustomerRegisterForm() {
   }, [])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("Form Values:", values)
     try {
       const formattedPhone = formatPhoneToE164(values.phoneNumber)
       if (!formattedPhone) {
