@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { CreateAppointmentInput } from "./dto/create-appointment.input"
 import { Appointment, EAppointmentStatuses } from "./entities/appointment.entity"
 import { Model } from "mongoose"
-import { IMongoAppointment, toAppointment } from "../mongo/schemas/appointment.schema"
+import { IMongoAppointment, IProductItem, IServiceItem, toAppointment } from "../mongo/schemas/appointment.schema"
 import { createId } from "@paralleldrive/cuid2"
 import { AppointmentNotFoundException, CustomerNotFoundException, MissingServicesException } from "../errors"
 import { CustomersService } from "../customers/customers.service"
@@ -14,8 +14,11 @@ import { UpdateAppointmentInput } from "./dto/update-appointment.input"
 import { FirebaseService } from "../firebase/firebase.service"
 import { ProductsService } from "../products/products.service"
 import { EPartnershipDiscountType } from "../partnerships/entities/partnership.entity"
-import { EUserRole } from "src/users/entities/user.entity"
+import { EUserRole } from "../users/entities/user.entity"
 import { AppointmentSummaryView } from "./dto/appointment-summary.view"
+import { Service } from "../services/entities/service.entity"
+import { Product } from "../products/entities/product.entity"
+import { CUSTOMER_SCHEMA_NAME, PARTNERSHIP_SCHEMA_NAME, PRODUCT_SCHEMA_NAME, SERVICE_SCHEMA_NAME, USER_SCHEMA_NAME } from "../mongo/constants"
 
 @Injectable()
 export class AppointmentsService {
@@ -29,7 +32,6 @@ export class AppointmentsService {
   ) { }
 
   async create(dto: CreateAppointmentInput): Promise<Appointment> {
-
     //Check if the appointment has at least one service
     if (!dto.serviceIds || dto.serviceIds.length === 0) throw new MissingServicesException()
 
@@ -42,19 +44,35 @@ export class AppointmentsService {
     }
 
     //Check if services exists
+    const foundServices: Service[] = []
+
     for (const serviceId of dto.serviceIds) {
-      await this.servicesService.findOne(serviceId)
+      const service = await this.servicesService.findOne(serviceId)
+      if (service) {
+        foundServices.push(service)
+      }
     }
 
     //Check if products exists
+    const foundProducts: Product[] = []
     for (const productId of dto.productIds || []) {
-      await this.productsService.findOne(productId)
+      const product = await this.productsService.findOne(productId)
+      if (product) {
+        foundProducts.push(product)
+      }
     }
 
     const id = createId()
 
-    let serviceIds: string[] = dto.serviceIds
-    let productIds: string[] = dto.productIds || []
+    let serviceIds: IServiceItem[] = foundServices.map(service => ({
+      id: service.id,
+      price: service.promoEnabled ? service.promoValue || service.value : service.value,
+    }))
+
+    let productIds: IProductItem[] = foundProducts.map(product => ({
+      id: product.id,
+      price: product.promoEnabled ? product.promoValue || product.value : product.value,
+    }))
 
     const appointment = new this.appointmentSchema(
       {
@@ -63,6 +81,9 @@ export class AppointmentsService {
         attendantId: dto.attendantId,
         serviceIds,
         productIds,
+        finalServicesPrice: 0,
+        finalProductsPrice: 0,
+        totalServiceWeight: 0,
         totalPrice: 0,
         discount: 0,
         finalPrice: 0,
@@ -72,6 +93,15 @@ export class AppointmentsService {
     )
 
     const createdAppointment = await appointment.save()
+
+    createdAppointment.finalServicesPrice = foundServices.reduce((total, service) => {
+      const serviceValue = service.promoEnabled ? (service.promoValue || service.value) : service.value
+      return total + serviceValue
+    }, 0)
+
+    createdAppointment.finalProductsPrice = foundProducts.reduce((total, product) => total + (product.promoEnabled ? (product.promoValue || product.value) : product.value), 0)
+
+    createdAppointment.totalServiceWeight = foundServices.reduce((total, service) => total + (service.weight || 0), 0)
 
     createdAppointment.totalPrice = (createdAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0) + (createdAppointment?.products?.reduce((acc, product) => acc + product.value, 0) || 0)
 
@@ -131,7 +161,7 @@ export class AppointmentsService {
       {
         $lookup: {
           from: 'services',
-          localField: 'serviceIds',
+          localField: 'serviceIds.id',
           foreignField: '_id',
           as: 'services',
         },
@@ -139,7 +169,7 @@ export class AppointmentsService {
       {
         $lookup: {
           from: 'products',
-          localField: 'productIds',
+          localField: 'productIds.id',
           foreignField: '_id',
           as: 'products',
         },
@@ -218,7 +248,40 @@ export class AppointmentsService {
 
   async findOne(id: string): Promise<Appointment> {
     try {
-      const appointment = await this.appointmentSchema.findOne({ _id: id })
+      const appointment = await this.appointmentSchema
+        .findOne({ _id: id })
+        .populate([
+          {
+            path: 'services',
+            model: SERVICE_SCHEMA_NAME,
+            localField: 'serviceIds.id',
+            foreignField: '_id',
+            justOne: false
+          },
+          {
+            path: 'products',
+            model: PRODUCT_SCHEMA_NAME,
+            localField: 'productIds.id',
+            foreignField: '_id',
+            justOne: false
+          },
+          {
+            path: 'customer',
+            model: CUSTOMER_SCHEMA_NAME
+          },
+          {
+            path: 'attendant',
+            model: USER_SCHEMA_NAME
+          },
+          {
+            path: 'partnerships',
+            model: PARTNERSHIP_SCHEMA_NAME,
+            localField: 'partnershipIds',
+            foreignField: '_id',
+            justOne: false
+          }
+        ])
+
       if (!appointment) throw new AppointmentNotFoundException()
 
       return toAppointment(appointment)
@@ -249,16 +312,24 @@ export class AppointmentsService {
       }
 
       //Check if services exists
+      const foundServices: Service[] = []
       if (dto.serviceIds) {
         for (const serviceId of dto.serviceIds) {
-          await this.servicesService.findOne(serviceId)
+          const service = await this.servicesService.findOne(serviceId)
+          if (service) {
+            foundServices.push(service)
+          }
         }
       }
 
       //Check if products exists
+      const foundProducts: Product[] = []
       if (dto.productIds) {
         for (const productId of dto.productIds) {
-          await this.productsService.findOne(productId)
+          const product = await this.productsService.findOne(productId)
+          if (product) {
+            foundProducts.push(product)
+          }
         }
       }
 
@@ -294,15 +365,89 @@ export class AppointmentsService {
         }
       }
 
-      Object.assign(appointment, {
-        ...dto,
-        onServiceAt,
-        finishedAt,
-      })
+      if (dto.serviceIds && dto.productIds) {
+        console.log('Updating appointment with services and products:', dto.serviceIds, dto.productIds)
+        Object.assign(appointment, {
+          ...dto,
+          serviceIds: foundServices.map(service => ({
+            id: service.id,
+            price: service.promoEnabled ? service.promoValue || service.value : service.value,
+          })),
+          productIds: foundProducts.map(product => ({
+            id: product.id,
+            price: product.promoEnabled ? product.promoValue || product.value : product.value,
+          })),
+          onServiceAt,
+          finishedAt,
+        })
+      } else if (dto.serviceIds) {
+        console.log('Updating appointment with services only:', dto.serviceIds)
+
+        console.log("Appointment products", appointment.products)
+
+        Object.assign(appointment, {
+          ...dto,
+          serviceIds: foundServices.map(service => ({
+            id: service.id,
+            price: service.promoEnabled ? service.promoValue || service.value : service.value,
+          })),
+          productIds: appointment.products?.map(product => ({
+            id: product.id,
+            price: product.value,
+          })) || undefined,
+          onServiceAt,
+          finishedAt,
+        })
+      } else if (dto.productIds) {
+        console.log('Updating appointment with products only:', dto.productIds)
+        Object.assign(appointment, {
+          ...dto,
+          serviceIds: appointment.services?.map(service => ({
+            id: service.id,
+            price: service.value,
+          })) || undefined,
+          productIds: dto.productIds ? foundProducts.map(product => ({
+            id: product.id,
+            price: product.promoEnabled ? product.promoValue || product.value : product.value,
+          })) : undefined,
+          onServiceAt,
+          finishedAt,
+        })
+      } else {
+        console.log('No serviceIds or productIds provided, using existing values')
+        Object.assign(appointment, {
+          ...dto,
+          serviceIds: appointment.services?.map(service => ({
+            id: service.id,
+            price: service.value,
+          })),
+          productIds: appointment.products?.map(product => ({
+            id: product.id,
+            price: product.value,
+          })),
+          onServiceAt,
+          finishedAt,
+        })
+      }
 
       const updatedAppointment = await appointment.save()
 
       if (dto.serviceIds || dto.productIds || dto.partnershipIds) {
+
+        updatedAppointment.finalServicesPrice = (dto.serviceIds ?
+          foundServices.reduce((total, service) => total + (service.promoEnabled ? service.promoValue || service.value : service.value), 0) :
+          updatedAppointment.services?.reduce((total, service) => total + (service.promoEnabled ? service.promoValue || service.value : service.value), 0)
+        ) || 0
+
+        updatedAppointment.finalProductsPrice = (dto.productIds ?
+          foundProducts.reduce((total, product) => total + (product.promoEnabled ? product.promoValue || product.value : product.value), 0) :
+          updatedAppointment.products?.reduce((total, product) => total + (product.promoEnabled ? product.promoValue || product.value : product.value), 0)) || 0
+
+        updatedAppointment.totalServiceWeight = (dto.serviceIds ?
+          foundServices.reduce((total, service) => total + (service.weight || 0), 0) :
+          updatedAppointment.services?.reduce((total, service) => total + (service.weight || 0), 0)
+        ) || 0
+
         updatedAppointment.totalPrice = (updatedAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + product.value, 0) || 0)
 
         updatedAppointment.discount = (updatedAppointment?.services?.reduce((acc, service) => acc + (service.promoValue && service.promoEnabled ? (service.value - service.promoValue) : 0), 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + (product.promoValue && product.promoEnabled ? (product.value - product.promoValue) : 0), 0) || 0)

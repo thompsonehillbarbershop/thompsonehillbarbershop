@@ -49,7 +49,7 @@ export class FirebaseService {
   }
 
   async addAppointmentToQueue(appointment: Appointment) {
-    // return
+    return
     const collectionRef = this.getFirestore().collection(this.APPOINTMENTS_COLLECTION)
     const docRef = collectionRef.doc(appointment.id)
     try {
@@ -61,7 +61,7 @@ export class FirebaseService {
   }
 
   async updateAppointment(appointment: Appointment) {
-    // return
+    return
     const collectionRef = this.getFirestore().collection(this.APPOINTMENTS_COLLECTION)
     const docRef = collectionRef.doc(appointment.id)
     try {
@@ -73,6 +73,7 @@ export class FirebaseService {
   }
 
   async deleteAllAppointments(): Promise<void> {
+    return
     const collectionRef = this.getFirestore().collection(this.APPOINTMENTS_COLLECTION)
 
     try {

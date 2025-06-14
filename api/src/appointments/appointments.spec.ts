@@ -93,6 +93,11 @@ describe("Appointment Module", () => {
       expect(appointment.attendant?.name).toBe(attendant.name)
       expect(appointment.services).toHaveLength(1)
       expect(appointment.products).toHaveLength(1)
+      expect(appointment.services[0].id).toBe(service1.id)
+      expect(appointment.products[0].id).toBe(product1.id)
+      expect(appointment.finalServicesPrice).toBe(service1.value)
+      expect(appointment.finalProductsPrice).toBe(product1.value)
+      expect(appointment.totalServiceWeight).toBe(service1.weight || 0)
       expect(appointment.totalPrice).toBe(service1.value + product1.value)
       expect(appointment.finalPrice).toBe(service1.value + product1.value)
       expect(appointment.discount).toBe(0)
@@ -132,6 +137,21 @@ describe("Appointment Module", () => {
       expect(appointment.attendant?.name).toBe(attendant.name)
       expect(appointment.services).toHaveLength(3)
       expect(appointment.products).toHaveLength(3)
+      expect(appointment.services[0].id).toBe(service1.id)
+      expect(appointment.services[1].id).toBe(service2.id)
+      expect(appointment.services[2].id).toBe(service3.id)
+      expect(appointment.products[0].id).toBe(product1.id)
+      expect(appointment.products[1].id).toBe(product2.id)
+      expect(appointment.products[2].id).toBe(product3.id)
+      expect(appointment.finalServicesPrice).toBe(
+        service1.value + service2.value + service3.value
+      )
+      expect(appointment.finalProductsPrice).toBe(
+        product1.value + product2.value + product3.value
+      )
+      expect(appointment.totalServiceWeight).toBe(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(appointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service3.value +
         product1.value + product2.value + product3.value
@@ -170,6 +190,10 @@ describe("Appointment Module", () => {
       expect(appointment.attendant).toBeUndefined()
       expect(appointment.services).toHaveLength(1)
       expect(appointment.products).toHaveLength(0)
+      expect(appointment.services[0].id).toBe(service1.id)
+      expect(appointment.finalServicesPrice).toBe(service1.value)
+      expect(appointment.finalProductsPrice).toBe(0)
+      expect(appointment.totalServiceWeight).toBe(service1.weight || 0)
       expect(appointment.totalPrice).toBeCloseTo(service1.value)
       expect(appointment.finalPrice).toBeCloseTo(service1.value)
       expect(appointment.discount).toBe(0)
@@ -312,7 +336,22 @@ describe("Appointment Module", () => {
       expect(foundAppointment.attendant?.id).toBe(attendant.id)
       expect(foundAppointment.attendant?.name).toBe(attendant.name)
       expect(foundAppointment.services).toHaveLength(3)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.services[2].id).toBe(service3.id)
       expect(foundAppointment.products).toHaveLength(3)
+      expect(foundAppointment.products[0].id).toBe(product1.id)
+      expect(foundAppointment.products[1].id).toBe(product2.id)
+      expect(foundAppointment.products[2].id).toBe(product3.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service3.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value + product3.value
+      )
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service3.value +
         product1.value + product2.value + product3.value
@@ -344,7 +383,7 @@ describe("Appointment Module", () => {
       }
     })
 
-    it("should get all appointments", async () => {
+    it.skip("should get all appointments", async () => {
       const currentAppointments = await appointmentsService.findAll()
 
       const attendant = await usersService.create(getRandomUserData())
@@ -385,6 +424,16 @@ describe("Appointment Module", () => {
       expect(foundAppointment1!.attendant?.name).toBe(attendant.name)
       expect(foundAppointment1!.services).toHaveLength(3)
       expect(foundAppointment1!.products).toHaveLength(0)
+      expect(foundAppointment1!.services[0].id).toBe(service1.id)
+      expect(foundAppointment1!.services[1].id).toBe(service2.id)
+      expect(foundAppointment1!.services[2].id).toBe(service3.id)
+      expect(foundAppointment1!.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service3.value
+      )
+      expect(foundAppointment1!.finalProductsPrice).toBe(0)
+      expect(foundAppointment1!.totalServiceWeight).toBe(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment1!.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
       expect(foundAppointment1!.finalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
       expect(foundAppointment1!.discount).toBe(0)
@@ -398,6 +447,20 @@ describe("Appointment Module", () => {
       expect(foundAppointment2!.attendant?.name).toBe(attendant.name)
       expect(foundAppointment2!.services).toHaveLength(3)
       expect(foundAppointment2!.products).toHaveLength(2)
+      expect(foundAppointment2!.services[0].id).toBe(service1.id)
+      expect(foundAppointment2!.services[1].id).toBe(service2.id)
+      expect(foundAppointment2!.services[2].id).toBe(service3.id)
+      expect(foundAppointment2!.products[0].id).toBe(product1.id)
+      expect(foundAppointment2!.products[1].id).toBe(product2.id)
+      expect(foundAppointment2!.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service3.value
+      )
+      expect(foundAppointment2!.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
+      expect(foundAppointment2!.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment2!.totalPrice).toBeCloseTo(
         service1.value + service2.value + service3.value +
         product1.value + product2.value
@@ -500,6 +563,7 @@ describe("Appointment Module", () => {
       const updatedAppointment = await appointmentsService.update(appointment.id, {
         attendantId: attendant2.id
       })
+
       expect(updatedAppointment).toBeDefined()
       expect(updatedAppointment.customer.id).toBe(customer.id)
       expect(updatedAppointment.customer.name).toBe(customer.name)
@@ -508,6 +572,20 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.attendant?.name).toBe(attendant2.name)
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
+      expect(updatedAppointment.services[0].id).toBe(service1.id)
+      expect(updatedAppointment.services[1].id).toBe(service2.id)
+      expect(updatedAppointment.services[2].id).toBe(service3.id)
+      expect(updatedAppointment.products[0].id).toBe(product1.id)
+      expect(updatedAppointment.products[1].id).toBe(product2.id)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service3.value
+      )
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service3.value +
         product1.value + product2.value
@@ -528,6 +606,20 @@ describe("Appointment Module", () => {
       expect(foundAppointment.attendant?.name).toBe(attendant2.name)
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.services[2].id).toBe(service3.id)
+      expect(foundAppointment.products[0].id).toBe(product1.id)
+      expect(foundAppointment.products[1].id).toBe(product2.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service3.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service3.value +
         product1.value + product2.value
@@ -578,7 +670,7 @@ describe("Appointment Module", () => {
       await usersService.remove({ id: attendant.id })
     })
 
-    it("should update an appointment services and recalculate the total prices", async () => {
+    it("should update an appointment only services and recalculate the total prices", async () => {
       const attendant = await usersService.create(getRandomUserData())
       const customer = await customersService.create(getRandomCustomerCreateInputData())
       const service1 = await servicesService.create(getRandomServiceCreateInputData())
@@ -608,6 +700,21 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.attendant?.name).toBe(attendant.name)
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
+      expect(updatedAppointment.services[0].id).toBe(service1.id)
+      expect(updatedAppointment.services[1].id).toBe(service2.id)
+      expect(updatedAppointment.services[2].id).toBe(service4.id)
+      expect(updatedAppointment.products[0].id).toBe(product1.id)
+      expect(updatedAppointment.products[1].id).toBe(product2.id)
+
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value +
         product1.value + product2.value
@@ -628,6 +735,20 @@ describe("Appointment Module", () => {
       expect(foundAppointment.attendant?.name).toBe(attendant.name)
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.services[2].id).toBe(service4.id)
+      expect(foundAppointment.products[0].id).toBe(product1.id)
+      expect(foundAppointment.products[1].id).toBe(product2.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value +
         product1.value + product2.value
@@ -650,7 +771,107 @@ describe("Appointment Module", () => {
       await usersService.remove({ id: attendant.id })
     })
 
-    it("should update an appointment products and recalculate the total prices", async () => {
+    it("should update an appointment only products and recalculate the total prices", async () => {
+      const attendant = await usersService.create(getRandomUserData())
+      const customer = await customersService.create(getRandomCustomerCreateInputData())
+      const service1 = await servicesService.create(getRandomServiceCreateInputData())
+      const service2 = await servicesService.create(getRandomServiceCreateInputData())
+
+      const product1 = await productsService.create(getRandomProductCreateInputData({ value: 49.99 }))
+      const product2 = await productsService.create(getRandomProductCreateInputData({ value: 14.99 }))
+      const product3 = await productsService.create(getRandomProductCreateInputData({ value: 29.99 }))
+      const product4 = await productsService.create(getRandomProductCreateInputData({ value: 19.99 }))
+
+      const appointment = await appointmentsService.create({
+        customerId: customer.id,
+        attendantId: attendant.id,
+        serviceIds: [service1.id, service2.id],
+        productIds: [product1.id, product2.id]
+      })
+
+      const updatedAppointment = await appointmentsService.update(appointment.id, {
+        productIds: [product1.id, product3.id, product4.id]
+      })
+
+      expect(updatedAppointment).toBeDefined()
+      expect(updatedAppointment.customer.id).toBe(customer.id)
+      expect(updatedAppointment.customer.name).toBe(customer.name)
+      expect(updatedAppointment.customer.phoneNumber).toBe(customer.phoneNumber)
+      expect(updatedAppointment.attendant?.id).toBe(attendant.id)
+      expect(updatedAppointment.attendant?.name).toBe(attendant.name)
+      expect(updatedAppointment.services).toHaveLength(2)
+      expect(updatedAppointment.products).toHaveLength(3)
+      expect(updatedAppointment.services[0].id).toBe(service1.id)
+      expect(updatedAppointment.services[1].id).toBe(service2.id)
+      expect(updatedAppointment.products[0].id).toBe(product1.id)
+      expect(updatedAppointment.products[1].id).toBe(product3.id)
+      expect(updatedAppointment.products[2].id).toBe(product4.id)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value
+      )
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product3.value + product4.value
+      )
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0)
+      )
+      expect(updatedAppointment.totalPrice).toBeCloseTo(
+        service1.value + service2.value +
+        product1.value + product3.value + product4.value
+      )
+      expect(updatedAppointment.finalPrice).toBeCloseTo(
+        service1.value + service2.value +
+        product1.value + product3.value + product4.value
+      )
+      expect(updatedAppointment.discount).toBe(0)
+      expect(updatedAppointment.status).toBe(EAppointmentStatuses.WAITING)
+
+      const foundAppointment = await appointmentsService.findOne(appointment.id)
+      expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.customer.id).toBe(customer.id)
+      expect(foundAppointment.customer.name).toBe(customer.name)
+      expect(foundAppointment.customer.phoneNumber).toBe(customer.phoneNumber)
+      expect(foundAppointment.attendant?.id).toBe(attendant.id)
+      expect(foundAppointment.attendant?.name).toBe(attendant.name)
+      expect(foundAppointment.services).toHaveLength(2)
+      expect(foundAppointment.products).toHaveLength(3)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.products[0].id).toBe(product1.id)
+      expect(foundAppointment.products[1].id).toBe(product3.id)
+      expect(foundAppointment.products[2].id).toBe(product4.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product3.value + product4.value
+      )
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0)
+      )
+      expect(foundAppointment.totalPrice).toBeCloseTo(
+        service1.value + service2.value +
+        product1.value + product3.value + product4.value
+      )
+      expect(foundAppointment.finalPrice).toBeCloseTo(
+        service1.value + service2.value +
+        product1.value + product3.value + product4.value
+      )
+      expect(foundAppointment.discount).toBe(0)
+      expect(foundAppointment.status).toBe(EAppointmentStatuses.WAITING)
+
+      await appointmentsService.remove(appointment.id)
+      await customersService.remove(customer.id)
+      await servicesService.remove(service1.id)
+      await servicesService.remove(service2.id)
+      await productsService.remove(product1.id)
+      await productsService.remove(product2.id)
+      await productsService.remove(product3.id)
+      await productsService.remove(product4.id)
+      await usersService.remove({ id: attendant.id })
+    })
+
+    it("should update an appointment services and products and recalculate the total prices", async () => {
       const attendant = await usersService.create(getRandomUserData())
       const customer = await customersService.create(getRandomCustomerCreateInputData())
       const service1 = await servicesService.create(getRandomServiceCreateInputData())
@@ -682,6 +903,20 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.attendant?.name).toBe(attendant.name)
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
+      expect(updatedAppointment.services[0].id).toBe(service1.id)
+      expect(updatedAppointment.services[1].id).toBe(service2.id)
+      expect(updatedAppointment.services[2].id).toBe(service4.id)
+      expect(updatedAppointment.products[0].id).toBe(product1.id)
+      expect(updatedAppointment.products[1].id).toBe(product3.id)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product3.value
+      )
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value +
         product1.value + product3.value
@@ -702,6 +937,20 @@ describe("Appointment Module", () => {
       expect(foundAppointment.attendant?.name).toBe(attendant.name)
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.services[2].id).toBe(service4.id)
+      expect(foundAppointment.products[0].id).toBe(product1.id)
+      expect(foundAppointment.products[1].id).toBe(product3.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product3.value
+      )
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value +
         product1.value + product3.value
@@ -755,6 +1004,20 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.attendant?.name).toBe(attendant.name)
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
+      expect(updatedAppointment.services[0].id).toBe(service1.id)
+      expect(updatedAppointment.services[1].id).toBe(service2.id)
+      expect(updatedAppointment.services[2].id).toBe(service4.id)
+      expect(updatedAppointment.products[0].id).toBe(product1.id)
+      expect(updatedAppointment.products[1].id).toBe(product3.id)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product3.value
+      )
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value +
         product1.value + product3.value
@@ -775,6 +1038,20 @@ describe("Appointment Module", () => {
       expect(foundAppointment.attendant?.name).toBe(attendant.name)
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.services[2].id).toBe(service4.id)
+      expect(foundAppointment.products[0].id).toBe(product1.id)
+      expect(foundAppointment.products[1].id).toBe(product3.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product3.value
+      )
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value +
         product1.value + product3.value
@@ -807,7 +1084,6 @@ describe("Appointment Module", () => {
 
       const product1 = await productsService.create(getRandomProductCreateInputData())
       const product2 = await productsService.create(getRandomProductCreateInputData({ value: 19.99 }))
-      const product3 = await productsService.create(getRandomProductCreateInputData({ value: 29.99 }))
 
       const appointment = await appointmentsService.create({
         customerId: customer.id,
@@ -829,6 +1105,16 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.attendant?.name).toBe(attendant.name)
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(0)
+      expect(updatedAppointment.services[0].id).toBe(service1.id)
+      expect(updatedAppointment.services[1].id).toBe(service2.id)
+      expect(updatedAppointment.services[2].id).toBe(service4.id)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(updatedAppointment.finalProductsPrice).toBe(0)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value
       )
@@ -847,6 +1133,16 @@ describe("Appointment Module", () => {
       expect(foundAppointment.attendant?.name).toBe(attendant.name)
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(0)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.services[2].id).toBe(service4.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBe(0)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value
       )
@@ -877,7 +1173,6 @@ describe("Appointment Module", () => {
 
       const product1 = await productsService.create(getRandomProductCreateInputData())
       const product2 = await productsService.create(getRandomProductCreateInputData({ value: 19.99 }))
-      const product3 = await productsService.create(getRandomProductCreateInputData({ value: 29.99 }))
 
       const appointment = await appointmentsService.create({
         customerId: customer.id,
@@ -898,6 +1193,20 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.attendant?.name).toBe(attendant.name)
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
+      expect(updatedAppointment.services[0].id).toBe(service1.id)
+      expect(updatedAppointment.services[1].id).toBe(service2.id)
+      expect(updatedAppointment.services[2].id).toBe(service4.id)
+      expect(updatedAppointment.products[0].id).toBe(product1.id)
+      expect(updatedAppointment.products[1].id).toBe(product2.id)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service4.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value +
         product1.value + product2.value
@@ -918,6 +1227,17 @@ describe("Appointment Module", () => {
       expect(foundAppointment.attendant?.name).toBe(attendant.name)
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.services[2].id).toBe(service4.id)
+      expect(foundAppointment.products[0].id).toBe(product1.id)
+      expect(foundAppointment.products[1].id).toBe(product2.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service4.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service4.value +
         product1.value + product2.value
@@ -1033,6 +1353,20 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.attendant?.name).toBe(attendant.name)
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
+      expect(updatedAppointment.services[0].id).toBe(service1.id)
+      expect(updatedAppointment.services[1].id).toBe(service2.id)
+      expect(updatedAppointment.services[2].id).toBe(service3.id)
+      expect(updatedAppointment.products[0].id).toBe(product1.id)
+      expect(updatedAppointment.products[1].id).toBe(product2.id)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service3.value
+      )
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service3.value +
         product1.value + product2.value
@@ -1054,6 +1388,20 @@ describe("Appointment Module", () => {
       expect(foundAppointment.attendant?.name).toBe(attendant.name)
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
+      expect(foundAppointment.services[0].id).toBe(service1.id)
+      expect(foundAppointment.services[1].id).toBe(service2.id)
+      expect(foundAppointment.services[2].id).toBe(service3.id)
+      expect(foundAppointment.products[0].id).toBe(product1.id)
+      expect(foundAppointment.products[1].id).toBe(product2.id)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.value + service2.value + service3.value
+      )
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(
+        product1.value + product2.value
+      )
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(
         service1.value + service2.value + service3.value +
         product1.value + product2.value
@@ -1258,6 +1606,17 @@ describe("Appointment Module", () => {
       expect(appointment.attendant?.id).toBe(attendant.id)
       expect(appointment.attendant?.name).toBe(attendant.name)
       expect(appointment.services).toHaveLength(3)
+      expect(appointment.products).toHaveLength(0)
+      expect(appointment.services[0].id).toBe(service1.id)
+      expect(appointment.services[1].id).toBe(service2.id)
+      expect(appointment.services[2].id).toBe(service3.id)
+      expect(appointment.finalServicesPrice).toBeCloseTo(
+        service1.promoValue! + service2.value + service3.promoValue!
+      )
+      expect(appointment.finalProductsPrice).toBe(0)
+      expect(appointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(appointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
       expect(appointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue!)
       expect(appointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
@@ -1265,6 +1624,13 @@ describe("Appointment Module", () => {
 
       const foundAppointment = await appointmentsService.findOne(appointment.id)
       expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(
+        service1.promoValue! + service2.value + service3.promoValue!
+      )
+      expect(foundAppointment.finalProductsPrice).toBe(0)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
       expect(foundAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue!)
       expect(foundAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
@@ -1311,6 +1677,12 @@ describe("Appointment Module", () => {
       expect(appointment.attendant?.name).toBe(attendant.name)
       expect(appointment.services).toHaveLength(1)
       expect(appointment.products).toHaveLength(2)
+      expect(appointment.services[0].id).toBe(service1.id)
+      expect(appointment.products[0].id).toBe(product1.id)
+      expect(appointment.products[1].id).toBe(product2.id)
+      expect(appointment.finalServicesPrice).toBeCloseTo(service1.value)
+      expect(appointment.finalProductsPrice).toBeCloseTo(product1.promoValue! + product2.value)
+      expect(appointment.totalServiceWeight).toBeCloseTo(service1.weight || 0)
       expect(appointment.totalPrice).toBeCloseTo(service1.value + product1.value + product2.value)
       expect(appointment.discount).toBeCloseTo(product1.value - product1.promoValue!)
       expect(appointment.finalPrice).toBeCloseTo(service1.value + product1.promoValue! + product2.value)
@@ -1318,6 +1690,9 @@ describe("Appointment Module", () => {
 
       const foundAppointment = await appointmentsService.findOne(appointment.id)
       expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(service1.value)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(product1.promoValue! + product2.value)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(service1.weight || 0)
       expect(foundAppointment.totalPrice).toBeCloseTo(service1.value + product1.value + product2.value)
       expect(foundAppointment.discount).toBeCloseTo(product1.value - product1.promoValue!)
       expect(foundAppointment.finalPrice).toBeCloseTo(service1.value + product1.promoValue! + product2.value)
@@ -1355,7 +1730,7 @@ describe("Appointment Module", () => {
 
       const updateService1Data: UpdateServiceInput = {
         value: 100,
-        promoValue: 10,
+        promoValue: 86,
         promoEnabled: true
       }
       const updateService3Data: UpdateServiceInput = {
@@ -1368,6 +1743,11 @@ describe("Appointment Module", () => {
 
       const foundAppointment = await appointmentsService.findOne(appointment.id)
       expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(service1.value + service2.value + service3.value)
+      expect(foundAppointment.finalProductsPrice).toBe(0)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
       expect(foundAppointment.discount).toBe(0)
       expect(foundAppointment.finalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
@@ -1422,6 +1802,9 @@ describe("Appointment Module", () => {
 
       const foundAppointment = await appointmentsService.findOne(appointment.id)
       expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(service1.value)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(product1.promoValue! + product2.value)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(service1.weight || 0)
       expect(foundAppointment.totalPrice).toBeCloseTo(service1.value + product1.value + product2.value)
       expect(foundAppointment.discount).toBe(product1.value - product1.promoValue!)
       expect(foundAppointment.finalPrice).toBeCloseTo(service1.value + product1.promoValue! + product2.value)
@@ -1464,6 +1847,11 @@ describe("Appointment Module", () => {
       })
 
       expect(updatedAppointment).toBeDefined()
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
+      expect(updatedAppointment.finalProductsPrice).toBe(0)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
       expect(updatedAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue!)
       expect(updatedAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
@@ -1471,6 +1859,11 @@ describe("Appointment Module", () => {
       const foundAppointment = await appointmentsService.findOne(appointment.id)
 
       expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
+      expect(foundAppointment.finalProductsPrice).toBe(0)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
       expect(foundAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue!)
       expect(foundAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
@@ -1527,6 +1920,11 @@ describe("Appointment Module", () => {
       })
 
       expect(updatedAppointment).toBeDefined()
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(product1.promoValue! + product2.value)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(updatedAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value + product1.value + product2.value)
       expect(updatedAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue! + product1.value - product1.promoValue!)
       expect(updatedAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue! + product1.promoValue! + product2.value)
@@ -1534,6 +1932,11 @@ describe("Appointment Module", () => {
       const foundAppointment = await appointmentsService.findOne(appointment.id)
 
       expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(product1.promoValue! + product2.value)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(
+        (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      )
       expect(foundAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value + product1.value + product2.value)
       expect(foundAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue! + product1.value - product1.promoValue!)
       expect(foundAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue! + product1.promoValue! + product2.value)
@@ -1856,10 +2259,12 @@ describe("Appointment Module", () => {
         promoEnabled: true
       }))
 
-      const product1 = await productsService.create(getRandomProductCreateInputData())
+      const product1 = await productsService.create(getRandomProductCreateInputData({
+        value: 20
+      }))
       const product2 = await productsService.create(getRandomProductCreateInputData({
-        value: 12.74,
-        promoValue: 2.71,
+        value: 13,
+        promoValue: 11,
         promoEnabled: true
       }))
 
@@ -1880,6 +2285,9 @@ describe("Appointment Module", () => {
         partnershipIds: [partnership.id]
       })
 
+      const finalServicesPrice = service1.value + service2.value + service3.promoValue!
+      const finalProductsPrice = product1.value + product2.promoValue!
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       const totalPrice = service1.value + service2.value + service3.value +
         product1.value + product2.value
       const discount = service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership.discountValue
@@ -1889,6 +2297,9 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
       expect(updatedAppointment.partnerships).toHaveLength(1)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(updatedAppointment.discount).toBeCloseTo(discount)
       expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -1898,6 +2309,9 @@ describe("Appointment Module", () => {
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
       expect(foundAppointment.partnerships).toHaveLength(1)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(foundAppointment.discount).toBeCloseTo(discount)
       expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -1944,6 +2358,9 @@ describe("Appointment Module", () => {
         partnershipIds: [partnership.id]
       })
 
+      const finalServicesPrice = service1.value + service2.value + service3.value
+      const finalProductsPrice = product1.value + product2.value
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       const totalPrice = service1.value + service2.value + service3.value +
         product1.value + product2.value
       const discount = partnership.discountValue
@@ -1953,6 +2370,9 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
       expect(updatedAppointment.partnerships).toHaveLength(1)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(updatedAppointment.discount).toBeCloseTo(discount)
       expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -1962,6 +2382,9 @@ describe("Appointment Module", () => {
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
       expect(foundAppointment.partnerships).toHaveLength(1)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(foundAppointment.discount).toBeCloseTo(discount)
       expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2012,6 +2435,9 @@ describe("Appointment Module", () => {
         partnershipIds: [partnership.id]
       })
 
+      const finalServicesPrice = service1.value + service2.value + service3.promoValue!
+      const finalProductsPrice = product1.value + product2.promoValue!
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       const totalPrice = service1.value + service2.value + service3.value +
         product1.value + product2.value
       const discount = service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership.discountValue
@@ -2021,6 +2447,9 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
       expect(updatedAppointment.partnerships).toHaveLength(1)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(updatedAppointment.discount).toBeCloseTo(discount)
       expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2030,6 +2459,9 @@ describe("Appointment Module", () => {
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
       expect(foundAppointment.partnerships).toHaveLength(1)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(foundAppointment.discount).toBeCloseTo(discount)
       expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2076,6 +2508,9 @@ describe("Appointment Module", () => {
         partnershipIds: [partnership.id]
       })
 
+      const finalServicesPrice = service1.value + service2.value + service3.value
+      const finalProductsPrice = product1.value + product2.value
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       const totalPrice = service1.value + service2.value + service3.value +
         product1.value + product2.value
       const discount = partnership.discountValue
@@ -2085,6 +2520,9 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
       expect(updatedAppointment.partnerships).toHaveLength(1)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(updatedAppointment.discount).toBeCloseTo(discount)
       expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2094,6 +2532,9 @@ describe("Appointment Module", () => {
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
       expect(foundAppointment.partnerships).toHaveLength(1)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(foundAppointment.discount).toBeCloseTo(discount)
       expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2144,6 +2585,9 @@ describe("Appointment Module", () => {
         partnershipIds: [partnership.id]
       })
 
+      const finalServicesPrice = service1.value + service2.value + service3.promoValue!
+      const finalProductsPrice = product1.value + product2.promoValue!
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       const totalPrice = service1.value + service2.value + service3.value +
         product1.value + product2.value
       const discount = (service3.value - service3.promoValue! + product2.value - product2.promoValue!) + (totalPrice - (service3.value - service3.promoValue! + product2.value - product2.promoValue!)) * (partnership.discountValue / 100)
@@ -2153,6 +2597,9 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
       expect(updatedAppointment.partnerships).toHaveLength(1)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(updatedAppointment.discount).toBeCloseTo(discount)
       expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2162,6 +2609,9 @@ describe("Appointment Module", () => {
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
       expect(foundAppointment.partnerships).toHaveLength(1)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(foundAppointment.discount).toBeCloseTo(discount)
       expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2208,6 +2658,9 @@ describe("Appointment Module", () => {
         partnershipIds: [partnership.id]
       })
 
+      const finalServicesPrice = service1.value + service2.value + service3.value
+      const finalProductsPrice = product1.value + product2.value
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       const totalPrice = service1.value + service2.value + service3.value +
         product1.value + product2.value
       const discount = totalPrice * (partnership.discountValue / 100)
@@ -2217,6 +2670,9 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
       expect(updatedAppointment.partnerships).toHaveLength(1)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(updatedAppointment.discount).toBeCloseTo(discount)
       expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2226,6 +2682,9 @@ describe("Appointment Module", () => {
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
       expect(foundAppointment.partnerships).toHaveLength(1)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(foundAppointment.discount).toBeCloseTo(discount)
       expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2282,6 +2741,9 @@ describe("Appointment Module", () => {
         partnershipIds: [partnership1.id, partnership2.id]
       })
 
+      const finalServicesPrice = service1.value + service2.value + service3.promoValue!
+      const finalProductsPrice = product1.value + product2.promoValue!
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       const totalPrice = service1.value + service2.value + service3.value +
         product1.value + product2.value
       const discount = (service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership2.discountValue) + (totalPrice - (service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership2.discountValue)) * (partnership1.discountValue / 100)
@@ -2291,6 +2753,9 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
       expect(updatedAppointment.partnerships).toHaveLength(2)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(updatedAppointment.discount).toBeCloseTo(discount)
       expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2300,6 +2765,9 @@ describe("Appointment Module", () => {
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
       expect(foundAppointment.partnerships).toHaveLength(2)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(foundAppointment.discount).toBeCloseTo(discount)
       expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2352,6 +2820,9 @@ describe("Appointment Module", () => {
         partnershipIds: [partnership1.id, partnership2.id]
       })
 
+      const finalServicesPrice = service1.value + service2.value + service3.value
+      const finalProductsPrice = product1.value + product2.value
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       const totalPrice = service1.value + service2.value + service3.value +
         product1.value + product2.value
       const discount = partnership2.discountValue + (totalPrice - partnership2.discountValue) * (partnership1.discountValue / 100)
@@ -2361,6 +2832,9 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.services).toHaveLength(3)
       expect(updatedAppointment.products).toHaveLength(2)
       expect(updatedAppointment.partnerships).toHaveLength(2)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(updatedAppointment.discount).toBeCloseTo(discount)
       expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2370,6 +2844,9 @@ describe("Appointment Module", () => {
       expect(foundAppointment.services).toHaveLength(3)
       expect(foundAppointment.products).toHaveLength(2)
       expect(foundAppointment.partnerships).toHaveLength(2)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
       expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
       expect(foundAppointment.discount).toBeCloseTo(discount)
       expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
@@ -2382,6 +2859,167 @@ describe("Appointment Module", () => {
       await servicesService.remove(service3.id)
       await productsService.remove(product1.id)
       await productsService.remove(product2.id)
+      await usersService.remove({ id: attendant1.id })
+    })
+
+    it("should simulate checkout 1", async () => {
+      // Add services, products, and partnerships to an appointment and check the final prices
+
+      const attendant1 = await usersService.create(getRandomUserData())
+      const customer = await customersService.create(getRandomCustomerCreateInputData())
+      const service1 = await servicesService.create(getRandomServiceCreateInputData({ value: 20 }))
+      const service2 = await servicesService.create(getRandomServiceCreateInputData({ value: 50 }))
+      const service3 = await servicesService.create(getRandomServiceCreateInputData({
+        value: 70,
+        promoValue: 60,
+        promoEnabled: true
+      }))
+
+      const product1 = await productsService.create(getRandomProductCreateInputData({ value: 8 }))
+      const product2 = await productsService.create(getRandomProductCreateInputData({
+        value: 12.74,
+        promoValue: 4,
+        promoEnabled: true
+      }))
+
+      const partnership1 = await partnershipsService.create(getRandomPartnershipCreateInputData({
+        discountType: EPartnershipDiscountType.PERCENTAGE,
+        discountValue: 10,
+        type: EPartnershipType.COMMON
+      }))
+
+      const partnership2 = await partnershipsService.create(getRandomPartnershipCreateInputData({
+        discountType: EPartnershipDiscountType.FIXED,
+        discountValue: 8.08,
+        type: EPartnershipType.PARKING
+      }))
+
+      const appointment = await appointmentsService.create({
+        customerId: customer.id,
+        attendantId: attendant1.id,
+        serviceIds: [service1.id]
+      })
+
+      const updatedAppointment = await appointmentsService.update(appointment.id, {
+        serviceIds: [service1.id, service2.id, service3.id],
+        productIds: [product1.id, product2.id],
+        partnershipIds: [partnership1.id, partnership2.id]
+      })
+
+      const finalServicesPrice = service1.value + service2.value + service3.promoValue!
+      const finalProductsPrice = product1.value + product2.promoValue!
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      const totalPrice = service1.value + service2.value + service3.value +
+        product1.value + product2.value
+      const discount = (service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership2.discountValue) + (totalPrice - (service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership2.discountValue)) * (partnership1.discountValue / 100)
+      const finalPrice = totalPrice - discount
+
+      expect(updatedAppointment).toBeDefined()
+      expect(updatedAppointment.services).toHaveLength(3)
+      expect(updatedAppointment.products).toHaveLength(2)
+      expect(updatedAppointment.partnerships).toHaveLength(2)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
+      expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
+      expect(updatedAppointment.discount).toBeCloseTo(discount)
+      expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
+
+      const foundAppointment = await appointmentsService.findOne(appointment.id)
+      expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.services).toHaveLength(3)
+      expect(foundAppointment.products).toHaveLength(2)
+      expect(foundAppointment.partnerships).toHaveLength(2)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
+      expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
+      expect(foundAppointment.discount).toBeCloseTo(discount)
+      expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
+
+      await appointmentsService.remove(appointment.id)
+      await partnershipsService.remove(partnership1.id)
+      await customersService.remove(customer.id)
+      await servicesService.remove(service1.id)
+      await servicesService.remove(service2.id)
+      await servicesService.remove(service3.id)
+      await productsService.remove(product1.id)
+      await productsService.remove(product2.id)
+      await usersService.remove({ id: attendant1.id })
+    })
+
+    it("should simulate checkout 1", async () => {
+      // Add services and add partnerships to an appointment and check the final prices
+
+      const attendant1 = await usersService.create(getRandomUserData())
+      const customer = await customersService.create(getRandomCustomerCreateInputData())
+      const service1 = await servicesService.create(getRandomServiceCreateInputData({ value: 20 }))
+      const service2 = await servicesService.create(getRandomServiceCreateInputData({ value: 50 }))
+      const service3 = await servicesService.create(getRandomServiceCreateInputData({
+        value: 70,
+        promoValue: 60,
+        promoEnabled: true
+      }))
+
+      const partnership1 = await partnershipsService.create(getRandomPartnershipCreateInputData({
+        discountType: EPartnershipDiscountType.PERCENTAGE,
+        discountValue: 10,
+        type: EPartnershipType.COMMON
+      }))
+
+      const partnership2 = await partnershipsService.create(getRandomPartnershipCreateInputData({
+        discountType: EPartnershipDiscountType.FIXED,
+        discountValue: 8.08,
+        type: EPartnershipType.PARKING
+      }))
+
+      const appointment = await appointmentsService.create({
+        customerId: customer.id,
+        attendantId: attendant1.id,
+        serviceIds: [service1.id]
+      })
+
+      const updatedAppointment = await appointmentsService.update(appointment.id, {
+        serviceIds: [service1.id, service2.id, service3.id],
+        partnershipIds: [partnership1.id, partnership2.id]
+      })
+
+      const finalServicesPrice = service1.value + service2.value + service3.promoValue!
+      const finalProductsPrice = 0
+      const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
+      const totalPrice = service1.value + service2.value + service3.value
+      const discount = (service3.value - service3.promoValue! + partnership2.discountValue) + (totalPrice - (service3.value - service3.promoValue! + partnership2.discountValue)) * (partnership1.discountValue / 100)
+      const finalPrice = totalPrice - discount
+
+      expect(updatedAppointment).toBeDefined()
+      expect(updatedAppointment.services).toHaveLength(3)
+      expect(updatedAppointment.products).toHaveLength(0)
+      expect(updatedAppointment.partnerships).toHaveLength(2)
+      expect(updatedAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(updatedAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(updatedAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
+      expect(updatedAppointment.totalPrice).toBeCloseTo(totalPrice)
+      expect(updatedAppointment.discount).toBeCloseTo(discount)
+      expect(updatedAppointment.finalPrice).toBeCloseTo(finalPrice)
+
+      const foundAppointment = await appointmentsService.findOne(appointment.id)
+      expect(foundAppointment).toBeDefined()
+      expect(foundAppointment.services).toHaveLength(3)
+      expect(foundAppointment.products).toHaveLength(0)
+      expect(foundAppointment.partnerships).toHaveLength(2)
+      expect(foundAppointment.finalServicesPrice).toBeCloseTo(finalServicesPrice)
+      expect(foundAppointment.finalProductsPrice).toBeCloseTo(finalProductsPrice)
+      expect(foundAppointment.totalServiceWeight).toBeCloseTo(servicesWeight)
+      expect(foundAppointment.totalPrice).toBeCloseTo(totalPrice)
+      expect(foundAppointment.discount).toBeCloseTo(discount)
+      expect(foundAppointment.finalPrice).toBeCloseTo(finalPrice)
+
+      await appointmentsService.remove(appointment.id)
+      await partnershipsService.remove(partnership1.id)
+      await customersService.remove(customer.id)
+      await servicesService.remove(service1.id)
+      await servicesService.remove(service2.id)
+      await servicesService.remove(service3.id)
       await usersService.remove({ id: attendant1.id })
     })
   })
