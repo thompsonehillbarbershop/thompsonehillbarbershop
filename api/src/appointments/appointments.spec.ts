@@ -1852,8 +1852,8 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
         (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       )
-      expect(updatedAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
-      expect(updatedAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue!)
+      expect(updatedAppointment.totalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
+      expect(updatedAppointment.discount).toBe(0)
       expect(updatedAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
 
       const foundAppointment = await appointmentsService.findOne(appointment.id)
@@ -1864,8 +1864,8 @@ describe("Appointment Module", () => {
       expect(foundAppointment.totalServiceWeight).toBeCloseTo(
         (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       )
-      expect(foundAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value)
-      expect(foundAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue!)
+      expect(foundAppointment.totalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
+      expect(foundAppointment.discount).toBe(0)
       expect(foundAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue!)
 
       await appointmentsService.remove(appointment.id)
@@ -1925,8 +1925,8 @@ describe("Appointment Module", () => {
       expect(updatedAppointment.totalServiceWeight).toBeCloseTo(
         (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       )
-      expect(updatedAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value + product1.value + product2.value)
-      expect(updatedAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue! + product1.value - product1.promoValue!)
+      expect(updatedAppointment.totalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue! + product1.promoValue! + product2.value)
+      expect(updatedAppointment.discount).toBe(0)
       expect(updatedAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue! + product1.promoValue! + product2.value)
 
       const foundAppointment = await appointmentsService.findOne(appointment.id)
@@ -1937,8 +1937,8 @@ describe("Appointment Module", () => {
       expect(foundAppointment.totalServiceWeight).toBeCloseTo(
         (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
       )
-      expect(foundAppointment.totalPrice).toBeCloseTo(service1.value + service2.value + service3.value + product1.value + product2.value)
-      expect(foundAppointment.discount).toBe(service1.value - service1.promoValue! + service3.value - service3.promoValue! + product1.value - product1.promoValue!)
+      expect(foundAppointment.totalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue! + product1.promoValue! + product2.value)
+      expect(foundAppointment.discount).toBe(0)
       expect(foundAppointment.finalPrice).toBeCloseTo(service1.promoValue! + service2.value + service3.promoValue! + product1.promoValue! + product2.value)
 
       await appointmentsService.remove(appointment.id)
@@ -2288,9 +2288,9 @@ describe("Appointment Module", () => {
       const finalServicesPrice = service1.value + service2.value + service3.promoValue!
       const finalProductsPrice = product1.value + product2.promoValue!
       const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
-      const totalPrice = service1.value + service2.value + service3.value +
-        product1.value + product2.value
-      const discount = service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership.discountValue
+      const totalPrice = service1.value + service2.value + service3.promoValue! +
+        product1.value + product2.promoValue!
+      const discount = partnership.discountValue
       const finalPrice = totalPrice - discount
 
       expect(updatedAppointment).toBeDefined()
@@ -2438,9 +2438,8 @@ describe("Appointment Module", () => {
       const finalServicesPrice = service1.value + service2.value + service3.promoValue!
       const finalProductsPrice = product1.value + product2.promoValue!
       const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
-      const totalPrice = service1.value + service2.value + service3.value +
-        product1.value + product2.value
-      const discount = service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership.discountValue
+      const totalPrice = finalServicesPrice + finalProductsPrice
+      const discount = partnership.discountValue
       const finalPrice = totalPrice - discount
 
       expect(updatedAppointment).toBeDefined()
@@ -2588,9 +2587,8 @@ describe("Appointment Module", () => {
       const finalServicesPrice = service1.value + service2.value + service3.promoValue!
       const finalProductsPrice = product1.value + product2.promoValue!
       const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
-      const totalPrice = service1.value + service2.value + service3.value +
-        product1.value + product2.value
-      const discount = (service3.value - service3.promoValue! + product2.value - product2.promoValue!) + (totalPrice - (service3.value - service3.promoValue! + product2.value - product2.promoValue!)) * (partnership.discountValue / 100)
+      const totalPrice = finalServicesPrice + finalProductsPrice
+      const discount = totalPrice * (partnership.discountValue / 100)
       const finalPrice = totalPrice - discount
 
       expect(updatedAppointment).toBeDefined()
@@ -2744,9 +2742,8 @@ describe("Appointment Module", () => {
       const finalServicesPrice = service1.value + service2.value + service3.promoValue!
       const finalProductsPrice = product1.value + product2.promoValue!
       const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
-      const totalPrice = service1.value + service2.value + service3.value +
-        product1.value + product2.value
-      const discount = (service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership2.discountValue) + (totalPrice - (service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership2.discountValue)) * (partnership1.discountValue / 100)
+      const totalPrice = finalServicesPrice + finalProductsPrice
+      const discount = partnership2.discountValue + totalPrice * (partnership1.discountValue / 100)
       const finalPrice = totalPrice - discount
 
       expect(updatedAppointment).toBeDefined()
@@ -2823,9 +2820,8 @@ describe("Appointment Module", () => {
       const finalServicesPrice = service1.value + service2.value + service3.value
       const finalProductsPrice = product1.value + product2.value
       const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
-      const totalPrice = service1.value + service2.value + service3.value +
-        product1.value + product2.value
-      const discount = partnership2.discountValue + (totalPrice - partnership2.discountValue) * (partnership1.discountValue / 100)
+      const totalPrice = finalServicesPrice + finalProductsPrice
+      const discount = partnership2.discountValue + totalPrice * (partnership1.discountValue / 100)
       const finalPrice = totalPrice - discount
 
       expect(updatedAppointment).toBeDefined()
@@ -2909,9 +2905,8 @@ describe("Appointment Module", () => {
       const finalServicesPrice = service1.value + service2.value + service3.promoValue!
       const finalProductsPrice = product1.value + product2.promoValue!
       const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
-      const totalPrice = service1.value + service2.value + service3.value +
-        product1.value + product2.value
-      const discount = (service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership2.discountValue) + (totalPrice - (service3.value - service3.promoValue! + product2.value - product2.promoValue! + partnership2.discountValue)) * (partnership1.discountValue / 100)
+      const totalPrice = finalServicesPrice + finalProductsPrice
+      const discount = partnership2.discountValue + totalPrice * (partnership1.discountValue / 100)
       const finalPrice = totalPrice - discount
 
       expect(updatedAppointment).toBeDefined()
@@ -2948,7 +2943,7 @@ describe("Appointment Module", () => {
       await usersService.remove({ id: attendant1.id })
     })
 
-    it("should simulate checkout 1", async () => {
+    it("should simulate checkout 2", async () => {
       // Add services and add partnerships to an appointment and check the final prices
 
       const attendant1 = await usersService.create(getRandomUserData())
@@ -2987,8 +2982,8 @@ describe("Appointment Module", () => {
       const finalServicesPrice = service1.value + service2.value + service3.promoValue!
       const finalProductsPrice = 0
       const servicesWeight = (service1.weight || 0) + (service2.weight || 0) + (service3.weight || 0)
-      const totalPrice = service1.value + service2.value + service3.value
-      const discount = (service3.value - service3.promoValue! + partnership2.discountValue) + (totalPrice - (service3.value - service3.promoValue! + partnership2.discountValue)) * (partnership1.discountValue / 100)
+      const totalPrice = finalServicesPrice + finalProductsPrice
+      const discount = partnership2.discountValue + totalPrice * (partnership1.discountValue / 100)
       const finalPrice = totalPrice - discount
 
       expect(updatedAppointment).toBeDefined()

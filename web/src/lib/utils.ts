@@ -41,24 +41,16 @@ export function applyDateMask(input: string): string {
 }
 
 export function isDateValid(input: string): boolean {
-  // console.error("Validating date:", input)
   if (input.length !== 10) {
-    // console.error("Invalid date length:", input.length)
     return false
   }
 
   const [day, month, year] = input.split("/").map(Number)
 
-  // console.error("Parsed date components:", { day, month, year })
-
   const date = addHours(new Date(`${year}-${month}-${day}`), 5)
-
-  // console.error("Date validity check:", date instanceof Date && !isNaN(date.getTime()))
-  // console.error("Date components check:", date.getDate() === day, date.getMonth() === month - 1, date.getFullYear() === year)
 
   // Check if date is valid in calendar
   if (!date || date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) {
-    // console.error("Date is invalid in calendar")
     return false
   }
   return true
