@@ -26,11 +26,12 @@ export class AppointmentSummaryView {
     this.totalAppointments = appointments.length
     this.totalServiceWeight = appointments.reduce((total, appointment) => total + appointment.totalServiceWeight, 0)
 
-    this.totalPrice = appointments.reduce((total, appointment) => total + appointment.totalPrice, 0)
-    this.totalDiscount = appointments.reduce((total, appointment) => total + (appointment.discount || 0), 0)
-    this.totalFinalPrice = appointments.reduce((total, appointment) => total + appointment.finalPrice, 0)
     this.finalServicesPrice = appointments.reduce((total, appointment) => total + appointment.finalServicesPrice, 0)
     this.finalProductsPrice = appointments.reduce((total, appointment) => total + appointment.finalProductsPrice, 0)
+
+    this.totalPrice = this.finalServicesPrice + this.finalProductsPrice
+    this.totalDiscount = appointments.reduce((total, appointment) => total + (appointment.discount || 0), 0)
+    this.totalFinalPrice = this.totalPrice - this.totalDiscount
 
     this.firstAppointmentDate = appointments.length > 0 ? appointments[0].onServiceAt : null
     this.lastAppointmentDate = appointments.length > 0 ? appointments[appointments.length - 1].finishedAt : null

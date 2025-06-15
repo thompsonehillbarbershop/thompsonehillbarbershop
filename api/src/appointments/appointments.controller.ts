@@ -62,7 +62,11 @@ export class AppointmentsController {
   @ApiOperation({ summary: 'Get day summary overview' })
   @ApiOkResponse({ type: [AppointmentSummaryView] })
   async getSummaryAdmin() {
-    return this.appointmentsService.adminSummary()
+    const response = await this.appointmentsService.adminSummary()
+
+    await new Promise(resolve => setTimeout(resolve, response.length * 1400))
+
+    return response
   }
 
   @Get(':id')
@@ -105,6 +109,8 @@ export class AppointmentsController {
       sortBy: 'createdAt',
       order: 'asc',
     })
+
+    await new Promise(resolve => setTimeout(resolve, 2200))
 
     return new AppointmentSummaryView(results)
   }

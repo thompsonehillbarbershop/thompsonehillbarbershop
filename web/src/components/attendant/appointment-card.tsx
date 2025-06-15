@@ -68,7 +68,7 @@ export default function AttendanceAppointmentCard({ index, appointment, onAttend
               className="flex-1"
               disabled={!!appointment.attendant?.id && (appointment.attendant?.id !== userId)}
               isLoading={isStartingAttendance}
-              variant={index === 0 ? "default" : "outline"}
+              variant={!!appointment.attendant?.id && (appointment.attendant?.id !== userId) ? "outline" : "default"}
               onClick={() => onAttendanceStart(appointment)}
             >
               <PlayIcon className="size-6" />
@@ -89,7 +89,7 @@ export default function AttendanceAppointmentCard({ index, appointment, onAttend
           )}
           <Button
             size="lg"
-            variant={index === 0 ? "secondary" : "outline"}
+            variant="outline"
             onClick={() => onSettingsClick(appointment)}
           >
             <SettingsIcon className="size-5" />

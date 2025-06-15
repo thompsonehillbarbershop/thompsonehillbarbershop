@@ -381,10 +381,6 @@ export class AppointmentsService {
           finishedAt,
         })
       } else if (dto.serviceIds) {
-        console.log('Updating appointment with services only:', dto.serviceIds)
-
-        console.log("Appointment products", appointment.products)
-
         Object.assign(appointment, {
           ...dto,
           serviceIds: foundServices.map(service => ({
@@ -399,7 +395,6 @@ export class AppointmentsService {
           finishedAt,
         })
       } else if (dto.productIds) {
-        console.log('Updating appointment with products only:', dto.productIds)
         Object.assign(appointment, {
           ...dto,
           serviceIds: appointment.services?.map(service => ({
@@ -414,7 +409,6 @@ export class AppointmentsService {
           finishedAt,
         })
       } else {
-        console.log('No serviceIds or productIds provided, using existing values')
         Object.assign(appointment, {
           ...dto,
           serviceIds: appointment.services?.map(service => ({
@@ -448,9 +442,14 @@ export class AppointmentsService {
           updatedAppointment.services?.reduce((total, service) => total + (service.weight || 0), 0)
         ) || 0
 
-        updatedAppointment.totalPrice = (updatedAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + product.value, 0) || 0)
+        // updatedAppointment.totalPrice = (updatedAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + product.value, 0) || 0)
+        updatedAppointment.totalPrice = updatedAppointment.finalServicesPrice + updatedAppointment.finalProductsPrice
 
-        updatedAppointment.discount = (updatedAppointment?.services?.reduce((acc, service) => acc + (service.promoValue && service.promoEnabled ? (service.value - service.promoValue) : 0), 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + (product.promoValue && product.promoEnabled ? (product.value - product.promoValue) : 0), 0) || 0)
+        // updatedAppointment.discount = (updatedAppointment?.services?.reduce((acc, service) => acc + (service.promoValue && service.promoEnabled ? (service.value - service.promoValue) : 0), 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + (product.promoValue && product.promoEnabled ? (product.value - product.promoValue) : 0), 0) || 0)
+
+        updatedAppointment.discount = 0
+
+        updatedAppointment.finalPrice = updatedAppointment.totalPrice
 
         // Check partnerships fixed discounts
         updatedAppointment.partnerships?.forEach(partnership => {
@@ -459,17 +458,16 @@ export class AppointmentsService {
           }
         })
 
-        updatedAppointment.finalPrice = updatedAppointment.totalPrice - (updatedAppointment.discount || 0)
-
         // Check partnerships percentage discounts
         updatedAppointment.partnerships?.forEach(partnership => {
           if (partnership.discountType === EPartnershipDiscountType.PERCENTAGE) {
             const discountValue = (updatedAppointment.finalPrice * partnership.discountValue) / 100
 
-            updatedAppointment.finalPrice = updatedAppointment.finalPrice - discountValue
             updatedAppointment.discount ? updatedAppointment.discount = updatedAppointment.discount + discountValue : updatedAppointment.discount = discountValue
           }
         })
+
+        updatedAppointment.finalPrice = updatedAppointment.finalPrice - updatedAppointment.discount
 
         await updatedAppointment.save()
       }
