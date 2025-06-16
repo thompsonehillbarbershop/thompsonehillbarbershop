@@ -10,6 +10,7 @@ import { AppointmentQuery } from "./dto/appointment.query"
 import { CombinedAuthGuard } from "../auth/guards/jwt-api-key/jwt-api-key.guard"
 import { AppointmentSummaryView } from "./dto/appointment-summary.view"
 import { EAppointmentStatuses } from "./entities/appointment.entity"
+import { SummaryBodyInput } from "./dto/summary-body.input"
 
 const PaginatedAppointmentView = createPaginatedDto(AppointmentView)
 
@@ -60,9 +61,10 @@ export class AppointmentsController {
     required: false,
   })
   @ApiOperation({ summary: 'Get day summary overview' })
+  @ApiBody({ type: SummaryBodyInput })
   @ApiOkResponse({ type: [AppointmentSummaryView] })
-  async getSummaryAdmin() {
-    const response = await this.appointmentsService.adminSummary()
+  async getSummaryAdmin(@Body() dto: SummaryBodyInput) {
+    const response = await this.appointmentsService.adminSummary(dto)
 
     await new Promise(resolve => setTimeout(resolve, response.length * 1400))
 

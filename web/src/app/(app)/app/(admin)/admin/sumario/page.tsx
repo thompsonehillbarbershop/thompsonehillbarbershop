@@ -6,34 +6,44 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { H1 } from "@/components/ui/typography"
 import { useAdmin } from "@/hooks/use-admin"
 import { formatCurrency } from "@/lib/utils"
+import { IAppointmentSummaryView } from "@/models/appointments-summary"
 import { RefreshCwIcon } from "lucide-react"
-import { useMemo } from "react"
-
-// import { format } from "date-fns"
+import { useEffect, useMemo, useState } from "react"
 
 export default function AttendantSummaryPage() {
-  const { daySummary, isGettingDaySummary, refetchSummary, isRefetchingSummary } = useAdmin()
+  // const [date, setDate] = useState(new Date())
+  const [refetchCount, setRefechCount] = useState(0)
+  const [summaryData, setSummaryData] = useState<IAppointmentSummaryView[] | null>(null)
+  const { daySummary, isGettingDaySummary } = useAdmin()
+
+  useEffect(() => {
+    daySummary({ from: new Date() })
+      .then((data) => {
+        setSummaryData(data)
+      })
+  }, [daySummary, refetchCount])
 
   const summary = useMemo(() => {
-    if (!daySummary) return null
+    if (!summaryData) return null
 
     return {
-      totalServicesValue: daySummary.reduce((acc, item) => acc + item.finalServicesPrice, 0),
-      totalProductsValue: daySummary.reduce((acc, item) => acc + item.finalProductsPrice, 0),
-      totalGrossRevenue: daySummary.reduce((acc, item) => acc + item.totalPrice, 0),
-      totalDiscount: daySummary.reduce((acc, item) => acc + item.totalDiscount, 0),
-      totalNetRevenue: daySummary.reduce((acc, item) => acc + (item.totalPrice - item.totalDiscount), 0),
+      totalServicesValue: summaryData.reduce((acc, item) => acc + item.finalServicesPrice, 0),
+      totalProductsValue: summaryData.reduce((acc, item) => acc + item.finalProductsPrice, 0),
+      totalGrossRevenue: summaryData.reduce((acc, item) => acc + item.totalPrice, 0),
+      totalDiscount: summaryData.reduce((acc, item) => acc + item.totalDiscount, 0),
+      totalNetRevenue: summaryData.reduce((acc, item) => acc + (item.totalPrice - item.totalDiscount), 0),
     }
-  }, [daySummary])
-
+  }, [summaryData])
 
   return (
     <div className="w-full flex flex-col max-w-[1440px] mx-auto">
       <div className="w-full flex flex-row justify-between items-center mb-4">
         <H1>Resumo do Dia</H1>
         <Button
-          isLoading={isGettingDaySummary || isRefetchingSummary}
-          onClick={() => refetchSummary()}
+          isLoading={isGettingDaySummary}
+          onClick={() => {
+            setRefechCount(prev => prev + 1)
+          }}
         ><RefreshCwIcon />Atualizar</Button>
       </div>
       <div className="w-full flex flex-row justify-start items-start gap-6">
@@ -81,8 +91,8 @@ export default function AttendantSummaryPage() {
       <Card className="mt-2">
         <CardContent>
           <AdminSummaryTable
-            data={daySummary?.filter(item => item.totalPrice > 0) || []}
-            isLoading={isGettingDaySummary || isRefetchingSummary}
+            data={summaryData?.filter(item => item.totalPrice > 0) || []}
+            isLoading={isGettingDaySummary}
           />
         </CardContent>
       </Card>

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger"
-import { IsBoolean, IsEnum, IsIn, IsNumber, IsOptional, IsString, Min } from "class-validator"
+import { IsBoolean, IsDateString, IsEnum, IsIn, IsNumber, IsOptional, IsString, Min } from "class-validator"
 import { EAppointmentStatuses, EPaymentMethod } from "../entities/appointment.entity"
 import { Transform, Type } from "class-transformer"
 
@@ -9,6 +9,16 @@ export class AppointmentQuery {
   @IsBoolean()
   @IsOptional()
   onlyToday?: boolean = false
+
+  @ApiPropertyOptional()
+  @IsDateString()
+  @IsOptional()
+  fromDate?: Date
+
+  @ApiPropertyOptional()
+  @IsDateString()
+  @IsOptional()
+  toDate?: Date
 
   @ApiPropertyOptional()
   @IsEnum(EAppointmentStatuses)

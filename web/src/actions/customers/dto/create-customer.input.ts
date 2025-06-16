@@ -5,7 +5,7 @@ import { EGender } from "@/models/customer"
 export const createCustomerSchema = z.object({
   name: z.string().nonempty("Nome é obrigatório"),
   phoneNumber: z.string().min(13, { message: "Telefone inválido" }).max(16, { message: "Telefone inválido" }),
-  birthDate: z.string(),
+  birthDate: z.string().nonempty("Data de nascimento é obrigatória"),
   // .refine(value => isDateValid(value), { message: "Data inválida type 1" }),
   gender: z.nativeEnum(EGender),
   referralCodeUsed: z.string().optional(),

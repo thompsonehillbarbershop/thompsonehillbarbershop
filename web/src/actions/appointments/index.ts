@@ -157,9 +157,17 @@ export async function getUserAppointmentsSummaryAction(userId: string): Promise<
   }
 }
 
-export async function getAdminAppointmentsSummaryAction(): Promise<IActionResponse<IAppointmentSummaryView[]>> {
+export async function getAdminAppointmentsSummaryAction({ from, to }: {
+  from: Date,
+  to?: Date
+}): Promise<IActionResponse<IAppointmentSummaryView[]>> {
   try {
-    const { data } = await axiosClient.get<IAppointmentSummaryView[]>(`${APPOINTMENTS_END_POINT}/adminSummary`)
+    const { data } = await axiosClient.get<IAppointmentSummaryView[]>(`${APPOINTMENTS_END_POINT}/adminSummary`, {
+      data: {
+        from: from.toISOString(),
+        to: to ? to.toISOString() : undefined
+      }
+    })
     return { data }
 
   } catch (err) {

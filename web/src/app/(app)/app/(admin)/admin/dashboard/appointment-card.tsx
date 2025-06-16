@@ -31,9 +31,9 @@ export default function AppointmentCard({ appointment }: AppointmentCardProps) {
         >{EAppointmentStatusesMapper[appointment.status].label}</p>
       </div>
       <h3 className="font-bold text-lg">{appointment.customer?.name}</h3>
-      {appointment.services.map((service) => (
+      {appointment.services.map((service, index) => (
         <h4
-          key={service.id}
+          key={index}
           className="text-sm text-muted-foreground line-clamp-1">- {service.name}</h4>
       ))}
     </div>

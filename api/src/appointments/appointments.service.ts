@@ -19,6 +19,7 @@ import { AppointmentSummaryView } from "./dto/appointment-summary.view"
 import { Service } from "../services/entities/service.entity"
 import { Product } from "../products/entities/product.entity"
 import { CUSTOMER_SCHEMA_NAME, PARTNERSHIP_SCHEMA_NAME, PRODUCT_SCHEMA_NAME, SERVICE_SCHEMA_NAME, USER_SCHEMA_NAME } from "../mongo/constants"
+import { SummaryBodyInput } from "./dto/summary-body.input"
 
 @Injectable()
 export class AppointmentsService {
@@ -126,6 +127,8 @@ export class AppointmentsService {
       sortBy = 'createdAt',
       order = 'desc',
       onlyToday,
+      fromDate,
+      toDate,
       customerName,
       status,
       paymentMethod,
@@ -139,6 +142,24 @@ export class AppointmentsService {
       const today = new Date()
       const start = startOfDay(subHours(today, 3))
       const end = endOfDay(subHours(today, 3))
+      matchFilters.createdAt = { $gte: start, $lte: end }
+    }
+
+    if (fromDate) {
+      const date = new Date(fromDate)
+
+      const start = startOfDay(subHours(date, 3))
+      const end = endOfDay(subHours(date, 3))
+
+      matchFilters.createdAt = { $gte: start, $lte: end }
+    }
+
+    if (fromDate && toDate) {
+      const date = new Date(toDate)
+
+      const start = startOfDay(subHours(new Date(fromDate), 3))
+      const end = endOfDay(subHours(date, 3))
+
       matchFilters.createdAt = { $gte: start, $lte: end }
     }
 
@@ -366,7 +387,6 @@ export class AppointmentsService {
       }
 
       if (dto.serviceIds && dto.productIds) {
-        console.log('Updating appointment with services and products:', dto.serviceIds, dto.productIds)
         Object.assign(appointment, {
           ...dto,
           serviceIds: foundServices.map(service => ({
@@ -502,9 +522,10 @@ export class AppointmentsService {
     }
   }
 
-  async adminSummary() {
+  async adminSummary(dto: SummaryBodyInput) {
     const attendants = await this.usersService.findAll({
-      role: EUserRole.ATTENDANT
+      role: EUserRole.ATTENDANT,
+
     })
     const attendantManagers = await this.usersService.findAll({
       role: EUserRole.ATTENDANT_MANAGER
@@ -515,7 +536,8 @@ export class AppointmentsService {
 
     for (const attendant of allAttendants) {
       const { results } = await this.findAll({
-        onlyToday: true,
+        fromDate: dto.from,
+        toDate: dto.to,
         attendantId: attendant.id,
         limit: 1000,
         status: EAppointmentStatuses.FINISHED,

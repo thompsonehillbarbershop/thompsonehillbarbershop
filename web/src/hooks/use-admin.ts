@@ -335,15 +335,33 @@ export const useAdmin = () => {
     }
   })
 
-  const { data: daySummary, isLoading: isGettingDaySummary, refetch: refetchSummary, isRefetching: isRefetchingSummary } = useQuery({
-    queryKey: [queries.admin.daySummary],
-    queryFn: async (): Promise<IAppointmentSummaryView[]> => {
-      const response = await getAdminAppointmentsSummaryAction()
+  const { mutateAsync: daySummary, isPending: isGettingDaySummary } = useMutation({
+    mutationKey: ["adminDaySummary"],
+    mutationFn: async (data: {
+      from: Date,
+      to?: Date
+    }): Promise<IAppointmentSummaryView[]> => {
+      const response = await getAdminAppointmentsSummaryAction(data)
 
       return response.data || []
     },
-    refetchOnWindowFocus: true
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queries.admin.apiKeys] })
+    },
   })
+
+  // const { data: daySummary, isLoading: isGettingDaySummary, refetch: refetchSummary, isRefetching: isRefetchingSummary } = useQuery({
+  //   queryKey: [queries.admin.daySummary],
+  //   queryFn: async (): Promise<IAppointmentSummaryView[]> => {
+  //     const from = subDays(new Date(), 6)
+  //     const to = new Date()
+
+  //     const response = await getAdminAppointmentsSummaryAction({ from, to })
+
+  //     return response.data || []
+  //   },
+  //   refetchOnWindowFocus: true
+  // })
 
 
 
@@ -370,7 +388,7 @@ export const useAdmin = () => {
     deleteApiKey,
     daySummary,
     isGettingDaySummary,
-    refetchSummary,
-    isRefetchingSummary,
+    // refetchSummary,
+    // isRefetchingSummary,
   }
 }
