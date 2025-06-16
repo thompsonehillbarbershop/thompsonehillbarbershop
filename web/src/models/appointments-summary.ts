@@ -6,6 +6,7 @@ export interface IAppointmentSummaryView {
   totalPrice: number
   totalDiscount: number
   totalFinalPrice: number
+  totalPaymentFee: number
   firstAppointmentDate: Date | null | undefined
   lastAppointmentDate: Date | null | undefined
   totalAttendanceMinutes: number | null

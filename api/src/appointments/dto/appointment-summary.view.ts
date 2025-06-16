@@ -11,6 +11,8 @@ export class AppointmentSummaryView {
       this.totalPrice = 0
       this.totalDiscount = 0
       this.totalFinalPrice = 0
+      this.totalPaymentFee = 0
+
       this.firstAppointmentDate = null
       this.lastAppointmentDate = null
       this.totalAttendanceMinutes = 0
@@ -32,6 +34,8 @@ export class AppointmentSummaryView {
     this.totalPrice = this.finalServicesPrice + this.finalProductsPrice
     this.totalDiscount = appointments.reduce((total, appointment) => total + (appointment.discount || 0), 0)
     this.totalFinalPrice = this.totalPrice - this.totalDiscount
+
+    this.totalPaymentFee = appointments.reduce((total, appointment) => total + (appointment.paymentFee || 0), 0)
 
     this.firstAppointmentDate = appointments.length > 0 ? appointments[0].onServiceAt : null
     this.lastAppointmentDate = appointments.length > 0 ? appointments[appointments.length - 1].finishedAt : null
@@ -65,6 +69,8 @@ export class AppointmentSummaryView {
   totalDiscount: number
   @ApiProperty()
   totalFinalPrice: number
+  @ApiProperty()
+  totalPaymentFee: number
 
   @ApiProperty()
   firstAppointmentDate: Date | null | undefined = null

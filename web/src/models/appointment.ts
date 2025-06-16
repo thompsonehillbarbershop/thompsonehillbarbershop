@@ -76,6 +76,7 @@ export interface IAppointmentView {
   discount?: number
   finalPrice: number
   paymentMethod: EPaymentMethod
+  paymentFee?: number
   redeemCoupon?: string
   status: EAppointmentStatuses
   createdAt: Date

@@ -7,6 +7,7 @@ import { IAuthView } from "@/models/auth"
 import { revalidatePath } from "next/cache"
 import { CreateApiKeyInput, createApiKeySchema } from "./dto/create-api-key.input"
 import { IApiKeyView } from "@/models/api-key"
+import { ISettingsView } from "@/models/settings"
 
 const apiUrl = process.env.API_URL
 
@@ -89,6 +90,45 @@ export async function getApiKeysAction(): Promise<IActionResponse<IApiKeyView[]>
       }
     }
 
+    console.error(error)
+    return {
+      error: error.message
+    }
+  }
+}
+
+export async function getSettingsAction(): Promise<IActionResponse<ISettingsView>> {
+  try {
+    const { data } = await axiosClient.get<ISettingsView>(`settings`)
+    return { data }
+
+  } catch (err) {
+    const error = err as Error
+    if (error.message.includes("ECONNREFUSED")) {
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
+    }
+
+    console.error(error)
+    return {
+      error: error.message
+    }
+  }
+}
+
+export async function updateSettingsAction(settings: ISettingsView): Promise<IActionResponse<ISettingsView>> {
+  try {
+    const { data } = await axiosClient.put<ISettingsView>(`settings`, settings)
+    console.log("Settings updated successfully:", data)
+    return { data }
+  } catch (err) {
+    const error = err as Error
+    if (error.message.includes("ECONNREFUSED")) {
+      return {
+        error: "Servidor não está disponível, tente novamente mais tarde."
+      }
+    }
     console.error(error)
     return {
       error: error.message

@@ -68,6 +68,10 @@ export default function AttendantSummaryPage({ userId }: { userId: string }) {
               <Label className="flex-1">Faturamento Total <i>(líquido)</i> </Label>
               <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{formatCurrency(summary.totalFinalPrice)}</Indicator>
             </div>
+            <div className="w-full flex flex-row justify-between items-center gap-4">
+              <Label className="flex-1">Taxa Pagamento </Label>
+              <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{formatCurrency(summary.totalPaymentFee)}</Indicator>
+            </div>
             {/* {summary.firstAppointmentDate && (
               <div className="w-full flex flex-row justify-between items-center gap-4">
                 <Label className="flex-1">Primeiro Atendimento </Label>

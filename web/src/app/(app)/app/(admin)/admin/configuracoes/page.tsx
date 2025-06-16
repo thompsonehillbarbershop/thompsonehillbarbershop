@@ -10,15 +10,25 @@ import React from 'react'
 import ApiKeyForm from "@/components/admin/api-key-form"
 import ApiKeysTable from "@/components/admin/api-key-table"
 import { useRouter } from "next/navigation"
+import FeesForm from "./fees-form"
 
 export default function ProductsPage() {
-  const { apiKeys, isLoadingApiKeys, deleteApiKey } = useAdmin()
+  const { apiKeys, isLoadingApiKeys, deleteApiKey, isLoadingSettings } = useAdmin()
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
   const router = useRouter()
 
   return (
     <div className="w-full flex flex-col max-w-[1440px] mx-auto">
+      <H1 className="pt-4">Configurações</H1>
+      <Card className="mt-2">
+        <CardContent className="space-y-2">
+          <FeesForm
+            isLoading={isLoadingSettings}
+          />
+        </CardContent>
+      </Card>
+
       <H1>Chaves de API</H1>
       <Dialog>
         <div className="flex flex-col sm:flex-row gap-2">

@@ -1,5 +1,5 @@
 import { getAdminAppointmentsSummaryAction } from "@/actions/appointments"
-import { createApiKeyAction, deleteApiKeyAction, getApiKeysAction } from "@/actions/auth"
+import { createApiKeyAction, deleteApiKeyAction, getApiKeysAction, getSettingsAction, updateSettingsAction } from "@/actions/auth"
 import { CreateApiKeyInput } from "@/actions/auth/dto/create-api-key.input"
 import { createPartnershipAction, getPartnershipsAction, updatePartnershipAction } from "@/actions/partnerships"
 import { CreatePartnershipInput } from "@/actions/partnerships/dto/create-partnership.input"
@@ -20,6 +20,7 @@ import { IAppointmentSummaryView } from "@/models/appointments-summary"
 import { IPartnershipView } from "@/models/partnerships"
 import { IProductView } from "@/models/product"
 import { IServiceView } from "@/models/service"
+import { ISettingsView } from "@/models/settings"
 import { IUserView } from "@/models/user"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
@@ -350,20 +351,37 @@ export const useAdmin = () => {
     },
   })
 
-  // const { data: daySummary, isLoading: isGettingDaySummary, refetch: refetchSummary, isRefetching: isRefetchingSummary } = useQuery({
-  //   queryKey: [queries.admin.daySummary],
-  //   queryFn: async (): Promise<IAppointmentSummaryView[]> => {
-  //     const from = subDays(new Date(), 6)
-  //     const to = new Date()
+  const { data: settings, isLoading: isLoadingSettings } = useQuery({
+    queryKey: [queries.admin.settings],
+    queryFn: async (): Promise<ISettingsView> => {
+      const response = await getSettingsAction()
 
-  //     const response = await getAdminAppointmentsSummaryAction({ from, to })
+      if (response.data) {
+        return response.data
+      }
 
-  //     return response.data || []
-  //   },
-  //   refetchOnWindowFocus: true
-  // })
+      return {
+        creditCardFee: 0,
+        debitCardFee: 0,
+      }
+    },
+  })
 
+  const { mutateAsync: updateSettings } = useMutation({
+    mutationKey: ["updateSettings"],
+    mutationFn: async (dto: ISettingsView) => {
+      const response = await updateSettingsAction(dto)
 
+      if (response.data) {
+        queryClient.setQueryData([queries.admin.settings], response.data)
+      }
+
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queries.admin.partnerships] })
+    },
+  })
 
   return {
     users,
@@ -388,7 +406,8 @@ export const useAdmin = () => {
     deleteApiKey,
     daySummary,
     isGettingDaySummary,
-    // refetchSummary,
-    // isRefetchingSummary,
+    settings,
+    isLoadingSettings,
+    updateSettings
   }
 }

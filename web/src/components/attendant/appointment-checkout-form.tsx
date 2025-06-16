@@ -104,6 +104,7 @@ export default function AppointmentCheckoutForm({ attendantId, appointment, serv
 
   function handleAddService() {
     const serviceIds = form.getValues("serviceIds")
+    // @ts-expect-error is validated
     form.setValue("serviceIds", [...serviceIds, ""])
     form.clearErrors("serviceIds")
   }
@@ -116,7 +117,7 @@ export default function AppointmentCheckoutForm({ attendantId, appointment, serv
 
   function handleRemoveService(index: number) {
     const serviceIds = form.getValues("serviceIds")
-    const newServicesIds = serviceIds.filter((_, i) => i !== index)
+    const newServicesIds = serviceIds?.filter((_, i) => i !== index)
     form.reset({ ...form.getValues(), serviceIds: newServicesIds })
   }
 
@@ -230,7 +231,7 @@ export default function AppointmentCheckoutForm({ attendantId, appointment, serv
         {step === 0 && (
           <FormItem>
             <FormMessage>{form.getFieldState("serviceIds").error?.message}</FormMessage>
-            {form.watch().serviceIds.map((_, index) => (
+            {form.watch().serviceIds?.map((_, index) => (
               <div
                 key={index}
               >
@@ -447,6 +448,10 @@ export default function AppointmentCheckoutForm({ attendantId, appointment, serv
             <div className="flex flex-row justify-between items-center gap-2">
               <Label className="flex-1 text-lg sm:text-2xl">Método de Pagamento</Label>
               <Indicator className="flex-1 justify-end text-lg sm:text-2xl md:text-2xl text-foreground/70">{form.getValues().paymentMethod && EPaymentMethodMapper[form.getValues().paymentMethod as EPaymentMethod]}</Indicator>
+            </div>
+            <div className="flex flex-row justify-between items-center gap-2">
+              <Label className="flex-1 text-lg sm:text-2xl">Taxa de Pagamento</Label>
+              <Indicator className="flex-1 justify-end text-lg sm:text-2xl md:text-2xl text-foreground/70">{formatCurrency(updatedAppointment.paymentFee)}</Indicator>
             </div>
           </div>
         )}

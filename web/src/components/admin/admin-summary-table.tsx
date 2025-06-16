@@ -48,6 +48,11 @@ export default function AdminSummaryTable({
         cell: (row) => <p className="text-center">{formatCurrency(Number(row.getValue()))}</p>,
       },
       {
+        accessorKey: "totalPaymentFee",
+        header: () => <p className="text-center">Taxa Pagamento</p>,
+        cell: (row) => <p className="text-center">{formatCurrency(Number(row.getValue()))}</p>,
+      },
+      {
         accessorKey: "totalAppointments",
         header: () => <p className="text-center">Atendimentos</p>,
         cell: (row) => <p className="text-center">{Number(row.getValue())}</p>,

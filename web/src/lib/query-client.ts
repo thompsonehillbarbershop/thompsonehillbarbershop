@@ -12,6 +12,7 @@ export const queries = {
     partnerships: "admin_partnerships",
     apiKeys: "admin_api_keys",
     daySummary: "admin_day_summary",
+    settings: "admin_settings",
   },
   totem: {
     attendants: "totem_attendants",
