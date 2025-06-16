@@ -3,13 +3,14 @@ import * as mongoose from 'mongoose'
 import { Connection, Model } from 'mongoose'
 import { ConfigModule, ConfigService } from "@nestjs/config"
 import { IMongoUser, userSchema } from "./schemas/user.schema"
-import { APPOINTMENT_SCHEMA_NAME, CUSTOMER_SCHEMA_NAME, SERVICE_SCHEMA_NAME, USER_SCHEMA_NAME, PRODUCT_SCHEMA_NAME, PARTNERSHIP_SCHEMA_NAME, API_KEY_SCHEMA_NAME } from "./constants"
+import { APPOINTMENT_SCHEMA_NAME, CUSTOMER_SCHEMA_NAME, SERVICE_SCHEMA_NAME, USER_SCHEMA_NAME, PRODUCT_SCHEMA_NAME, PARTNERSHIP_SCHEMA_NAME, API_KEY_SCHEMA_NAME, SETTINGS_SCHEMA_NAME } from "./constants"
 import { IMongoService, serviceSchema } from "./schemas/service.schema"
 import { customerSchema, IMongoCustomer } from "./schemas/customer.schema"
 import { appointmentSchema, IMongoAppointment } from "./schemas/appointment.schema"
 import { IMongoProduct, productSchema } from "./schemas/product.schema"
 import { IMongoPartnership, partnershipSchema } from "./schemas/partnership.schema"
 import { apiKeySchema, IMongoApiKey } from "./schemas/api-key.schema"
+import { IMongoSetting, settingSchema } from "./schemas/settings.schema"
 
 @Global()
 @Module({
@@ -88,8 +89,17 @@ import { apiKeySchema, IMongoApiKey } from "./schemas/api-key.schema"
 
         return ApiKeySchema
       }
-    }
+    },
+    {
+      provide: "SettingSchema",
+      inject: ["MongoConnection"],
+      useFactory: (connection: Connection) => {
+        const SettingSchema: Model<IMongoSetting> = connection.models.setting || connection.model<IMongoSetting>(SETTINGS_SCHEMA_NAME, settingSchema)
+
+        return SettingSchema
+      }
+    },
   ],
-  exports: ["UserSchema", "ServiceSchema", "ProductSchema", "CustomerSchema", "AppointmentSchema", "PartnershipSchema", "ApiKeySchema"]
+  exports: ["UserSchema", "ServiceSchema", "ProductSchema", "CustomerSchema", "AppointmentSchema", "PartnershipSchema", "ApiKeySchema", "SettingSchema"]
 })
 export class MongoModule { }

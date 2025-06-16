@@ -35,6 +35,7 @@ export interface IAppointment {
   discount?: number
   finalPrice: number
   paymentMethod?: EPaymentMethod
+  paymentFee?: number
   redeemCoupon?: string
   status: EAppointmentStatuses
   createdAt: Date
@@ -56,6 +57,7 @@ export class Appointment {
   discount?: number
   finalPrice: number
   paymentMethod?: EPaymentMethod
+  paymentFee?: number
   redeemCoupon?: string
   status: EAppointmentStatuses
   createdAt: Date
@@ -73,8 +75,6 @@ export class Appointment {
     this.services = appointment.services.map(service => new Service(service))
     this.products = appointment.products.map(product => new Product(product))
     this.partnerships = appointment.partnerships ? appointment.partnerships.map(partnership => new Partnership(partnership)) : undefined
-
-    // this.totalServiceWeight = this.services.reduce((total, service) => total + (service.weight || 0), 0)
   }
 
   toFirebaseObject() {

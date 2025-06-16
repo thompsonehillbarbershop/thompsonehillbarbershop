@@ -32,6 +32,7 @@ export interface IMongoAppointment extends Document {
   discount?: number
   finalPrice: number
   paymentMethod?: EPaymentMethod
+  paymentFee?: number
   redeemCoupon?: string
   status: EAppointmentStatuses
   onServiceAt?: Date
@@ -66,6 +67,7 @@ export const appointmentSchema: Schema<IMongoAppointment> = new Schema({
   discount: { type: Number, required: false },
   finalPrice: { type: Number, required: true },
   paymentMethod: { type: String, enum: EPaymentMethod, required: false },
+  paymentFee: { type: Number, required: false, default: 0 },
   redeemCoupon: { type: String, required: false },
   status: { type: String, enum: EAppointmentStatuses, required: true },
   onServiceAt: { type: Date, required: false },
@@ -190,6 +192,7 @@ export function toAppointment(appointment: IMongoAppointment): Appointment {
     discount: appointment.discount,
     finalPrice: appointment.finalPrice,
     paymentMethod: appointment.paymentMethod,
+    paymentFee: appointment.paymentFee,
     redeemCoupon: appointment.redeemCoupon,
     status: appointment.status,
     createdAt: appointment.createdAt,

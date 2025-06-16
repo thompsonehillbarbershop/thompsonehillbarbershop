@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { CreateAppointmentInput } from "./dto/create-appointment.input"
-import { Appointment, EAppointmentStatuses } from "./entities/appointment.entity"
+import { Appointment, EAppointmentStatuses, EPaymentMethod } from "./entities/appointment.entity"
 import { Model } from "mongoose"
 import { IMongoAppointment, IProductItem, IServiceItem, toAppointment } from "../mongo/schemas/appointment.schema"
 import { createId } from "@paralleldrive/cuid2"
@@ -9,7 +9,7 @@ import { CustomersService } from "../customers/customers.service"
 import { UsersService } from "../users/users.service"
 import { ServicesService } from "../services/services.service"
 import { AppointmentQuery } from "./dto/appointment.query"
-import { addHours, endOfDay, startOfDay, subHours } from "date-fns"
+import { endOfDay, startOfDay, subHours } from "date-fns"
 import { UpdateAppointmentInput } from "./dto/update-appointment.input"
 import { FirebaseService } from "../firebase/firebase.service"
 import { ProductsService } from "../products/products.service"
@@ -20,6 +20,7 @@ import { Service } from "../services/entities/service.entity"
 import { Product } from "../products/entities/product.entity"
 import { CUSTOMER_SCHEMA_NAME, PARTNERSHIP_SCHEMA_NAME, PRODUCT_SCHEMA_NAME, SERVICE_SCHEMA_NAME, USER_SCHEMA_NAME } from "../mongo/constants"
 import { SummaryBodyInput } from "./dto/summary-body.input"
+import { SettingsService } from "../settings/settings.service"
 
 @Injectable()
 export class AppointmentsService {
@@ -29,7 +30,8 @@ export class AppointmentsService {
     private readonly usersService: UsersService,
     private readonly servicesService: ServicesService,
     private readonly productsService: ProductsService,
-    private readonly firebaseService: FirebaseService
+    private readonly firebaseService: FirebaseService,
+    private readonly settingService: SettingsService
   ) { }
 
   async create(dto: CreateAppointmentInput): Promise<Appointment> {
@@ -386,7 +388,9 @@ export class AppointmentsService {
         }
       }
 
+      // Update serviceIds and productIds if necessary
       if (dto.serviceIds && dto.productIds) {
+        // If both serviceIds and productIds are provided, update both
         Object.assign(appointment, {
           ...dto,
           serviceIds: foundServices.map(service => ({
@@ -401,6 +405,7 @@ export class AppointmentsService {
           finishedAt,
         })
       } else if (dto.serviceIds) {
+        // If only serviceIds are provided, update serviceIds
         Object.assign(appointment, {
           ...dto,
           serviceIds: foundServices.map(service => ({
@@ -415,6 +420,7 @@ export class AppointmentsService {
           finishedAt,
         })
       } else if (dto.productIds) {
+        // If only productIds are provided, update productIds
         Object.assign(appointment, {
           ...dto,
           serviceIds: appointment.services?.map(service => ({
@@ -429,6 +435,7 @@ export class AppointmentsService {
           finishedAt,
         })
       } else {
+        // If neither serviceIds nor productIds are provided, keep existing values
         Object.assign(appointment, {
           ...dto,
           serviceIds: appointment.services?.map(service => ({
@@ -446,8 +453,8 @@ export class AppointmentsService {
 
       const updatedAppointment = await appointment.save()
 
+      // If the appointment has no services or products updated, we can skip the price calculations
       if (dto.serviceIds || dto.productIds || dto.partnershipIds) {
-
         updatedAppointment.finalServicesPrice = (dto.serviceIds ?
           foundServices.reduce((total, service) => total + (service.promoEnabled ? service.promoValue || service.value : service.value), 0) :
           updatedAppointment.services?.reduce((total, service) => total + (service.promoEnabled ? service.promoValue || service.value : service.value), 0)
@@ -462,10 +469,7 @@ export class AppointmentsService {
           updatedAppointment.services?.reduce((total, service) => total + (service.weight || 0), 0)
         ) || 0
 
-        // updatedAppointment.totalPrice = (updatedAppointment?.services?.reduce((acc, service) => acc + service.value, 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + product.value, 0) || 0)
         updatedAppointment.totalPrice = updatedAppointment.finalServicesPrice + updatedAppointment.finalProductsPrice
-
-        // updatedAppointment.discount = (updatedAppointment?.services?.reduce((acc, service) => acc + (service.promoValue && service.promoEnabled ? (service.value - service.promoValue) : 0), 0) || 0) + (updatedAppointment?.products?.reduce((acc, product) => acc + (product.promoValue && product.promoEnabled ? (product.value - product.promoValue) : 0), 0) || 0)
 
         updatedAppointment.discount = 0
 
@@ -490,6 +494,21 @@ export class AppointmentsService {
         updatedAppointment.finalPrice = updatedAppointment.finalPrice - updatedAppointment.discount
 
         await updatedAppointment.save()
+      }
+
+      // Calculate payment fee for Debit and Credit Card
+      if (updatedAppointment.paymentMethod === EPaymentMethod.DEBIT_CARD || updatedAppointment.paymentMethod === EPaymentMethod.CREDIT_CARD) {
+        const settings = await this.settingService.getSettings()
+
+        const paymentFee = (updatedAppointment.paymentMethod === EPaymentMethod.DEBIT_CARD ? settings.debitCardFee : settings.creditCardFee) || 0
+
+        updatedAppointment.paymentFee = paymentFee * updatedAppointment.totalServiceWeight
+
+        updatedAppointment.save()
+
+      } else {
+        updatedAppointment.paymentFee = 0
+        updatedAppointment.save()
       }
 
       const updatedAppointmentObj = new Appointment(toAppointment(updatedAppointment))

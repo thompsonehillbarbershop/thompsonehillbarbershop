@@ -54,6 +54,9 @@ export class AppointmentView {
   paymentMethod?: EPaymentMethod
 
   @ApiProperty()
+  paymentFee?: number
+
+  @ApiProperty()
   redeemCoupon?: string
 
   @ApiProperty()
