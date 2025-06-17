@@ -16,6 +16,7 @@ export interface IServiceItem {
 export interface IProductItem {
   id: string
   price: number
+  quantity?: number
 }
 
 export interface IMongoAppointment extends Document {
@@ -57,7 +58,8 @@ export const appointmentSchema: Schema<IMongoAppointment> = new Schema({
   }],
   productIds: [{
     id: { type: String, required: true },
-    price: { type: Number, required: true }
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: false, default: 1 }
   }],
   partnershipIds: { type: [String], required: false },
   finalServicesPrice: { type: Number, required: true },
@@ -180,7 +182,8 @@ export function toAppointment(appointment: IMongoAppointment): Appointment {
       const item = appointment.productIds?.find(p => p.id === product.id)
       return {
         ...toProduct(product),
-        price: item?.price ?? 0
+        price: item?.price ?? 0,
+        quantity: item?.quantity ?? 1
       }
     }),
 

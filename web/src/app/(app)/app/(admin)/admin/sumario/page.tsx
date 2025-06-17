@@ -60,7 +60,7 @@ export default function AttendantSummaryPage() {
     <div className="w-full flex flex-col max-w-[1440px] mx-auto">
       <div className="w-full flex flex-row justify-between items-center mb-4">
         <H1>Resumo do Dia</H1>
-        <div className="hidden">
+        <div className="">
           <div className="*:not-first:mt-2">
             <Popover>
               <PopoverTrigger asChild>
