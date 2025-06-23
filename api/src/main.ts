@@ -33,7 +33,7 @@ async function bootstrap() {
   setInterval(() => {
     const mem = process.memoryUsage()
     console.log(`[MEMORY] Heap: ${(mem.heapUsed / 1024 / 1024).toFixed(2)} MB / ${(mem.heapTotal / 1024 / 1024).toFixed(2)} MB | RSS: ${(mem.rss / 1024 / 1024).toFixed(2)} MB`)
-  }, 5000)
+  }, 10 * 60000)
 
   await app.listen(process.env.PORT ?? 3000)
   console.log(`Application is running on: ${await app.getUrl()}`)
