@@ -109,8 +109,8 @@ export default function AttendantSummaryPage() {
           }}
         ><RefreshCwIcon />Atualizar</Button>
       </div>
-      <div className="w-full flex flex-row justify-start items-start gap-6">
-        <Card className="w-64">
+      <div className="w-full flex flex-col lg:flex-row justify-start items-start gap-2 xl:gap-6">
+        <Card className="w-full lg:w-1/2 xl:w-64">
           <CardHeader>
             <CardTitle>Serviços</CardTitle>
           </CardHeader>
@@ -118,7 +118,7 @@ export default function AttendantSummaryPage() {
             <p className="w-full text-center text-xl font-bold">{formatCurrency(summary?.totalServicesValue)}</p>
           </CardContent>
         </Card>
-        <Card className="w-64">
+        <Card className="w-full lg:w-1/2 xl:w-64">
           <CardHeader>
             <CardTitle>Produtos</CardTitle>
           </CardHeader>
@@ -126,7 +126,7 @@ export default function AttendantSummaryPage() {
             <p className="w-full text-center text-xl font-bold">{formatCurrency(summary?.totalProductsValue)}</p>
           </CardContent>
         </Card>
-        <Card className="w-64">
+        <Card className="w-full lg:w-1/2 xl:w-64">
           <CardHeader>
             <CardTitle>Faturamento Bruto</CardTitle>
           </CardHeader>
@@ -134,7 +134,7 @@ export default function AttendantSummaryPage() {
             <p className="w-full text-center text-xl font-bold">{formatCurrency(summary?.totalGrossRevenue)}</p>
           </CardContent>
         </Card>
-        <Card className="w-64">
+        <Card className="w-full lg:w-1/2 xl:w-64">
           <CardHeader>
             <CardTitle>Descontos</CardTitle>
           </CardHeader>
@@ -142,7 +142,7 @@ export default function AttendantSummaryPage() {
             <p className="w-full text-center text-xl font-bold">{formatCurrency(summary?.totalDiscount)}</p>
           </CardContent>
         </Card>
-        <Card className="w-64">
+        <Card className="w-full lg:w-1/2 xl:w-64">
           <CardHeader>
             <CardTitle>Faturamento Líquido</CardTitle>
           </CardHeader>

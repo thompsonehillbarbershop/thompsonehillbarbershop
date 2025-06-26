@@ -65,7 +65,7 @@ export default function AdminSummaryTable({
       {
         accessorKey: "firstAppointmentDate",
         header: () => <p className="text-center">Primeiro Atendimento</p>,
-        cell: (row) => <p className="text-center">{format(new Date(row.getValue() as string), "HH:mm", {
+        cell: (row) => <p className="text-center">{format(new Date((row.getValue() as string) || new Date()), "HH:mm", {
           locale: ptBR
         })}</p>,
       },
