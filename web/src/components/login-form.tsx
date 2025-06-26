@@ -14,6 +14,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { EPages } from "@/lib/pages.enum"
 import { EUserRole } from "@/models/user"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 const formSchema = z.object({
   userName: z.string().nonempty({ message: "Campo obrigatório" }),
@@ -30,6 +31,7 @@ export default function LoginForm() {
     },
   })
   const router = useRouter()
+  const { setValue } = useLocalStorage("secret", "")
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -43,6 +45,8 @@ export default function LoginForm() {
       if (response.data) {
         toast.success("Login realizado com sucesso")
         setErrorMessage(null)
+
+        setValue(response.data.token)
 
         switch (response.data.userRole) {
           case EUserRole.TOTEM:

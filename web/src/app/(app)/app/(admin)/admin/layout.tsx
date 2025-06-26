@@ -1,19 +1,16 @@
 import AdminHeader from "@/components/admin/admin-header"
 import AdminSidebar from "@/components/admin/admin-sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { getSession } from "@/lib/session"
-import { EUserRole } from "@/models/user"
-import { notFound } from "next/navigation"
 import React, { PropsWithChildren } from 'react'
 
 export const dynamic = "force-dynamic"
 
 export default async function AdminLayout({ children }: PropsWithChildren) {
-  const session = await getSession()
+  // const session = await getSession()
 
-  if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
-    return notFound()
-  }
+  // if (session?.user.role !== EUserRole.ADMIN && session?.user.role !== EUserRole.MANAGER) {
+  //   return notFound()
+  // }
 
   return (
     <SidebarProvider className='flex flow-row w-full' defaultOpen={false}>

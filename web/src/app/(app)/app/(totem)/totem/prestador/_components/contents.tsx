@@ -13,9 +13,8 @@ export default function AttendantsPageContents() {
   const router = useRouter()
   const customerId = searchParams.get('id')
   const serviceId = searchParams.get('service')
-  const { createAppointment, isCreatingAppointment } = useTotem()
 
-  const { attendants, isLoadingAttendants } = useTotem()
+  const { createAppointment, isCreatingAppointment, attendants, isLoadingAttendants } = useTotem()
   // Must order by name asc
   const orderedAttendants = attendants?.data?.sort((a, b) => a.name.localeCompare(b.name))
 
@@ -27,17 +26,13 @@ export default function AttendantsPageContents() {
         return
       }
 
-      const { data: appointment, error } = await createAppointment({
+      const appointment = await createAppointment({
         customerId,
         attendantId: user?.id || undefined,
         serviceIds: [serviceId]
       })
 
       if (appointment) router.push(EPages.TOTEM_CONFIRMATION)
-      if (error) {
-        console.error("Error creating appointment:", error)
-        // router.push(EPages.TOTEM_HOME)
-      }
     } catch (error) {
       console.error("Error creating appointment:", error)
     }

@@ -1,15 +1,9 @@
-import { getSession } from "@/lib/session"
+"use client"
+
 import AttendantQueuePageContents from "./contents"
-import { notFound } from "next/navigation"
 
-export default async function AttendantPage() {
-  const session = await getSession()
-
-  if (!session?.user.id) {
-    return notFound()
-  }
-
+export default function AttendantPage() {
   return <AttendantQueuePageContents
-    userId={session?.user.id}
+  // userId={session?.user.id}
   />
 }

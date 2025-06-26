@@ -9,7 +9,7 @@ import { EPages } from "@/lib/pages.enum"
 import { EAppointmentStatuses } from "@/models/appointment"
 import { IFirebaseAppointment } from "@/models/firebase-appointment"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -19,8 +19,27 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { BanIcon, UserPlusIcon } from "lucide-react"
+import React from "react"
+import { IUserView } from "@/models/user"
+import { useLocalStorage } from "@/hooks/use-local-storage"
+import axiosWebClient from "@/lib/axios-web"
 
-export default function AttendantQueuePageContents({ userId }: { userId: string }) {
+export default function AttendantQueuePageContents() {
+  const [userId, setUserId] = React.useState<string>("")
+  const { storedValue: token } = useLocalStorage("secret", "")
+
+  useEffect(() => {
+    axiosWebClient.get<IUserView>(`/users/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).then((response) => {
+      if (response.data) {
+        setUserId(response.data.id)
+      }
+    })
+  }, [token])
+
   const [showAll, setShowAll] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState<IFirebaseAppointment | null>(null)
   const [openDialog, setOpenDialog] = useState(false)

@@ -1,9 +1,7 @@
-import { getAppointmentByIdAction, getUserAppointmentsSummaryAction, startAttendingAppointmentAction, updateAppointmentAction } from "@/actions/appointments"
+import { updateAppointmentAction } from "@/actions/appointments"
 import { updateCustomerAction } from "@/actions/customers"
 import { UpdateCustomerInput } from "@/actions/customers/dto/update-customer.input"
-import { getPartnershipsAction } from "@/actions/partnerships"
-import { getProductsAction } from "@/actions/products"
-import { getServicesAction } from "@/actions/services"
+import axiosWebClient from "@/lib/axios-web"
 import { queries } from "@/lib/query-client"
 import { IActionResponse } from "@/models/action-response"
 import { EAppointmentStatuses, IAppointmentView } from "@/models/appointment"
@@ -13,8 +11,11 @@ import { IPartnershipView } from "@/models/partnerships"
 import { IProductView } from "@/models/product"
 import { IServiceView } from "@/models/service"
 import { useMutation, useQuery } from "@tanstack/react-query"
+import { useLocalStorage } from "./use-local-storage"
 
 export const useAttendant = () => {
+  const APPOINTMENTS_END_POINT = "/appointments"
+  const { storedValue: token } = useLocalStorage("secret", "")
 
   const { mutateAsync: startAttendance, isPending: isStartingAttendance } = useMutation({
     mutationKey: ["startAttendingAppointment"],
@@ -22,9 +23,16 @@ export const useAttendant = () => {
       id: string,
       attendantId: string
     }): Promise<IActionResponse<IAppointmentView>> => {
-      const response = await startAttendingAppointmentAction(id, attendantId)
+      const { data } = await axiosWebClient.put<IAppointmentView>(`${APPOINTMENTS_END_POINT}/${id}`, {
+        attendantId: attendantId,
+        status: EAppointmentStatuses.ON_SERVICE
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-      return response
+      return { data }
     },
   })
 
@@ -33,57 +41,73 @@ export const useAttendant = () => {
     mutationFn: async ({ id }: {
       id: string
     }): Promise<IActionResponse<IAppointmentView>> => {
-      const response = await getAppointmentByIdAction(id)
+      const { data } = await axiosWebClient.get<IAppointmentView>(`${APPOINTMENTS_END_POINT}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-      return response
+      return { data }
     },
   })
 
   const { data: services, isLoading: isLoadingServices } = useQuery({
     queryKey: [queries.attendant.services],
     queryFn: async (): Promise<IServiceView[]> => {
-      const response = await getServicesAction()
+      const { data } = await axiosWebClient.get<IServiceView[]>(`/services`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-      if (response.data) {
-        return response.data.map((service) => ({
+      if (data) {
+        return data.map((service) => ({
           ...service,
           createdAt: new Date(service.createdAt)
         }))
       }
 
-      return response.data || []
+      return data || []
     },
   })
 
   const { data: products, isLoading: isLoadingProducts } = useQuery({
     queryKey: [queries.attendant.products],
     queryFn: async (): Promise<IProductView[]> => {
-      const response = await getProductsAction()
+      const { data } = await axiosWebClient.get<IProductView[]>(`/products`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-      if (response.data) {
-        return response.data.map((product) => ({
+      if (data) {
+        return data.map((product) => ({
           ...product,
           createdAt: new Date(product.createdAt)
         }))
       }
 
-      return response.data || []
+      return data || []
     },
   })
 
   const { data: partnerships } = useQuery({
     queryKey: [queries.admin.partnerships],
     queryFn: async (): Promise<IPartnershipView[]> => {
-      const response = await getPartnershipsAction()
+      const { data } = await axiosWebClient.get<IPartnershipView[]>(`/partnerships`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-      if (response.data) {
-        return response.data.map((partnership) => ({
+      if (data) {
+        return data.map((partnership) => ({
           ...partnership,
           createdAt: new Date(partnership.createdAt)
         }))
       }
 
-      return response.data || []
+      return data || []
     },
   })
 
@@ -104,9 +128,14 @@ export const useAttendant = () => {
     mutationFn: async ({ id }: {
       id: string
     }): Promise<IActionResponse<IAppointmentSummaryView>> => {
-      const response = await getUserAppointmentsSummaryAction(id)
+      // const response = await getUserAppointmentsSummaryAction(id)
+      const { data } = await axiosWebClient.get<IAppointmentSummaryView>(`${APPOINTMENTS_END_POINT}/summary/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-      return response
+      return { data }
     },
   })
 

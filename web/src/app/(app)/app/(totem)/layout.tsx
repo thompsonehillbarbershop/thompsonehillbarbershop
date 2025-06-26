@@ -1,19 +1,11 @@
-// import { getProfileAction } from "@/actions/users"
-import { getSession } from "@/lib/session"
-import { EUserRole } from "@/models/user"
+"use client"
+
 import Image from "next/image"
-import { notFound } from "next/navigation"
 import { PropsWithChildren } from "react"
 
 export const dynamic = "force-dynamic"
 
-export default async function TotemLayout({ children }: PropsWithChildren) {
-  const session = await getSession()
-
-  if (session?.user.role !== EUserRole.TOTEM) {
-    return notFound()
-  }
-
+export default function TotemLayout({ children }: PropsWithChildren) {
   return (
     <div className={`w-screen h-screen bg-[url(/images/background.webp)] bg-no-repeat bg-cover flex flex-col`}>
       <div className="w-full flex-1 h-full flex flex-col items-center justify-center gap-4 bg-background/95">

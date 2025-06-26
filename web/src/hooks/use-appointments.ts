@@ -3,8 +3,10 @@ import { IPaginated } from "./use-paginated-query"
 import { queries } from "@/lib/query-client"
 import { IActionResponse } from "@/models/action-response"
 import { IAppointmentView } from "@/models/appointment"
-import { getAppointmentsAction, updateAppointmentAction } from "@/actions/appointments"
+import { getAppointmentsAction } from "@/actions/appointments"
 import { UpdateAppointmentInput } from "@/actions/appointments/dto/update-appointment.input"
+import axiosWebClient from "@/lib/axios-web"
+import { useLocalStorage } from "./use-local-storage"
 
 
 export interface UseAppointmentsParams {
@@ -16,6 +18,7 @@ export interface UseAppointmentsParams {
 
 export const useAppointments = (params: UseAppointmentsParams = {}) => {
   const queryClient = useQueryClient()
+  const { storedValue: token } = useLocalStorage("secret", "")
 
   const query = useQuery<IPaginated<IAppointmentView>>({
     queryKey: [queries.admin.appointments, params],
@@ -39,28 +42,32 @@ export const useAppointments = (params: UseAppointmentsParams = {}) => {
   const { mutateAsync: updateAppointment } = useMutation({
     mutationKey: ["updateAppointment"],
     mutationFn: async ({ id, data }: { id: string, data: UpdateAppointmentInput }): Promise<IActionResponse<IAppointmentView>> => {
-      const response = await updateAppointmentAction(id, data)
+      // const response = await updateAppointmentAction(id, data)
 
-      if (response.data) {
+      const { data: response } = await axiosWebClient.put<IAppointmentView>(`/appointments/${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response) {
         queryClient.setQueryData([queries.admin.appointments, params], (current: IPaginated<IAppointmentView> | undefined) => {
           if (!current) return current
 
           const returnData = {
             ...current,
             data: current.data.map((appointment) =>
-              appointment.id === response.data?.id
-                ? { ...appointment, ...response.data }
+              appointment.id === response.id
+                ? { ...appointment, ...response }
                 : appointment
             ),
           }
-
-          console.log("returnData", returnData)
 
           return returnData
         })
       }
 
-      return response
+      return { data: response }
     }
   })
 

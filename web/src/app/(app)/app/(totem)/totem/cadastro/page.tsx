@@ -1,3 +1,5 @@
+"use client"
+
 import CustomerRegisterForm from "@/components/totem/customer-register-form"
 import React from 'react'
 

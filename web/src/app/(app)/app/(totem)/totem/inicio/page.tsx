@@ -1,3 +1,5 @@
+"use client"
+
 import PhoneForm from "@/components/totem/phone-form"
 import React from 'react'
 

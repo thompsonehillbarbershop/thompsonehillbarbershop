@@ -1,10 +1,9 @@
-import { createAppointmentAction } from "@/actions/appointments"
+"use client"
+
 import { CreateAppointmentInput } from "@/actions/appointments/dto/create-appointment.input"
-import { createCustomerAction, getCustomerByPhoneAction } from "@/actions/customers"
+import { createCustomerAction } from "@/actions/customers"
 import { CreateCustomerInput } from "@/actions/customers/dto/create-customer.input"
-import { getPartnershipsAction } from "@/actions/partnerships"
-import { getServicesAction } from "@/actions/services"
-import { getAttendantsAction } from "@/actions/users"
+import axiosWebClient from "@/lib/axios-web"
 import { queries } from "@/lib/query-client"
 import { IActionResponse } from "@/models/action-response"
 import { IAppointmentView } from "@/models/appointment"
@@ -13,17 +12,26 @@ import { EPartnershipType, IPartnershipView } from "@/models/partnerships"
 import { IServiceView } from "@/models/service"
 import { IUserView } from "@/models/user"
 import { useMutation, useQuery } from "@tanstack/react-query"
+import { useLocalStorage } from "./use-local-storage"
 
 export const useTotem = () => {
+  const { storedValue: token } = useLocalStorage("secret", "")
+
   const { data: attendants, isLoading: isLoadingAttendants } = useQuery({
     queryKey: [queries.totem.attendants],
     queryFn: async (): Promise<IActionResponse<IUserView[]>> => {
 
-      const response = await getAttendantsAction()
+      const { data: response } = await axiosWebClient.get<IUserView[]>(`/users/attendants`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
 
-      if (response.data) {
+      if (response) {
         return {
-          data: response.data.map((user) => ({
+          data: response.map((user) => ({
             ...user,
             createdAt: new Date(user.createdAt)
           }))
@@ -40,11 +48,17 @@ export const useTotem = () => {
     queryKey: [queries.totem.services],
     queryFn: async (): Promise<IActionResponse<IServiceView[]>> => {
 
-      const response = await getServicesAction()
+      const { data: response } = await axiosWebClient.get<IServiceView[]>(`/services`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
 
-      if (response.data) {
+      if (response) {
         return {
-          data: response.data.map((service) => ({
+          data: response.map((service) => ({
             ...service,
             createdAt: new Date(service.createdAt)
           }))
@@ -59,10 +73,22 @@ export const useTotem = () => {
 
   const { mutateAsync: getCustomer } = useMutation({
     mutationKey: ["getCustomerByPhone"],
-    mutationFn: async (phoneNumber: string): Promise<IActionResponse<ICustomerView>> => {
-      const response = await getCustomerByPhoneAction(phoneNumber)
+    mutationFn: async (phoneNumber: string): Promise<ICustomerView | null> => {
+      try {
+        const { data: response } = await axiosWebClient.get<ICustomerView>(`/customers/phoneNumber/${phoneNumber}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
 
-      return response
+        return response
+      } catch (error) {
+        const err = error as Error
+        if (err.message.includes("Customer not found")) {
+          return null
+        }
+        throw err
+      }
     }
   })
 
@@ -77,8 +103,13 @@ export const useTotem = () => {
 
   const { mutateAsync: createAppointment, isPending: isCreatingAppointment } = useMutation({
     mutationKey: ["createAppointment"],
-    mutationFn: async (data: CreateAppointmentInput): Promise<IActionResponse<IAppointmentView>> => {
-      const response = await createAppointmentAction(data)
+    mutationFn: async (data: CreateAppointmentInput): Promise<IAppointmentView> => {
+      // const response = await createAppointmentAction(data)
+      const { data: response } = await axiosWebClient.post<IAppointmentView>("/appointments", data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
       return response
     }
@@ -87,16 +118,22 @@ export const useTotem = () => {
   const { data: partnerships, isLoading: isLoadingPartnerships } = useQuery({
     queryKey: [queries.admin.partnerships],
     queryFn: async (): Promise<IPartnershipView[]> => {
-      const response = await getPartnershipsAction()
+      const { data: response } = await axiosWebClient.get<IPartnershipView[]>("/partnerships",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
 
-      if (response.data) {
-        return response.data.filter(partnership => partnership.type === EPartnershipType.COMMON).map((partnership) => ({
+      if (response) {
+        return response.filter(partnership => partnership.type === EPartnershipType.COMMON).map((partnership) => ({
           ...partnership,
           createdAt: new Date(partnership.createdAt)
         }))
       }
 
-      return response.data || []
+      return []
     },
   })
 
