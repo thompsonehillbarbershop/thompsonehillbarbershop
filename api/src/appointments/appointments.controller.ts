@@ -66,8 +66,6 @@ export class AppointmentsController {
   async getSummaryAdmin(@Body() dto: SummaryBodyInput) {
     const response = await this.appointmentsService.adminSummary(dto)
 
-    await new Promise(resolve => setTimeout(resolve, response.length * 1400))
-
     return response
   }
 
@@ -111,8 +109,6 @@ export class AppointmentsController {
       sortBy: 'createdAt',
       order: 'asc',
     })
-
-    await new Promise(resolve => setTimeout(resolve, 2200))
 
     return new AppointmentSummaryView(results)
   }
