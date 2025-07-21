@@ -38,7 +38,7 @@ export function VirtualKeyboard({
       ["1", "2", "3"],
       ["4", "5", "6"],
       ["7", "8", "9"],
-      ["0", "/", "BACKSPACE"],
+      ["0", "BACKSPACE"],
     ],
   }
 
@@ -68,7 +68,12 @@ export function VirtualKeyboard({
               key={key}
               type="button"
               variant={key === "BACKSPACE" ? "destructive" : "secondary"}
-              className="text-xl md:text-3xl px-4 py-2 min-w-[58px] md:min-w-[72px] min-h-[48px] md:min-h-[64px]"
+              className={cn(
+                "px-4 py-2",
+                keyboardType === "numpad"
+                  ? "min-w-[72px] md:min-w-[96px] min-h-[64px] md:min-h-[80px] text-2xl md:text-4xl"
+                  : "min-w-[58px] md:min-w-[72px] min-h-[48px] md:min-h-[64px] text-xl md:text-3xl"
+              )}
               onClick={() => onKeyPress(key)}
             >
               {key === "BACKSPACE" ? <DeleteIcon className="lg:size-10" /> : key === " " ? "Espaço" : key}
