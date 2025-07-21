@@ -18,30 +18,8 @@ import { useTotem } from "@/hooks/use-totem"
 import { toast } from "sonner"
 import { createCustomerSchema } from "@/actions/customers/dto/create-customer.input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-// import { addHours } from "date-fns"
-
-// export function isDateValid2(input: string): string {
-//   if (input.length !== 10) {
-//     return `Invalid date format. Expected dd/mm/yyyy, got ${input.length} characters.`
-//   }
-
-//   const [day, month, year] = input.split("/").map(Number)
-
-//   const date = addHours(new Date(`${year}-${month}-${day}`), 5)
-
-//   if (!(date instanceof Date) || isNaN(date.getTime())) {
-//     return `Invalid date: ${input}. Response from new Date is not a valid date. day: ${day}, month: ${month}, year: ${year}`
-//   }
-
-//   // Check if date is valid in calendar
-//   if (!date || date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) {
-//     return `Invalid date: ${input}. Date does not match calendar. day: ${day}, month: ${month}, year: ${year}`
-//   }
-//   return "date is valid"
-// }
 
 export default function CustomerRegisterForm() {
-  // const [normalizedValues, setNormalizedValues] = useState("not sent yet")
   const formSchema = createCustomerSchema
 
   const { registerCustomer, partnerships } = useTotem()
@@ -81,8 +59,6 @@ export default function CustomerRegisterForm() {
 
   useEffect(() => {
     const birthDate = form.getValues("birthDate")
-    // console.log("birthDate", birthDate)
-
     if (!birthDate) return
     const maskedDate = applyDateMask(birthDate)
 
@@ -113,14 +89,12 @@ export default function CustomerRegisterForm() {
         partnershipIdentificationId: values.partnershipId === "none" ? undefined : (values.partnershipIdentificationId || undefined),
       }
 
-      // setNormalizedValues(JSON.stringify(normalizedValues, null, 2))
-
       const response = await registerCustomer({
         ...normalizedValues
       })
 
       if (response.data) {
-        router.push(`${EPages.TOTEM_SCHEDULE}?id=${encodeURIComponent(response.data.id)}`)
+        router.push(`${EPages.TOTEM_BARBER}?id=${encodeURIComponent(response.data.id)}`)
       }
 
       if (response.error) {
@@ -210,10 +184,6 @@ export default function CustomerRegisterForm() {
                             }}
                             className={cn("w-full text-center sm:text-xl md:text-2xl", activeField === "birthDate" ? "border-ring ring-ring/50 ring-[3px]" : "")}
                             {...field} />
-                          {/* <p>{form.watch().birthDate}</p>
-                          <p>{applyDateMask(form.watch().birthDate)}</p>
-                          <p>{isDateValid(form.watch().birthDate) ? "true" : "false"}</p>
-                          <p>{isDateValid2(form.watch().birthDate)}</p> */}
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -338,7 +308,6 @@ export default function CustomerRegisterForm() {
               />
             )}
           </div>
-          {/* <pre>{normalizedValues}</pre> */}
           <Button
             isLoading={form.formState.isSubmitting}
             type="submit"

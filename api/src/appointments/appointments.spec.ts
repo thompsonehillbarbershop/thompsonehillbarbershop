@@ -219,18 +219,29 @@ describe("Appointment Module", () => {
       await servicesService.remove(service1.id)
     })
 
-    it("should not create an appointment without services", async () => {
+    it("should create an appointment without services", async () => {
       const customer = await customersService.create(getRandomCustomerCreateInputData())
-      const product1 = await productsService.create(getRandomProductCreateInputData())
 
-      await expect(appointmentsService.create({
-        customerId: customer.id,
-        serviceIds: [],
-        productIds: [product1.id]
-      })).rejects.toThrow(MissingServicesException)
+      const appointment = await appointmentsService.create({
+        customerId: customer.id
+      })
+
+      expect(appointment).toBeDefined()
+      expect(appointment.customer.id).toBe(customer.id)
+      expect(appointment.customer.name).toBe(customer.name)
+      expect(appointment.customer.phoneNumber).toBe(customer.phoneNumber)
+      expect(appointment.attendant).toBeUndefined()
+      expect(appointment.services).toHaveLength(0)
+      expect(appointment.products).toHaveLength(0)
+      expect(appointment.finalServicesPrice).toBe(0)
+      expect(appointment.finalProductsPrice).toBe(0)
+      expect(appointment.totalServiceWeight).toBe(0)
+      expect(appointment.totalPrice).toBe(0)
+      expect(appointment.finalPrice).toBe(0)
+      expect(appointment.discount).toBe(0)
+      expect(appointment.status).toBe(EAppointmentStatuses.WAITING)
 
       await customersService.remove(customer.id)
-      await productsService.remove(product1.id)
     })
 
     it("should not create an appointment with a invalid customer", async () => {
@@ -3851,6 +3862,6 @@ describe("Appointment Module", () => {
       await productsService.remove(product4.id)
       await productsService.remove(product5.id)
       await usersService.remove({ id: attendant1.id })
-    })
+    }, 30000)
   })
 })

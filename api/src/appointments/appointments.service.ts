@@ -35,9 +35,6 @@ export class AppointmentsService {
   ) { }
 
   async create(dto: CreateAppointmentInput): Promise<Appointment> {
-    //Check if the appointment has at least one service
-    if (!dto.serviceIds || dto.serviceIds.length === 0) throw new MissingServicesException()
-
     //Check if the customer exists
     const customer = await this.customersService.findOne({ id: dto.customerId })
 
@@ -49,7 +46,7 @@ export class AppointmentsService {
     //Check if services exists
     const foundServices: Service[] = []
 
-    for (const serviceId of dto.serviceIds) {
+    for (const serviceId of dto.serviceIds || []) {
       const service = await this.servicesService.findOne(serviceId)
       if (service) {
         foundServices.push(service)

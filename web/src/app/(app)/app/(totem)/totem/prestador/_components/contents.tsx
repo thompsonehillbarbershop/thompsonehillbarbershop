@@ -20,8 +20,8 @@ export default function AttendantsPageContents() {
 
   async function handleConfirmation(user: IUserView | undefined) {
     try {
-      if (!customerId || !serviceId) {
-        console.error("Customer ID or Service ID is missing")
+      if (!customerId) {
+        console.error("Customer ID is missing")
         router.push(EPages.TOTEM_HOME)
         return
       }
@@ -29,7 +29,7 @@ export default function AttendantsPageContents() {
       const appointment = await createAppointment({
         customerId,
         attendantId: user?.id || undefined,
-        serviceIds: [serviceId]
+        serviceIds: serviceId ? [serviceId] : [],
       })
 
       if (appointment) router.push(EPages.TOTEM_CONFIRMATION)

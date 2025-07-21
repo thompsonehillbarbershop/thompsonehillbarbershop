@@ -11,9 +11,10 @@ export class CreateAppointmentInput {
   @IsOptional()
   attendantId?: string
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ type: [String], required: false })
   @IsString({ each: true })
-  serviceIds: string[]
+  @IsOptional()
+  serviceIds?: string[]
 
   @ApiProperty({ required: false, type: [String] })
   @IsString({ each: true })
