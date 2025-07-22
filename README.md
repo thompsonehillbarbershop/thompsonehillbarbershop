@@ -178,6 +178,7 @@ The frontend is a modern, responsive interface designed to run on tablets (totem
 - Session expiration and auto logout
 - Firebase Storage integration for image uploads
 - Lazy-loaded images for performance
+- Auto-logout for attendant users (after 90 minutes)
 
 ### 🔐 Enviroment Variables
 
@@ -251,6 +252,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=""
 
 - Manage and check in appointments
 - Guided multi-step forms for faster input
+- Auto-logout after 90 minutes
 - Designed for tablet and mobile use
 
 ### 🧾🧑‍💼 Attendant Manager Features
@@ -275,4 +277,10 @@ Minimum requirements to self-host the application:
 - Specs: 0.1 CPU, 512MB RAM
 - URL [https://thompsonehillbarbershop.vercel.app/](https://thompsonehillbarbershop.vercel.app/)
 - Access email = app.thompsonehillbarbershop@gmail.com
+
+## Changelog
+
+- **2025-07-22**
+  - Web - Skip service select in totem | Increased virtual numpad size | Removed "/" from virtual numpad | Updated timestamp in admin & attendant summary. | 90 minutes auto-logout feature for attendant layout.
+  - Api - Set appointment service to be optional | Update DB schema | Update appointment service | Update appointment DTO | updated appointment specs
 
