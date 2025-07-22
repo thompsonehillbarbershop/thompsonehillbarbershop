@@ -1,7 +1,17 @@
+"use client"
+
+import { destroySession } from "@/lib/session"
 import Image from "next/image"
-import { PropsWithChildren } from "react"
+import { PropsWithChildren, useEffect } from "react"
 
 export default function TotemLayout({ children }: PropsWithChildren) {
+  // destroySession()
+
+  useEffect(() => {
+    destroySession()
+
+  }, [])
+
   return (
     <div className={`w-screen h-screen bg-[url(/images/background.webp)] bg-no-repeat bg-cover flex flex-col`}>
       <div className="w-full flex-1 h-full flex flex-col items-center justify-center gap-4 bg-background/95">

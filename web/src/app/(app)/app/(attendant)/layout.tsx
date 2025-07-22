@@ -4,6 +4,7 @@ import AttendantHeader from "@/components/attendant/attendant-header"
 import AttendantSidebar from "@/components/attendant/attendant-sidebar"
 import LoadingIndicator from "@/components/ui/loading-indicator"
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { useInactivityRedirect } from "@/hooks/use-inactive-redirect"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import axiosWebClient from "@/lib/axios-web"
 import { EUserRole, IUserView } from "@/models/user"
@@ -14,6 +15,7 @@ export const dynamic = "force-dynamic"
 export default function AttendantLayout({ children }: PropsWithChildren) {
   const [profile, setProfile] = React.useState<IUserView | null>(null)
   const { storedValue: token } = useLocalStorage("secret", "")
+  useInactivityRedirect()
 
   useEffect(() => {
     axiosWebClient.get<IUserView>(`/users/profile`, {

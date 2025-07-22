@@ -65,14 +65,14 @@ export default function AdminSummaryTable({
       {
         accessorKey: "firstAppointmentDate",
         header: () => <p className="text-center">Primeiro Atendimento</p>,
-        cell: (row) => <p className="text-center">{format(new Date((row.getValue() as string) || new Date()), "HH:mm", {
+        cell: (row) => <p className="text-center">{format(new Date((row.getValue() as string) || new Date()), "dd/MM/yy HH:mm", {
           locale: ptBR
         })}</p>,
       },
       {
         accessorKey: "lastAppointmentDate",
         header: () => <p className="text-center">Último Atendimento</p>,
-        cell: (row) => <p className="text-center">{format(new Date(row.getValue() as string), "HH:mm", {
+        cell: (row) => <p className="text-center">{format(new Date(row.getValue() as string), "dd/MM/yy - HH:mm", {
           locale: ptBR
         })}</p>,
       },

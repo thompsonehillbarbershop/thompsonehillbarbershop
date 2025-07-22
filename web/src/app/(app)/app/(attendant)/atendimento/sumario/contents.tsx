@@ -7,6 +7,7 @@ import LoadingIndicator from "@/components/ui/loading-indicator"
 import { useAttendant } from "@/hooks/use-attendant"
 import { formatCurrency } from "@/lib/utils"
 import { IAppointmentSummaryView } from "@/models/appointments-summary"
+import { format } from "date-fns"
 // import { format } from "date-fns"
 import { useEffect, useState } from "react"
 
@@ -72,19 +73,19 @@ export default function AttendantSummaryPage({ userId }: { userId: string }) {
               <Label className="flex-1">Taxa Pagamento </Label>
               <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{formatCurrency(summary.totalPaymentFee)}</Indicator>
             </div>
-            {/* {summary.firstAppointmentDate && (
+            {summary.firstAppointmentDate && (
               <div className="w-full flex flex-row justify-between items-center gap-4">
                 <Label className="flex-1">Primeiro Atendimento </Label>
-                <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{format(new Date(summary.firstAppointmentDate), "HH:mm:ss")}</Indicator>
+                <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{format(new Date(summary.firstAppointmentDate), "dd/MM/yy - HH:mm")}</Indicator>
               </div>
             )}
             {summary.lastAppointmentDate && (
               <div className="w-full flex flex-row justify-between items-center gap-4">
                 <Label className="flex-1">Último Atendimento </Label>
-                <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{format(new Date(summary.lastAppointmentDate), "HH:mm:ss")}</Indicator>
+                <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{format(new Date(summary.lastAppointmentDate), "dd/MM/yy - HH:mm")}</Indicator>
               </div>
             )}
-            {summary.totalAttendanceMinutes && summary.totalAttendanceMinutes > 0 && (
+            {/* {summary.totalAttendanceMinutes && summary.totalAttendanceMinutes > 0 && (
               <div className="w-full flex flex-row justify-between items-center gap-4">
                 <Label className="flex-1">Tempo Total de Atendimento </Label>
                 <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{summary.totalAttendanceMinutes.toFixed(0)} minutos</Indicator>
