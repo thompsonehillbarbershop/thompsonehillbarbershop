@@ -1,23 +1,42 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Indicator from "@/components/ui/indicator"
 import { Label } from "@/components/ui/label"
 import LoadingIndicator from "@/components/ui/loading-indicator"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useAttendant } from "@/hooks/use-attendant"
-import { formatCurrency } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import { IAppointmentSummaryView } from "@/models/appointments-summary"
-import { format } from "date-fns"
+import { addHours, format, startOfDay } from "date-fns"
+import { ptBR } from "date-fns/locale"
+import { CalendarIcon, RefreshCwIcon } from "lucide-react"
 // import { format } from "date-fns"
 import { useEffect, useState } from "react"
+import { DateRange } from "react-day-picker"
 
 export default function AttendantSummaryPage({ userId }: { userId: string }) {
+  const today = new Date()
   const { getSummary, isGettingDaySummary } = useAttendant()
   const [summary, setSummary] = useState<IAppointmentSummaryView | null>(null)
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: startOfDay(today),
+    to: startOfDay(today),
+  })
+  const [refetchCount, setRefetchCount] = useState(0)
 
   useEffect(() => {
     async function fetchSummary() {
-      const response = await getSummary({ id: userId })
+      const from = date?.from ? addHours(new Date(date.from), 3) : new Date()
+      const to = date?.to ? addHours(new Date(date.to), 3) : new Date()
+
+      const response = await getSummary({
+        id: userId,
+        from: from.toISOString(),
+        to: to.toISOString()
+      })
 
       if (response.data) {
         setSummary(response.data)
@@ -26,7 +45,8 @@ export default function AttendantSummaryPage({ userId }: { userId: string }) {
       }
     }
     fetchSummary()
-  }, [getSummary, userId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getSummary, userId, refetchCount])
 
   return (
     <div className="w-full flex flex-col items-center justify-center mx-auto">
@@ -39,6 +59,56 @@ export default function AttendantSummaryPage({ userId }: { userId: string }) {
             <CardDescription>
               Resumo das atividades do dia, incluindo atendimentos finalizados, clientes atendidos e serviços prestados.
             </CardDescription>
+
+            {/* Date Range Picker */}
+            <div className="flex flex-row items-center justify-center gap-2 py-4">
+              <div className="*:not-first:mt-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="group bg-background hover:bg-background border-input w-full justify-between px-3 font-normal outline-offset-0 outline-none focus-visible:outline-[3px]"
+                    >
+                      <span
+                        className={cn("truncate", !date && "text-muted-foreground")}
+                      >
+                        {date?.from ? (
+                          date.to ? (
+                            <>
+                              {format(date.from, "dd LLL y", { locale: ptBR })} -{" "}
+                              {format(date.to, "dd LLL y", { locale: ptBR })}
+                            </>
+                          ) : (
+                            format(date.from, "dd LLL y", { locale: ptBR })
+                          )
+                        ) : (
+                          "Pick a date range"
+                        )}
+                      </span>
+                      <CalendarIcon
+                        size={16}
+                        className="text-muted-foreground/80 group-hover:text-foreground shrink-0 transition-colors"
+                        aria-hidden="true"
+                      />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2" align="start">
+                    <Calendar
+                      mode="range"
+                      selected={date}
+                      onSelect={setDate}
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Button
+                isLoading={isGettingDaySummary}
+                onClick={() => {
+                  setRefetchCount(prev => prev + 1)
+                }}
+              ><RefreshCwIcon />Atualizar</Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="w-full flex flex-row justify-between items-center gap-4">

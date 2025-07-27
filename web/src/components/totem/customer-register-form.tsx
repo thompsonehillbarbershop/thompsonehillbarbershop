@@ -112,7 +112,17 @@ export default function CustomerRegisterForm() {
       }
 
     } catch (error) {
+      const err = error as Error
+      if (err.message.includes("Invalid time value")) {
+        form.setError("birthDate", {
+          message: "Data de nascimento inválida",
+          type: "manual"
+        })
+        return
+      }
+
       console.error(error)
+
       toast.error("Erro ao registrar cliente")
     }
   }
@@ -120,7 +130,7 @@ export default function CustomerRegisterForm() {
   return (
     <div className="w-full flex flex-col flex-1 justify-start items-center">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-col gap-2 md:gap-6 max-w-2xl">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-col gap-2 md:gap-16 max-w-2xl">
           <div className="flex flex-row justify-start items-start gap-4">
             <div className="flex-1 flex flex-col gap-6 md:gap-8">
               <FormField
@@ -164,7 +174,7 @@ export default function CustomerRegisterForm() {
                   </FormItem>
                 )}
               />
-              <div className="w-full flex flex-row justify-between items-center gap-4">
+              <div className="w-full flex flex-row justify-center items-center gap-4">
                 <FormField
                   control={form.control}
                   name="birthDate"
@@ -194,7 +204,7 @@ export default function CustomerRegisterForm() {
                   control={form.control}
                   name="gender"
                   render={({ field }) => (
-                    <FormItem className="space-y-3 w-full max-w-sm self-center pt-4">
+                    <FormItem className="space-y-3 w-full max-w-sm self-center pt-4 hidden">
                       <FormLabel className="sm:text-xl md:text-2xl">Gênero</FormLabel>
                       <FormControl>
                         <RadioGroup
@@ -231,7 +241,7 @@ export default function CustomerRegisterForm() {
             control={form.control}
             name="referralCodeUsed"
             render={({ field }) => (
-              <FormItem className="space-y-0.5 w-full max-w-sm self-center">
+              <FormItem className="space-y-0.5 w-full max-w-sm self-center hidden">
                 <FormLabel className="sm:text-xl md:text-2xl">Possui código de indicação?</FormLabel>
                 <FormControl>
                   <Input
@@ -248,7 +258,7 @@ export default function CustomerRegisterForm() {
               </FormItem>
             )}
           />
-          <div className="w-full flex flex-row justify-between items-start gap-4">
+          <div className="w-full hidden flex-row justify-between items-start gap-4">
             <FormField
               control={form.control}
               name="partnershipId"

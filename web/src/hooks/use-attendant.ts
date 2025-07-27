@@ -125,11 +125,15 @@ export const useAttendant = () => {
 
   const { mutateAsync: getSummary, isPending: isGettingDaySummary } = useMutation({
     mutationKey: ["getDaySummary"],
-    mutationFn: async ({ id }: {
-      id: string
+    mutationFn: async ({ id, from, to }: {
+      id: string,
+      from: string,
+      to: string
     }): Promise<IActionResponse<IAppointmentSummaryView>> => {
-      // const response = await getUserAppointmentsSummaryAction(id)
-      const { data } = await axiosWebClient.get<IAppointmentSummaryView>(`${APPOINTMENTS_END_POINT}/summary/${id}`, {
+
+      console.log("Fetching summary for user:", id, "from:", from, "to:", to)
+
+      const { data } = await axiosWebClient.get<IAppointmentSummaryView>(`${APPOINTMENTS_END_POINT}/summary/${id}?from=${from}&to=${to}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

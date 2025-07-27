@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation"
 import { useLocalStorage } from "./use-local-storage"
 import { EPages } from "@/lib/pages.enum"
 
-const INACTIVITY_LIMIT_MS = 1000 * 60 * 90 // 1 hora
-const CHECK_INTERVAL_MS = 1000 * 60 // 1 minuto
+const INACTIVITY_LIMIT_MS = 1000 * 60 * 60 * 5 // 5 horas
+const CHECK_INTERVAL_MS = 1000 * 60 * 10 // 10 minutos
 
 export function useInactivityRedirect() {
   const router = useRouter()

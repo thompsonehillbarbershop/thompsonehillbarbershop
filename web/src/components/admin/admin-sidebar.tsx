@@ -34,6 +34,13 @@ const routes = [
     admin: false
   },
   {
+    slug: "atendimentos",
+    title: "Atendimentos",
+    urlPrefix: EPages.ADMIN_APPOINTMENTS,
+    url: EPages.ADMIN_APPOINTMENTS,
+    icon: <CalendarCheck />
+  },
+  {
     slug: "gerentes",
     title: "Gerentes",
     urlPrefix: EPages.ADMIN_MANAGERS,
@@ -81,13 +88,6 @@ const routes = [
     urlPrefix: EPages.ADMIN_CUSTOMERS,
     url: EPages.ADMIN_CUSTOMERS,
     icon: <User />
-  },
-  {
-    slug: "atendimentos",
-    title: "Atendimentos",
-    urlPrefix: EPages.ADMIN_APPOINTMENTS,
-    url: EPages.ADMIN_APPOINTMENTS,
-    icon: <CalendarCheck />
   },
   {
     slug: "configuracoes",

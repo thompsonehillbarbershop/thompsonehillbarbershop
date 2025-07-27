@@ -2,7 +2,7 @@
 
 import { DataTable } from "../ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
+import { format, differenceInMinutes } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { EAppointmentStatuses, EPaymentMethod, EPaymentMethodMapper, IAppointmentView } from "@/models/appointment"
 import { formatCurrency } from "@/lib/utils"
@@ -31,15 +31,47 @@ export default function AppointmentsTable({
       },
       {
         accessorKey: "customer.phoneNumber",
-        header: () => <p className="hidden sm:block text-center">Telefone</p>,
-        cell: (row) => <p className="hidden sm:block text-center">{row.getValue() as string}</p>,
+        header: () => <p className="text-center">Telefone</p>,
+        cell: (row) => <p className="text-center">{row.getValue() as string}</p>,
       },
       {
         accessorKey: "createdAt",
-        header: () => <p className="hidden sm:block text-center">Entrada em</p>,
-        cell: (row) => <p className="hidden sm:block text-center">{format(new Date(row.getValue() as string), "dd/MM/yy - HH:mm", {
+        header: () => <p className="text-center">Entrada em</p>,
+        cell: (row) => <p className="text-center">{format(new Date(row.getValue() as string), "dd/MM/yy - HH:mm", {
           locale: ptBR,
         })}</p>,
+      },
+      {
+        id: "waitingTime",
+        header: () => <p className="text-center">Tempo de Espera</p>,
+        cell: (row) => {
+          const appointment = row.row.original
+          const createdAt = new Date(appointment.createdAt)
+          const onServiceAt = appointment.onServiceAt ? new Date(appointment.onServiceAt) : null
+
+          if (!onServiceAt) {
+            return <p className="text-center">-</p>
+          }
+
+          const waitingTimeMinutes = differenceInMinutes(onServiceAt, createdAt)
+          return <p className="text-center">{waitingTimeMinutes} min</p>
+        },
+      },
+      {
+        id: "serviceTime",
+        header: () => <p className="text-center">Tempo de Atendimento</p>,
+        cell: (row) => {
+          const appointment = row.row.original
+          const onServiceAt = appointment.onServiceAt ? new Date(appointment.onServiceAt) : null
+          const finishedAt = appointment.finishedAt ? new Date(appointment.finishedAt) : null
+
+          if (!onServiceAt || !finishedAt) {
+            return <p className="text-center">-</p>
+          }
+
+          const serviceTimeMinutes = differenceInMinutes(finishedAt, onServiceAt)
+          return <p className="text-center">{serviceTimeMinutes} min</p>
+        },
       },
       {
         accessorKey: "finalPrice",

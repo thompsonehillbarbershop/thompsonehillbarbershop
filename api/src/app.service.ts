@@ -93,29 +93,36 @@ export class AppService {
       name: "José Alberto",
       password: "123456",
       role: EUserRole.ATTENDANT,
-      userName: "jalberto2",
+      userName: "jalberto",
       status: EUserStatus.ACTIVE
     }))
     await this.usersService.create(getRandomUserData({
       name: "Ana Maria",
       password: "123456",
       role: EUserRole.ATTENDANT,
-      userName: "amaria2",
+      userName: "amaria",
       status: EUserStatus.ACTIVE
     }))
     await this.usersService.create(getRandomUserData({
       name: "Carlos Roberto",
       password: "123456",
       role: EUserRole.ATTENDANT,
-      userName: "croberto2",
+      userName: "croberto",
       status: EUserStatus.ACTIVE
     }))
     await this.usersService.create(getRandomUserData({
       name: "Maria Clara",
       password: "123456",
       role: EUserRole.ATTENDANT,
-      userName: "mclara2",
+      userName: "mclara",
       status: EUserStatus.INACTIVE
+    }))
+    await this.usersService.create(getRandomUserData({
+      name: "Totem",
+      password: "123456",
+      role: EUserRole.TOTEM,
+      userName: "totem",
+      status: EUserStatus.ACTIVE
     }))
     console.log("Attendants seeded...")
   }

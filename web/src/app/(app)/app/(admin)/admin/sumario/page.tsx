@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from "react"
 
 import { DateRange } from "react-day-picker"
 import { Calendar } from "@/components/ui/calendar"
-import { addHours } from "date-fns"
+import { addHours, startOfDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { format } from "date-fns"
 import {
@@ -24,16 +24,14 @@ import {
 export default function AttendantSummaryPage() {
   const today = new Date()
   const [date, setDate] = useState<DateRange | undefined>({
-    from: today,
-    to: undefined,
+    from: startOfDay(today),
+    to: startOfDay(today),
   })
   const [refetchCount, setRefetchCount] = useState(0)
   const [summaryData, setSummaryData] = useState<IAppointmentSummaryView[] | null>(null)
   const { daySummary, isGettingDaySummary } = useAdmin()
 
   useEffect(() => {
-    console.log("Fetching day summary for date range:", date)
-
     const from = date?.from ? addHours(new Date(date.from), 3) : new Date()
     const to = date?.to ? addHours(new Date(date.to), 3) : new Date()
 
@@ -60,7 +58,7 @@ export default function AttendantSummaryPage() {
     <div className="w-full flex flex-col max-w-[1440px] mx-auto">
       <div className="w-full flex flex-row justify-between items-center mb-4">
         <H1>Resumo do Dia</H1>
-        <div className="">
+        <div className="flex flex-row items-center gap-2">
           <div className="*:not-first:mt-2">
             <Popover>
               <PopoverTrigger asChild>
@@ -101,13 +99,14 @@ export default function AttendantSummaryPage() {
               </PopoverContent>
             </Popover>
           </div>
+          <Button
+            isLoading={isGettingDaySummary}
+            onClick={() => {
+              setRefetchCount(prev => prev + 1)
+            }}
+          ><RefreshCwIcon />Atualizar</Button>
         </div>
-        <Button
-          isLoading={isGettingDaySummary}
-          onClick={() => {
-            setRefetchCount(prev => prev + 1)
-          }}
-        ><RefreshCwIcon />Atualizar</Button>
+        <div></div>
       </div>
       <div className="w-full flex flex-col lg:flex-row justify-start items-start gap-2 xl:gap-6">
         <Card className="w-full lg:w-1/2 xl:w-64">

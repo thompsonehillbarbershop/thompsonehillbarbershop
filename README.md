@@ -283,4 +283,6 @@ Minimum requirements to self-host the application:
 - **2025-07-22**
   - Web - Skip service select in totem | Increased virtual numpad size | Removed "/" from virtual numpad | Updated timestamp in admin & attendant summary. | 90 minutes auto-logout feature for attendant layout.
   - Api - Set appointment service to be optional | Update DB schema | Update appointment service | Update appointment DTO | updated appointment specs
+- **2025-07-22**
+- Web - Update UI screens
 

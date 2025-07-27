@@ -98,11 +98,16 @@ export class AppointmentsController {
     description: 'API Key for alternative authentication',
     required: false,
   })
+  @ApiBody({ type: SummaryBodyInput })
   @ApiOperation({ summary: 'Get day summary overview for a user' })
   @ApiOkResponse({ type: AppointmentSummaryView })
-  async getSummary(@Param("userId") userId: string) {
+  async getSummary(
+    @Param("userId") userId: string,
+    @Query() dto: SummaryBodyInput) {
+
     const { results, total } = await this.appointmentsService.findAll({
-      onlyToday: true,
+      fromDate: dto.from,
+      toDate: dto.to,
       attendantId: userId,
       limit: 1000,
       status: EAppointmentStatuses.FINISHED,

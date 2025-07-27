@@ -39,7 +39,7 @@ export default function AttendantLayout({ children }: PropsWithChildren) {
       >
         <AttendantSidebar role={profile?.role || EUserRole.ATTENDANT} />
         <div className='w-full'>
-          <AttendantHeader userName={profile?.name || ""} />
+          <AttendantHeader profile={profile} setProfile={setProfile} />
           <main
             className="w-full h-full bg-[url(/images/background.webp)] bg-no-repeat bg-cover"
           >
