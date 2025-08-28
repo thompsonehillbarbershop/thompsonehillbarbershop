@@ -444,6 +444,7 @@ export class AppService {
 
   async cleanup() {
     await this.restoreFirebase()
+    await this.usersService.setAllUsersInactive()
     return
   }
 }

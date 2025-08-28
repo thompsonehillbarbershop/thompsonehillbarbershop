@@ -135,25 +135,17 @@ export class UsersService {
     return new User(toUser(updatedUser))
   }
 
+  async setAllUsersInactive(): Promise<{ modifiedCount: number }> {
+    const result = await this.userSchema.updateMany(
+      { deletedAt: null }, // Only update non-deleted users
+      { status: EUserStatus.INACTIVE }
+    )
+    return { modifiedCount: result.modifiedCount }
+  }
+
   async remove({ id, userName }: { id?: string, userName?: string }): Promise<User> {
     const user = await this.findOne({ id, userName })
     await this.userSchema.findOneAndDelete({ _id: user.id })
-
-    // Delete the user profile image from Firebase Storage
-    // if (user.profileImage) {
-    //   try {
-    //     const filePathRaw = `users/${user.userName.toLowerCase().trim()}/profile.${user.profileImage.split('.').pop() || 'jpg'}`
-
-    //     const filePath = typeof filePathRaw === 'string' ? filePathRaw.split("?")[0] : ''
-
-    //     const fileRef = this.firebaseService.getStorage().file(filePath)
-
-    //     await fileRef.delete()
-    //   } catch (error) {
-    //     console.error("Error deleting file from Firebase Storage:", error, user)
-    //     throw new Error("Error deleting file from Firebase Storage")
-    //   }
-    // }
 
     return user
   }
