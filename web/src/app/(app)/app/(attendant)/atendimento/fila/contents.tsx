@@ -97,10 +97,10 @@ export default function AttendantQueuePageContents() {
     return []
   }, [queue, userId, showAll])
 
-  async function onAttendanceStart(appointment: IFirebaseAppointment) {
+  async function onAttendanceStart(appointment: IFirebaseAppointment, attendantId: string) {
     const response = await startAttendance({
       id: appointment.id,
-      attendantId: userId,
+      attendantId,
     })
 
     if (response.error) {
@@ -188,7 +188,7 @@ export default function AttendantQueuePageContents() {
           index={index}
           appointment={appointment}
           userId={userId}
-          onAttendanceStart={onAttendanceStart}
+          onAttendanceStart={() => onAttendanceStart(appointment, userId)}
           onAttendanceEnd={onAttendanceEnd}
           onSettingsClick={() => {
             setSelectedAppointment(appointment)
