@@ -41,6 +41,7 @@ export class AuthController {
     example: 'Invalid credentials'
   })
   login(@Body() data: AuthLoginInput) {
+    console.log("Logging in user |", data)
     return this.authService.login(data)
   }
 

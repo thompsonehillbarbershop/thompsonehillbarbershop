@@ -2,14 +2,14 @@
 
 import { H1, Label } from "@/components/ui/typography"
 
-import { useAdmin } from "@/hooks/use-admin"
+import { useUsers } from "@/hooks/use-users"
 import { EUserRole, EUserStatus, IUserView } from "@/models/user"
 import { useMemo } from "react"
 import { Card, CardContent, CardDescription } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 
 export default function AttendantsPage() {
-  const { users, updateUser } = useAdmin()
+  const { users, updateUser } = useUsers()
 
   const attendants = useMemo(() => {
     return users?.filter((user) => (user.role === EUserRole.ATTENDANT || user.role === EUserRole.ATTENDANT_MANAGER)).sort((a, b) => {
