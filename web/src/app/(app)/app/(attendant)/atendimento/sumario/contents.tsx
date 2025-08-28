@@ -117,7 +117,7 @@ export default function AttendantSummaryPage({ userId }: { userId: string }) {
             </div>
             <div className="w-full flex flex-row justify-between items-center gap-4">
               <Label className="flex-1">Serviços</Label>
-              <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{summary.totalServiceWeight}</Indicator>
+              <Indicator className="flex-1 justify-center text-lg md:text-lg font-semibold">{summary.totalServiceWeight.toFixed(2).replace(".", ",")}</Indicator>
             </div>
             <div className="w-full flex flex-row justify-between items-center gap-4">
               <Label className="flex-1">Faturamento Serviços </Label>

@@ -30,14 +30,14 @@ export const createServiceSchema = z.object({
   imageContentType: z.string().optional(),
   weight: z.union([
     z.string({ message: "Valor inválido" })
-      .refine((val) => /^\d+$/.test(val), {
-        message: "Formato inválido. Insira apenas números inteiros positivos."
-      }) // Permite apenas números inteiros positivos
-      .transform((val) => parseInt(val, 10)) // Converte para inteiro
-      .refine((val) => val >= 1, {
-        message: "O valor precisa ser positivo e maior que um"
+      .refine((val) => /^(\d+([.,]\d*)?|\d*[.,]\d+)$/.test(val), {
+        message: "Formato inválido. Use apenas números com . ou , como separador decimal."
+      })
+      .transform((val) => parseFloat(val.replace(",", "."))) // Converte , para . antes do parse
+      .refine((val) => !isNaN(val) && val > 0, {
+        message: "O valor precisa ser positivo e maior que zero"
       }),
-    z.number().int().positive(),
+    z.number().positive(),
   ])
 })
 

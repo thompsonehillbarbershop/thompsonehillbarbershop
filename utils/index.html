@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thompson & Hill - Barbearia Clássica</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'spectra-semibold';
+      src: url('https://fonts.cdnfonts.com/css/spectra') format('truetype');
+      font-weight: 600;
+      font-style: normal;
+    }
+
+    body {
+      font-family: 'spectra-semibold', sans-serif;
+      background-color: #1d3436;
+    }
+
+    .hero-img {
+      background-image: url('https://images.unsplash.com/photo-1605497788044-5a32c7078486?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+      background-size: cover;
+      background-position: center;
+      height: 60vh;
+      position: relative;
+    }
+
+    .overlay {
+      background-color: rgba(29, 52, 54, 0.7);
+    }
+
+    .gold-text {
+      color: #b5964b;
+    }
+
+    .cream-text {
+      color: #e4d59d;
+    }
+
+    .light-text {
+      color: #F2F2F2;
+    }
+
+    .gold-border {
+      border-color: #b5964b;
+    }
+
+    .cream-bg {
+      background-color: #e4d59d;
+    }
+
+    .service-card {
+      transition: all 0.3s ease;
+    }
+
+    .service-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .logo-placeholder {
+      width: 200px;
+      height: 100px;
+      background-color: rgba(181, 150, 75, 0.2);
+      border: 2px dashed #b5964b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e4d59d;
+    }
+  </style>
+</head>
+
+<body class="text-gray-100">
+  <!-- Header -->
+  <header class="py-4 px-6 md:px-12 flex justify-between items-center">
+    <div class="logo-placeholder">
+      (SUA LOGO)
+    </div>
+    <nav class="hidden md:block">
+      <ul class="flex space-x-8">
+        <li><a href="#sobre" class="cream-text hover:gold-text transition">Sobre Nós</a></li>
+        <li><a href="#servicos" class="cream-text hover:gold-text transition">Serviços</a></li>
+        <li><a href="#produtos" class="cream-text hover:gold-text transition">Produtos</a></li>
+        <li><a href="#horarios" class="cream-text hover:gold-text transition">Horários</a></li>
+        <li><a href="#contato" class="cream-text hover:gold-text transition">Contato</a></li>
+      </ul>
+    </nav>
+    <button class="md:hidden text-2xl cream-text">
+      <i class="fas fa-bars"></i>
+    </button>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-img">
+    <div class="overlay h-full w-full flex items-center justify-center">
+      <div class="text-center px-4">
+        <h1 class="text-4xl md:text-6xl mb-4 gold-text font-serif">THOMPSON & HILL</h1>
+        <p class="text-xl md:text-2xl mb-8 cream-text font-serif">Barbearia Clássica </p>
+        <p class="text-lg md:text-xl mb-8 light-text max-w-2xl mx-auto">"Chega, senta e corta. Sem agendamentos, como se
+          fazia antigamente."</p>
+        <a href="#servicos"
+          class="px-8 bg-transparent border-2 border-yellow-600 text-yellow-600 py-3 font-bold hover:bg-yellow-600 hover:text-black transition">NOSSOS
+          SERVIÇOS</a>
+        <a href="#produtos"
+          class="px-8 bg-transparent border-2 border-yellow-600 text-yellow-600 py-3 font-bold hover:bg-yellow-600 hover:text-black transition">NOSSOS
+          PRODUTOS</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="sobre" class="py-16 px-6 md:px-12 max-w-6xl mx-auto">
+    <div class="flex flex-col md:flex-row items-center">
+      <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+        <h2 class="text-3xl md:text-4xl mb-6 gold-text font-serif uppercase">NOSSA HISTÓRIA</h2>
+        <p class="mb-4 cream-text">Inspirada nos tradicionais barber shops de Londres dos anos 1940, a Thompson & Hill
+          traz de volta a essência do cuidado masculino em sua forma mais autêntica.</p>
+        <p class="mb-4 cream-text">Nossa fachada lembra um pub londrino clássico, onde o ambiente acolhedor e o
+          atendimento personalizado fazem nossos clientes se sentirem em casa.</p>
+        <p class="mb-4 cream-text">Aqui, mantemos viva a tradição: sem agendamentos. O cliente chega, senta e corta,
+          como nos bons e velhos tempos.</p>
+      </div>
+      <div class="md:w-1/2">
+        <img
+          src="https://images.unsplash.com/photo-1590172453775-7f9ea0fe42a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+          alt="Interior da barbearia" class="rounded-lg shadow-lg">
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="servicos" class="py-16 px-6 md:px-12 bg-black bg-opacity-20">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl md:text-4xl mb-12 text-center gold-text font-serif uppercase">NOSSOS SERVIÇOS</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Service 1 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">CORTE</h3>
+          <p class="cream-text mb-4">Corte de cabelo </p>
+          <p class="text-2xl light-text">R$ 40,00</p>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">BARBA</h3>
+          <p class="cream-text mb-4">Barba feita com navalha e toalha quente</p>
+          <p class="text-2xl light-text">R$ 35,00</p>
+        </div>
+        <!-- Service 3 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">SOBRANCELHA</h3>
+          <p class="cream-text mb-4">Corte e acabamento</p>
+          <p class="text-2xl light-text">R$ 10,00</p>
+        </div>
+        <!-- Service 4 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">COMBO CORTE+BARBA</h3>
+          <p class="cream-text mb-4">O melhor dos dois serviços com economia</p>
+          <p class="text-2xl light-text">R$ 65,00</p>
+        </div>
+        <!-- Service 5 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">COMBO CORTE+BARBA+SOBRANCELHA</h3>
+          <p class="cream-text mb-4">Serviço completo</p>
+          <p class="text-2xl light-text">R$ 70,00</p>
+        </div>
+        <!-- Service 6 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">DEPILAÇÃO (orelha)</h3>
+          <p class="cream-text mb-4">Limpeza completa de orelha</p>
+          <p class="text-2xl light-text">R$ 20,00</p>
+        </div>
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">DEPILAÇÃO (nariz)</h3>
+          <p class="cream-text mb-4">Limpeza completa de nariz</p>
+          <p class="text-2xl light-text">R$ 20,00</p>
+        </div>
+        <!-- Service 7 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">COMBO DEPILAÇÃO</h3>
+          <p class="cream-text mb-4">Depilação completa orelha e nariz</p>
+          <p class="text-2xl light-text">R$ 30,00</p>
+        </div>
+        <!-- Service 8 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">HIDRATAÇÃO</h3>
+          <p class="cream-text mb-4">Hidratação de cabelo</p>
+          <p class="text-2xl light-text">R$ 25,00</p>
+        </div>
+        <!-- Service 9 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">SELAGEM</h3>
+          <p class="cream-text mb-4">Selagem de Cabelo</p>
+          <p class="text-2xl light-text">R$ 90,00</p>
+        </div>
+        <!-- Service 10 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">ACABAMENTO</h3>
+          <p class="cream-text mb-4">Aquela manutenção básica</p>
+          <p class="text-2xl light-text">R$ 15,00</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Products Section -->
+  <section id="produtos" class="py-16 px-6 md:px-12 max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl md:text-4xl mb-12 text-center gold-text font-serif uppercase">NOSSOS PRODUTOS</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Product 1 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">CERA PARA CABELO MATE</h3>
+          <p class="cream-text mb-4">Nossa cera com efeito mate </p>
+          <p class="text-2xl light-text">R$ 50,00</p>
+        </div>
+
+        <!-- Product 2 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">CERA PARA CABELO BRILHO</h3>
+          <p class="cream-text mb-4">Nossa cera com efeito brilho</p>
+          <p class="text-2xl light-text">R$ 50,00</p>
+        </div>
+        <!-- Product 3 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">POMADA EM PÓ</h3>
+          <p class="cream-text mb-4">Dá mais volume, textura e fixação</p>
+          <p class="text-2xl light-text">R$ 50,00</p>
+        </div>
+        <!-- Product 4 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">BALM</h3>
+          <p class="cream-text mb-4">Modela o penteado, controla os frizz e hidrata</p>
+          <p class="text-2xl light-text">R$ 50,00</p>
+        </div>
+        <!-- Product 5 -->
+        <div class="service-card bg-opacity-20 bg-black p-6 rounded-lg border-l-4 gold-border">
+          <h3 class="text-xl gold-text mb-2 font-serif">OLEO PARA BARBA</h3>
+          <p class="cream-text mb-4">Hidrata e amacia a barba</p>
+          <p class="text-2xl light-text">R$ 50,00</p>
+        </div>
+      </div>
+    </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Hours Section -->
+  <section id="horarios" class="py-16 px-6 md:px-12 bg-black bg-opacity-20">
+    <div class="text-center">
+      <h2 class="text-3xl md:text-4xl mb-8 gold-text font-serif uppercase">HORÁRIOS DE ATENDIMENTO</h2>
+      <div class="bg-black bg-opacity-20 py-8 px-6 md:px-12 rounded-lg inline-block">
+        <p class="text-xl cream-text mb-4"><i class="far fa-clock gold-text mr-2"></i> Segunda à Sábado</p>
+        <p class="text-2xl light-text mb-6">08:00 às 20:00</p>
+        <p class="cream-text italic">Sem agendamentos. Trabalhamos com ordem de chegada</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contato" class="py-16 px-6 md:px-12 max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl md:text-4xl mb-12 text-center gold-text font-serif uppercase">CONTATO & LOCALIZAÇÃO</h2>
+
+      <div class="flex flex-col md:flex-row">
+        <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+          <div class="mb-6">
+            <h3 class="text-xl gold-text mb-2 font-serif"><i class="fas fa-map-marker-alt mr-2"></i> Endereço</h3>
+            <p class="cream-text">Rua Ramiro Barcelos 2337, Porto Alegre</p>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-xl gold-text mb-2 font-serif"><i class="fas fa-phone-alt mr-2"></i> Telefone</h3>
+            <p class="cream-text">(51) 98916-6790</p>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-xl gold-text mb-2 font-serif"><i class="fas fa-envelope mr-2"></i> Email</h3>
+            <p class="cream-text">contato@thompsonandhill.com.br</p>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-xl gold-text mb-2 font-serif"><i class="fab fa-instagram mr-2"></i> Instagram</h3>
+            <p class="cream-text">@thompsonandhill</p>
+          </div>
+        </div>
+
+        <div class="md:w-1/2">
+          <div class="aspect-w-16 aspect-h-9">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3453.6653764121833!2d-51.19781322429539!3d-30.04238197491845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x951978fe418740a9%3A0x7d3c8a3f0a3a3a3a!2sRua%20Ramiro%20Barcelos%2C%202337%20-%20Rio%20Branco%2C%20Porto%20Alegre%20-%20RS%2C%2090035-003!5e0!3m2!1spt-BR!2sbr!4v1693426835004!5m2!1spt-BR!2sbr"
+              width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-lg"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 px-6 md:px-12 border-t border-gray-700">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+      <div class="mb-4 md:mb-0">
+        <div class="logo-placeholder inline-flex">
+          [SUA LOGO AQUI]
+        </div>
+      </div>
+
+      <div class="text-center md:text-right">
+        <p class="cream-text mb-2">&copy; 2025 Thompson & Hill Barbershop</p>
+        <p class="cream-text italic">"Preservando a tradição do clássico"</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Simple JavaScript for mobile menu toggle (would be expanded in a real implementation)
+    document.querySelector('button').addEventListener('click', function () {
+      const nav = document.querySelector('nav')
+      nav.classList.toggle('hidden')
+      nav.classList.toggle('block')
+      nav.classList.toggle('absolute')
+      nav.classList.toggle('top-16')
+      nav.classList.toggle('right-0')
+      nav.classList.toggle('bg-gray-900')
+      nav.classList.toggle('bg-opacity-90')
+      nav.classList.toggle('px-4')
+      nav.classList.toggle('py-2')
+      nav.classList.toggle('rounded')
+    })
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault()
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        })
+      })
+    });
+  </script>
+</body>
+
+</html>

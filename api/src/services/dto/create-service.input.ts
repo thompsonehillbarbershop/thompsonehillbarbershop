@@ -36,7 +36,7 @@ export class CreateServiceInput {
   imageContentType?: string
 
   @ApiProperty()
-  @IsInt()
-  @Min(1)
+  @IsNumber()
+  @Min(0)
   weight: number
 }

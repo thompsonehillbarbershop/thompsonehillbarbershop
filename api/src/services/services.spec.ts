@@ -226,5 +226,68 @@ describe("Services Module", () => {
       expect(deletedUser).toHaveProperty("id", service.id)
       expect(deletedUser).toHaveProperty("deletedAt")
     })
+
+
+    it("should create a service with decimal weight", async () => {
+      const data: CreateServiceInput = {
+        name: "Test Service",
+        value: 100,
+        weight: 5.25,
+      }
+
+      const service = await servicesService.create(data)
+      expect(service).toBeDefined()
+      expect(service.name).toBe(data.name)
+      expect(service.description).toBeUndefined()
+      expect(service.value).toBe(data.value)
+      expect(service.createdAt).toBeDefined()
+      expect(service.weight).toBe(data.weight)
+
+      const foundService = await servicesService.findOne(service.id)
+      expect(foundService).toBeDefined()
+      expect(foundService.name).toBe(data.name)
+      expect(foundService.description).toBeUndefined()
+      expect(foundService.value).toBe(data.value)
+      expect(foundService.createdAt).toBeDefined()
+      expect(foundService.weight).toBe(data.weight)
+
+      await servicesService.remove(service.id)
+    })
+
+    it("should update a service with decimal weight", async () => {
+      const data = getRandomServiceCreateInputData()
+      const service = await servicesService.create(data)
+
+      const updatedData: CreateServiceInput = {
+        name: "Updated Service",
+        description: "Updated Description",
+        value: 200,
+        promoValue: 100,
+        promoEnabled: true,
+        weight: 10.75,
+      }
+
+      const updatedService = await servicesService.update(service.id, updatedData)
+      expect(updatedService).toBeDefined()
+      expect(updatedService.name).toBe(updatedData.name)
+      expect(updatedService.description).toBe(updatedData.description)
+      expect(updatedService.value).toBe(updatedData.value)
+      expect(updatedService.promoValue).toBe(updatedData.promoValue)
+      expect(updatedService.promoEnabled).toBe(updatedData.promoEnabled)
+      expect(updatedService.weight).toBe(updatedData.weight)
+      expect(updatedService.createdAt).toBeDefined()
+
+      const foundService = await servicesService.findOne(service.id)
+      expect(foundService).toBeDefined()
+      expect(foundService.name).toBe(updatedData.name)
+      expect(foundService.description).toBe(updatedData.description)
+      expect(foundService.value).toBe(updatedData.value)
+      expect(foundService.promoValue).toBe(updatedData.promoValue)
+      expect(foundService.promoEnabled).toBe(updatedData.promoEnabled)
+      expect(foundService.weight).toBe(updatedData.weight)
+      expect(foundService.createdAt).toBeDefined()
+
+      await servicesService.remove(service.id)
+    })
   })
 })

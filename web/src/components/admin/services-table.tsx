@@ -66,7 +66,7 @@ export default function ServicesTable({
       {
         accessorKey: "weight",
         header: () => <p className="text-center">Peso</p>,
-        cell: (row) => <p className="text-center">{row.getValue() as string}</p>,
+        cell: (row) => <p className="text-center">{Number(row.getValue()).toFixed(2).replace(".", ",")}</p>,
       },
       {
         accessorKey: "description",

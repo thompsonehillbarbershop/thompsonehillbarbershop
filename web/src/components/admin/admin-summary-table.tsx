@@ -197,7 +197,7 @@ export default function AdminSummaryTable({
           const isTotal = attendantName === "TOTAL"
           return (
             <p className={`text-center ${isTotal ? "font-bold" : ""}`}>
-              {Number(row.getValue())}
+              {Number(row.getValue()).toFixed(2).replace(".", ",")}
             </p>
           )
         },
